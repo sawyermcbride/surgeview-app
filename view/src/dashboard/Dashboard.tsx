@@ -8,6 +8,8 @@ const { Title, Text } = Typography;
 const { Header, Sider, Content } = Layout;
 
 const Dashboard: React.FC = () => {
+  const [selectedPage, setSelectedPage] = useState("dashboard");
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider collapsible>

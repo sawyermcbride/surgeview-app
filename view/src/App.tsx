@@ -11,7 +11,7 @@ import AuthLayout from "./components/AuthLayout";
 import LoginForm from "./components/LoginForm";
 import Dashboard from "./dashboard/Dashboard";
 import SignupForm from "./components/SignupForm";
-
+import GetStarted from "./pages/GetStarted";
 const App: React.FC = () => {
   const isAuthenticated = !!localStorage.getItem("token");
 
@@ -38,6 +38,7 @@ const App: React.FC = () => {
             </AuthLayout>
           }
         />
+        <Route path="/get-started" element={<GetStarted />} />
       </Routes>
     </Router>
   );
