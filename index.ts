@@ -17,16 +17,23 @@ import { expressjwt as jwt } from "express-jwt";
 
 dotenv.config();
 
+
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET is not defined");
+}
+
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const port = 3000;
+const port = 3001;
+
+console.log("JWT_SECRET: ", process.env.JWT_SECRET);
 
 app.use(
   cors({
     origin:
-      "https://c304dd4f-9bd6-4c65-acc2-d9c0935d9e52-00-3pwa21tc6kufh.janeway.replit.dev:3001",
+      "http://localhost:3000",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
   }),

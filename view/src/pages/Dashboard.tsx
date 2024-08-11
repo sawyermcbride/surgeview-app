@@ -1,6 +1,6 @@
 // src/components/Dashboard/Dashboard.tsx
 import React, { useState } from "react";
-import DashboardView from "./DashboardView";
+import DashboardView from "../dashboard/DashboardView";
 
 import { Layout, Menu, Button, Typography } from "antd";
 import { HomeOutlined, UserOutlined, SettingOutlined } from "@ant-design/icons";

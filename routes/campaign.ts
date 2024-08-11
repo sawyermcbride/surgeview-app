@@ -4,9 +4,6 @@ import { query } from "../db";
 
 const router = express.Router();
 
-if (!process.env.JWT_SECRET) {
-  throw new Error("JWT_SECRET is not defined");
-}
 router.post("/add", async (req: Request, res: Response) => {
   console.log("/campaign/add");
   const { videoLink, plan } = req.body;

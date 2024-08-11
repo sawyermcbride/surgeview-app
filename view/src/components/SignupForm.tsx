@@ -12,20 +12,31 @@ import {
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { useNavigate } from "react-router";
+import {Link} from "react-router-dom";
+import LoginForm from "./LoginForm";
+import { useAuth } from "./AuthContext";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 const SignupForm: React.FC = () => {
   const navigate = useNavigate();
+  const {login} = useAuth();
 
   const onFinish = async (values: any) => {
     try {
       const response = await axios.post(
-        "https://c304dd4f-9bd6-4c65-acc2-d9c0935d9e52-00-3pwa21tc6kufh.janeway.replit.dev/signup", // Replace with your API endpoint
+        "http://localhost:3001/signup", // Replace with your API endpoint
         values,
       );
+
+      const { token } = response.data;
+
+      localStorage.setItem("token", token);
+
+      login()
+
       console.log("Success:", response.data);
-      navigate("/dashboard");
+      navigate("/get-started");
       // Optionally, handle successful signup (e.g., redirect to login)
     } catch (error: any) {
       console.error("Error:", error.response?.data || error.message);
@@ -95,6 +106,13 @@ const SignupForm: React.FC = () => {
         <Button type="primary" htmlType="submit" block>
           Sign Up
         </Button>
+        <div style={{ marginTop: '10px', textAlign: 'center' }}>
+          <Text type="secondary">
+            Already have an account? <Link to="/login">Log in</Link>
+            {/* Or use the anchor tag if not using React Router */}
+            {/* Already have an account? <a href="/login">Log in</a> */}
+          </Text>
+        </div>
       </Form.Item>
     </Form>
   );

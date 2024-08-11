@@ -4,22 +4,28 @@ import React from "react";
 import { Form, Input, Button, Typography, message } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router";
+import {Link} from "react-router-dom";
 import axios from "axios";
-import api from "../utils/api";
-const { Title } = Typography;
+import { useAuth } from "./AuthContext";
+
+const { Title, Text } = Typography;
 
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();
 
+  const {login} = useAuth();
+
   const onFinish = async (values: any) => {
     try {
+      console.log("Submitting form");
       const response = await axios.post(
-        "https://c304dd4f-9bd6-4c65-acc2-d9c0935d9e52-00-3pwa21tc6kufh.janeway.replit.dev/login",
+        "http://localhost:3001/login",
         values,
       );
       const { token } = response.data;
 
       localStorage.setItem("token", token);
+      login()
       console.log("Navigating to /dashboard");
       navigate("/dashboard");
     } catch (err) {
@@ -45,9 +51,14 @@ const LoginForm: React.FC = () => {
         <Input.Password prefix={<LockOutlined />} placeholder="Password" />
       </Form.Item>
       <Form.Item>
-        <Button type="primary" htmlType="submit" block>
+        <Button type="primary" htmlType="submit"  block>
           Login
         </Button>
+        <div style={{ marginTop: '10px', textAlign: 'center' }}>
+          <Text type="secondary">
+            Don't have an account? <Link to="/signup">Sign up</Link>
+          </Text>
+        </div>
       </Form.Item>
     </Form>
   );

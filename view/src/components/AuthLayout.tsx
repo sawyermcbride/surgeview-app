@@ -31,9 +31,9 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
         <Row justify="center">
           <Col>
             <img
-              src=""
+              src="surge_view_new_cropped_transparent.png"
               alt="SurgeView Marketing"
-              style={{ width: 100, marginBottom: 24 }}
+              style={{ width: 200, marginBottom: 24 }}
             />
           </Col>
         </Row>

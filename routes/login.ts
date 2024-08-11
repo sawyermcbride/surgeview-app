@@ -7,6 +7,7 @@ import generateToken from "../utils/jwtHelper";
 const router = express.Router();
 
 router.post("/", async (req: Request, res: Response) => {
+  console.log("login request /login");
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({ error: "Missing email or password" });

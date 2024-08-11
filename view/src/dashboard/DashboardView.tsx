@@ -30,24 +30,6 @@ const DashboardView = () => {
               alignItems: "center",
             }}
           >
-            <Button
-              type="primary"
-              size="large"
-              style={{ width: "300px", height: "60px" }}
-              onClick={() => setDashboardView(1)}
-            >
-              Start First Views Campaign
-            </Button>
-            <Text
-              style={{
-                marginTop: "16px",
-                fontSize: "16px",
-                textAlign: "center",
-              }}
-            >
-              Select a video to utilize in your first campaign and see new views
-              and subscribers within an hour.
-            </Text>
           </div>
         );
       case 1:
