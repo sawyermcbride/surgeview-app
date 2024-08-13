@@ -4,6 +4,7 @@ import { query } from "../db";
 
 const router = express.Router();
 
+
 router.post("/add", async (req: Request, res: Response) => {
   console.log("/campaign/add");
   const { videoLink, plan } = req.body;
@@ -33,7 +34,7 @@ router.post("/add", async (req: Request, res: Response) => {
 
     await query("COMMIT");
 
-    res.status(201).json({ message: "end" });
+    res.status(201).json({ message: "Campaign added" });
   } catch (err) {
     await query("ROLLBACK");
     res.status(500).json({ message: "Error adding campaign", err });

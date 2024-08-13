@@ -25,13 +25,15 @@ const SignupForm: React.FC = () => {
   const onFinish = async (values: any) => {
     try {
       const response = await axios.post(
-        "http://localhost:3001/signup", // Replace with your API endpoint
+        "http://10.0.0.47:3001/signup",  // Replace with your API endpoint
         values,
       );
 
       const { token } = response.data;
 
       localStorage.setItem("token", token);
+      localStorage.setItem("email", values.email);
+
 
       login()
 

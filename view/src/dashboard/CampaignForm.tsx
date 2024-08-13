@@ -15,7 +15,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ setDashboardView }) => {
   const onFinish = async (values: any) => {
     try {
       const response = await axios.post(
-        "localhost:3000/campaign/add",
+        "localhost:3001/campaign/add",
         values,
         {
           headers: {

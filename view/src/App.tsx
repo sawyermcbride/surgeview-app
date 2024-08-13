@@ -6,6 +6,10 @@ import {
   Navigate,
 } from "react-router-dom";
 
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+
+
 import "antd/dist/reset.css";
 import AuthLayout from "./components/AuthLayout";
 import { AuthProvider, useAuth } from "./components/AuthContext";
@@ -13,6 +17,10 @@ import LoginForm from "./components/LoginForm";
 import Dashboard from "./pages/Dashboard";
 import SignupForm from "./components/SignupForm";
 import GetStarted from "./pages/GetStarted";
+import LandingPage from "./pages/LandingPage";
+
+const stripePromise = loadStripe("pk_test_51PmqG6KG6RDK9K4gUxR1E9XN8qvunE6UUfkM1Y5skfm48UnhrQ4SjHyUM4kAsa4kpJAfQjANu6L8ikSnx6qMu4fY00I6aJBlkG");
+
 const AuthRoutes: React.FC = () => {
 
   const {isAuthenticated} = useAuth();
@@ -39,6 +47,7 @@ const AuthRoutes: React.FC = () => {
             }
           />
           <Route path="/get-started" element={isAuthenticated ? <GetStarted /> : <Navigate to="/signup"/> } />
+          <Route path="/" element={<LandingPage/>}></Route>
         </Routes>
   );
 };
@@ -47,9 +56,11 @@ const App: React.FC = () => {
 
   return (
     <AuthProvider>
-      <Router>
-        <AuthRoutes/>
-      </Router>
+      <Elements stripe={stripePromise}>
+        <Router>
+          <AuthRoutes/>
+        </Router>
+      </Elements>
     </AuthProvider>
   )
 }

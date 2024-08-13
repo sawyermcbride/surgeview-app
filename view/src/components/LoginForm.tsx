@@ -13,19 +13,19 @@ const { Title, Text } = Typography;
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();
 
-  const {login} = useAuth();
+  const {login, } = useAuth();
 
   const onFinish = async (values: any) => {
     try {
       console.log("Submitting form");
       const response = await axios.post(
-        "http://localhost:3001/login",
+        "http://10.0.0.47:3001/login",
         values,
       );
       const { token } = response.data;
-
+      console.log(token);
       localStorage.setItem("token", token);
-      login()
+      await login() 
       console.log("Navigating to /dashboard");
       navigate("/dashboard");
     } catch (err) {

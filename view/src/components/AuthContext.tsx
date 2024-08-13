@@ -1,7 +1,9 @@
-import React, { createContext, useState, useContext, ReactNode} from "react";
+import React, { createContext, useState, useContext, ReactNode, useEffect} from "react";
+import axios from "axios";
 
 interface AuthContextType {
     isAuthenticated: boolean;
+    email: String;
     login: () => void;
     logout: () => void;
 }
@@ -13,17 +15,42 @@ interface AuthProviderProps {
 }
 
 
+
 export const AuthProvider: React.FC<AuthProviderProps>  = ({children}) => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!localStorage.getItem("token"));
+
+    const [email, setEmail] = useState("");
     
-    const login = () => setIsAuthenticated(true);
-    const logout = () => {
-        localStorage.removeItem("token");
-        setIsAuthenticated(false);
+    const login = async () => {
+
+        const result = await axios.post("http://10.0.0.47:3001/auth/validate-token", null, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+        console.log("AuthContext checking token:");
+        if(result.data.valid) {
+            console.log("AuthContext token valid");
+            setEmail(result.data.message.email!);
+            setIsAuthenticated(true);
+        } else {
+            console.log("AuthContext token invalid");
+            logout();
+        }
+        console.log(result.data.valid);
+        
+
     }
 
+    const logout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("email");
+        setIsAuthenticated(false);
+    }
+    
+
     return (
-        <AuthContext.Provider value={{ isAuthenticated, login, logout}}>
+        <AuthContext.Provider value={{ isAuthenticated, login, logout, email}}>
             {children}
         </AuthContext.Provider>
     )

@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { query } from "../db";
+import generateToken from "../utils/jwtHelper";
 
 const router = Router();
 const saltrounds = 10;
@@ -12,7 +13,7 @@ const validatePassword = (password: string): boolean => {
 };
 
 router.post("/", async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  let { email, password } = req.body;
   console.log(req.body);
 
   //validate email
@@ -30,6 +31,8 @@ router.post("/", async (req: Request, res: Response) => {
     });
   }
 
+  email = email.toLowerCase()
+
   try {
     const hashedPassword = await bcrypt.hash(password, saltrounds);
 
@@ -46,7 +49,11 @@ router.post("/", async (req: Request, res: Response) => {
       [email, hashedPassword],
     );
 
-    res.status(201).json({ message: "User registered succesfully" });
+    const token = generateToken({
+      email: result.rows[0].email,
+    });
+
+    res.status(201).json({ message: "User registered succesfully", token });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Error registering user" });

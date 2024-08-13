@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import BaseStatistics from "./BaseStatistics";
 import CampaignForm from "./CampaignForm";
 import {
@@ -19,6 +19,9 @@ const { Title, Text } = Typography;
 const DashboardView = () => {
   const [dashboardView, setDashboardView] = useState(0);
 
+  useEffect( () => {
+    setDashboardView(2);
+  }, [])
   const renderView = () => {
     switch (dashboardView) {
       case 0:
@@ -40,7 +43,7 @@ const DashboardView = () => {
     }
   };
 
-  return <div>{renderView()}</div>;
+  return <div style={{width: "90%"}} >{renderView()}</div>;
 };
 
 export default DashboardView;

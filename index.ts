@@ -33,7 +33,7 @@ console.log("JWT_SECRET: ", process.env.JWT_SECRET);
 app.use(
   cors({
     origin:
-      "http://localhost:3000",
+      "http://10.0.0.47:3000",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
   }),
@@ -52,6 +52,7 @@ if (!process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET is not defined");
 }
 
+
 app.use("/signup", signupRouter);
 app.use("/login", loginRouter);
 
@@ -62,6 +63,16 @@ app.use(
     requestProperty: "user",
   }),
 );
+
+app.post("/auth/validate-token", (req: Request, res: Response) => {
+  if(!req.user) {
+    return res.status(401).json( {valid: false, message: "Token is invalid or expired"});
+  } else {
+    return res.status(200).json( {valid: true, message: req.user});
+  }
+});
+
+//Protected routes: 
 
 app.use("/campaign", campaignRouter);
 
@@ -84,6 +95,6 @@ app.use(
   },
 );
 
-app.listen(port, () => {
+app.listen(port,'0.0.0.0', () => {
   console.log(`Server running on port ${port}`);
 });
