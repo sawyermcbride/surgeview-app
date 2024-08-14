@@ -97,7 +97,7 @@ const Dashboard: React.FC = () => {
             paddingTop: "50px",
           }}
         >
-          <DashboardView />
+          <DashboardView selectedMenu={selectedKey}/>
         </Content>
       </Layout>
     </Layout>

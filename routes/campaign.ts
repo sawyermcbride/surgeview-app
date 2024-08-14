@@ -41,4 +41,28 @@ router.post("/add", async (req: Request, res: Response) => {
   }
 });
 
+router.get("/request", async (req: Request, res: Response) => {
+  console.log("/campaign/request");
+
+  try{
+    if(!req.user) {
+      return res.status(401).json({message: "User not authorized", err});
+    } else {
+      const userEmail = req.user.email;
+      const result = await query("SELECT id FROM customers WHERE email= $1", [userEmail]);
+
+      const customer_id = result.rows[0].id;
+
+      const campaigns_result = await query("SELECT * FROM campaigns WHERE customer_id = $1", [customer_id]);
+      return res.status(200).json(campaigns_result.rows);
+    }
+
+
+
+  } catch(err) {
+    return res.status(500).json({message: "Error loading campaigns", err});
+  }
+})
+
+
 export default router;

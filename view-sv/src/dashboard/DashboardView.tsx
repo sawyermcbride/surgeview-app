@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import BaseStatistics from "./BaseStatistics";
-import CampaignForm from "./CampaignForm";
+import CampaignsView from "./CampaignsView";
+
 import {
   Layout,
   Menu,
@@ -16,34 +17,39 @@ import { HomeOutlined, UserOutlined, SettingOutlined } from "@ant-design/icons";
 const { Header, Content, Sider } = Layout;
 const { Title, Text } = Typography;
 
-const DashboardView = () => {
-  const [dashboardView, setDashboardView] = useState(0);
+interface DashboardViewProps {
+  selectedMenu: string
+}
 
-  useEffect( () => {
-    setDashboardView(2);
-  }, [])
+const DashboardView: React.FC<DashboardViewProps> = (props) => {
+
+  const viewComponent = {
+
+  }
   const renderView = () => {
-    switch (dashboardView) {
-      case 0:
+    switch (props.selectedMenu) {
+      case "1":
         return (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-          </div>
+          <BaseStatistics />
         );
-      case 1:
-        return <CampaignForm setDashboardView={setDashboardView} />;
+      case "2":
+        return(
+          <CampaignsView/>
+        )
 
-      case 2:
-        return <BaseStatistics />;
+      case "3":
+        return (
+          <div>
+            
+          </div>
+        )
+        
     }
   };
 
-  return <div style={{width: "90%"}} >{renderView()}</div>;
+  return <div style={{width: "90%"}} >{
+      renderView()
+    }</div>;
 };
 
 export default DashboardView;
