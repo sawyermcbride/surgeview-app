@@ -64,7 +64,9 @@ export const useAuth = (): AuthContextType => {
     }
     return context;
 };
+const o = {};
 
+export default o;
 
 
 

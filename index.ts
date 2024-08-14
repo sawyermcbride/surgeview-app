@@ -33,7 +33,7 @@ console.log("JWT_SECRET: ", process.env.JWT_SECRET);
 app.use(
   cors({
     origin:
-      "http://10.0.0.47:3000",
+      "http://10.0.0.47:5173",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
   }),

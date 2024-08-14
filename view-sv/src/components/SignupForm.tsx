@@ -35,7 +35,7 @@ const SignupForm: React.FC = () => {
       localStorage.setItem("email", values.email);
 
 
-      login()
+      await login();
 
       console.log("Success:", response.data);
       navigate("/get-started");
