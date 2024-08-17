@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import BaseStatistics from "./BaseStatistics";
 import CampaignsView from "./CampaignsView";
+import { useAuth } from "../components/AuthContext";
+import axios from "axios";
 
 import {
   Layout,
@@ -14,6 +16,7 @@ import {
 } from "antd";
 import { HomeOutlined, UserOutlined, SettingOutlined } from "@ant-design/icons";
 
+
 const { Header, Content, Sider } = Layout;
 const { Title, Text } = Typography;
 
@@ -22,19 +25,52 @@ interface DashboardViewProps {
 }
 
 const DashboardView: React.FC<DashboardViewProps> = (props) => {
+  const {login, logout, isAuthenticated, token} = useAuth();
+  const [campaignData, setCampaignData] = useState(null);
+  const [campaignStatistics, setCampaignStatistics] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const viewComponent = {
+  const loadCampaignData = async () => {
+    try {
+        await login();
+        console.log("loading campaigns");
+        console.log(token);
+        const result = await axios.get("http://10.0.0.47:3001/campaign/request", {
+            headers:{
+                Authorization: `Bearer ${token}`
+            }
+        } );
+        setCampaignStatistics(["data"]);
+        setCampaignData(result.data);
 
+        console.log(result.data);
+    } catch(err) {
+        console.log(err);
+        console.log("error in loadCampaignData")
+        setError(err);
+    } finally {
+        setLoading(false);
+    }
   }
+
+  useEffect( () => {
+    loadCampaignData();
+
+  }, []);
+
   const renderView = () => {
     switch (props.selectedMenu) {
       case "1":
         return (
-          <BaseStatistics />
+          <BaseStatistics loading={loading} campaignStatistics = {campaignStatistics}  />
         );
       case "2":
         return(
-          <CampaignsView/>
+          <CampaignsView 
+            campaignData = {campaignData}
+            campaignStatistics = {campaignStatistics}
+          />
         )
 
       case "3":

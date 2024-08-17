@@ -5,23 +5,31 @@ import DashboardView from "../dashboard/DashboardView";
 import { Layout, Menu, Button, Typography, Dropdown } from "antd";
 import { HomeOutlined, BarsOutlined, SettingOutlined, LogoutOutlined } from "@ant-design/icons";
 import { useAuth } from "../components/AuthContext";
+import axios from "axios";
+
 
 const { Title, Text } = Typography;
 const { Header, Sider, Content } = Layout;
 
+
+
 const Dashboard: React.FC = () => {
-  
+
   const headerTitle: {[key: string]: string} = {
     "1": "Dashboard", 
     "2": "Campaigns",
     "3": "Settings"
   }
   
+
+
   const [selectedKey, setSelectedKey] = useState<string>("1");
+
   const [title, setTitle] = useState<string>(headerTitle["1"]);
-  const {email, login, logout} = useAuth();
+  const {email, login, logout, token} = useAuth();
   
   const handleLogout = () => {
+
     logout();
   }
   
@@ -35,6 +43,7 @@ const Dashboard: React.FC = () => {
   
   useEffect( () => {
     login();
+
   },[]);
 
   const handleMenuClick = (e: {key: string}) => {

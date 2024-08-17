@@ -11,7 +11,7 @@ import {
   Statistic,
   Spin,
   Flex,
-  Alert,
+  Alert
 } from "antd";
 
 import { HomeOutlined, UserOutlined, SettingOutlined } from "@ant-design/icons";
@@ -20,9 +20,12 @@ import MessageBox from "../components/MessageBox";
 // const { Header, Content, Sider } = Layout;
 // const { Title, Text } = Typography;
 
-const BaseStatistics = () => {
-  const [loading, setLoading] = useState<boolean>(true);
-  
+interface BaseStatisticsProps {
+  campaignStatisics: any;
+  loading: boolean;
+}
+
+const BaseStatistics = ({campaignStatistics, loading}) => {
 
   return (
     <div>

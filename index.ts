@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 import signupRouter from "./routes/signup";
 import loginRouter from "./routes/login";
 import campaignRouter from "./routes/campaign";
+import authRouter from "./routes/auth";
 
 import { fileURLToPath } from "url";
 import path, { dirname } from "path";
@@ -64,13 +65,7 @@ app.use(
   }),
 );
 
-app.post("/auth/validate-token", (req: Request, res: Response) => {
-  if(!req.user) {
-    return res.status(401).json( {valid: false, message: "Token is invalid or expired"});
-  } else {
-    return res.status(200).json( {valid: true, message: req.user});
-  }
-});
+
 
 //Protected routes: 
 

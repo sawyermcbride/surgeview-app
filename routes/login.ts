@@ -28,11 +28,12 @@ router.post("/", async (req: Request, res: Response) => {
     console.log("Email result in login: ");
     console.log(result.rows[0]);
     if (isMatch) {
-      const token = generateToken({
+      const {token, refreshToken} = generateToken({
         email: result.rows[0].email,
-      });
+      }, true);
+
       console.log(`Successful login by ${email}`, email);
-      return res.status(200).json({ message: "Login successful", token });
+      return res.status(200).json({ message: "Login successful", token, refreshToken});
     } else {
       return res.status(401).json({ error: "Invalid username or password" });
     }

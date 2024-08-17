@@ -1,5 +1,8 @@
-import React, { createContext, useState, useContext, ReactNode, useEffect} from "react";
+import React, { createContext, useState, useContext,
+                ReactNode, useEffect} from "react";
+
 import axios from "axios";
+import { useHistory } from "react-router-dom";
 
 interface AuthContextType {
     isAuthenticated: boolean;
@@ -22,19 +25,29 @@ export const AuthProvider: React.FC<AuthProviderProps>  = ({children}) => {
 
     const [email, setEmail] = useState("");
     const [token, setToken] = useState("");
+
+    useEffect( () => {
+        const tokenLocalStorage = localStorage.getToken();
+        if(!tokenLocalStorage) {
+            logout();
+        } else {
+            setToken(tokenLocalStorage);
+            login();
+        }
+
+    }, [])
     
     const login = async () => {
-        const tokenLocalStorage = localStorage.getItem("token") || "";
+
         try {
 
             const result = await axios.post("http://10.0.0.47:3001/auth/validate-token", null, {
                 headers: {
-                    Authorization: `Bearer ${tokenLocalStorage}`
+                    Authorization: `Bearer ${token}`
                 }
             });
             console.log("AuthContext checking token:");
             if(result.data.valid) {
-                setToken(tokenLocalStorage);
                 console.log("AuthContext token valid");
                 setEmail(result.data.message.email!);
                 setIsAuthenticated(true);
@@ -55,6 +68,7 @@ export const AuthProvider: React.FC<AuthProviderProps>  = ({children}) => {
         localStorage.removeItem("email");
         setToken("");
         setIsAuthenticated(false);
+        history.push("/login");
     }
     
 

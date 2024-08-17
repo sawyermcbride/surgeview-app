@@ -1,19 +1,29 @@
 import React, {useState, useEffect} from 'react';
-import { Table, Typography, Spin, Alert } from 'antd';
+import { Table, Typography, Spin, Alert, Button } from 'antd';
 import 'antd/dist/reset.css'; // Ensure Ant Design styles are imported
 import axios from "axios";
 import { useAuth } from '../components/AuthContext';
 import LoginForm from '../components/LoginForm';
+import { StripePaymentMethodMessagingElement } from '@stripe/stripe-js';
 const { Title } = Typography;
 
 // Sample data for the table
 
+interface CampaignsViewProps {
+    campaignData: any;
+    campaignStatistics: any;
+    loading: boolean;
+}
+interface CampaignDisplayObj {
+    start_date: string,
+    end_date: string,
+    video_link: string,
+    price: number,
+    plan_name: string
+}
+
+
 const data_columns = [
-    {
-      title: 'Campaign ID',
-      dataIndex: 'campaign_id',
-      key: 'campaign_id',
-    },
     {
       title: 'Start Date',
       dataIndex: 'start_date',
@@ -43,39 +53,43 @@ const data_columns = [
         dataIndex: 'video_link',
         key: 'video_link',
         render: (text:string) => JSON.parse(text).youtube_url
-    }
+    },
+    {
+        title: 'Actions',
+        key: 'actions',
+        render: (_: any, record: CampaignDisplayObj) => (
+          <span>
+            <Button type="default">Edit</Button>
+            <Button type="default" danger>Delete</Button>
+          </span>
+        ),
+      }
   ];
   
 
-const CampaignsView: React.FC = () => {
+const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, campaignStatistics, loading}) => {
+
     const {login, token} = useAuth();
     const [campaigns, setCampaigns] = useState<any[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
+    // const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
 
     useEffect(() => {
-        const loadCampaigns = async () => {
-            try {
-                await login();
-                console.log("campaigns view");
-                console.log(token);
-                const result = await axios.get("http://10.0.0.47:3001/campaign/request", {
-                    headers:{
-                        Authorization: `Bearer ${token}`
-                    }
-                } );
-
-                setCampaigns(result.data);
-                console.log(data);
-            } catch(err) {
-                console.log(err);
-                setError(err);
-            } finally {
-                setLoading(false);
+        console.log("CampaignsView useeffect")
+        console.log(campaignData);
+        const displayCampaignData = campaignData.map( (element) => {
+            return {
+              start_date: element.start_date,
+              end_date: element.end_date,
+              video_link: element.video_link,
+              price: element.price,
+              plan_name: element.plan_name
             }
-        }
-        loadCampaigns();
+          } );
+
+          setCampaigns(displayCampaignData);
+
     }, []);
 
     if (loading) return( 
@@ -88,7 +102,7 @@ const CampaignsView: React.FC = () => {
     return (
     <div style={{ padding: '24px' }}>
         <Table
-        dataSource={campaigns}
+        dataSource={campaignData}
         columns={data_columns}
         pagination={false}
       />
