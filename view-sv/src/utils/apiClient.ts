@@ -1,9 +1,7 @@
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 
-const api = axios.create({
-    baseURL: 'http://10.0.0.47:3001',
-});
+const api = axios.create({});
 
 api.interceptors.request.use(
     (config) => {
@@ -30,7 +28,7 @@ api.interceptors.response.use(
             try {
                 const refreshToken = localStorage.getItem('refreshToken');
                 const { data } = await axios.post('http://10.0.0.47:3001/auth/refresh-token', { token: refreshToken });
-                localStorage.setItem('token', data.token);
+                localStorage.setItem('token', data.accessToken);
                 originalRequest.headers.Authorization = `Bearer ${data.token}`;
                 return api(originalRequest);
             } catch (err) {

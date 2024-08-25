@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { query } from "../db";
-import generateToken from "../utils/jwtHelper";
+import jwt from "jsonwebtoken";
 
 const router = Router();
 const saltrounds = 10;
@@ -49,11 +49,18 @@ router.post("/", async (req: Request, res: Response) => {
       [email, hashedPassword],
     );
 
-    const token = generateToken({
-      email: result.rows[0].email,
-    });
+    const token = jwt.sign(
+      {email: result.rows[0].email},
+      process.env.JWT_SECRET as string, 
+      {expiresIn: "30m"}
+    )
+    const refreshToken = jwt.sign(
+      {email: result.rows[0].email},
+      process.env.JWT_SECRET as string, 
+      {expiresIn: "14d"}
+    )
 
-    res.status(201).json({ message: "User registered succesfully", token });
+    res.status(201).json({ message: "User registered succesfully", token, refreshToken});
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Error registering user" });

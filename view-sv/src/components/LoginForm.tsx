@@ -5,8 +5,10 @@ import { Form, Input, Button, Typography, message } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router";
 import {Link} from "react-router-dom";
-import axios from "axios";
+
 import { useAuth } from "./AuthContext";
+import api from "../utils/apiClient";
+
 
 const { Title, Text } = Typography;
 
@@ -18,7 +20,7 @@ const LoginForm: React.FC = () => {
   const onFinish = async (values: any) => {
     try {
       console.log("Submitting form");
-      const response = await axios.post(
+      const response = await api.post(
         "http://10.0.0.47:3001/login",
         values,
       );

@@ -5,7 +5,7 @@ import { CreditCardOutlined, CalendarOutlined, SafetyOutlined, UserOutlined, Mai
 import PaymentForm from "../components/PaymentForm";
 
 import { useNavigate } from "react-router";
-import axios from "axios";
+import api from "../utils/apiClient";
 
 const { Header, Footer, Content } = Layout;
 const { Title, Text } = Typography;
@@ -20,7 +20,6 @@ const GetStarted: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const form = Form.useForm();
 
   const plans = [
     {
@@ -107,7 +106,7 @@ const GetStarted: React.FC = () => {
           console.log("Token");
           console.log(token);
 
-          axios.post("http://10.0.0.47:3001/campaign/add", data, {
+          api.post("http://10.0.0.47:3001/campaign/add", data, {
 
             headers: {
               Authorization: `Bearer ${token}`,

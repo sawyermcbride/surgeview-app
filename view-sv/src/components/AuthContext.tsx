@@ -1,8 +1,7 @@
 import React, { createContext, useState, useContext,
                 ReactNode, useEffect} from "react";
 
-import axios from "axios";
-import { useHistory } from "react-router-dom";
+import api from "../utils/apiClient";
 
 interface AuthContextType {
     isAuthenticated: boolean;
@@ -27,7 +26,7 @@ export const AuthProvider: React.FC<AuthProviderProps>  = ({children}) => {
     const [token, setToken] = useState("");
 
     useEffect( () => {
-        const tokenLocalStorage = localStorage.getToken();
+        const tokenLocalStorage = localStorage.getItem("token");
         if(!tokenLocalStorage) {
             logout();
         } else {
@@ -41,7 +40,7 @@ export const AuthProvider: React.FC<AuthProviderProps>  = ({children}) => {
 
         try {
 
-            const result = await axios.post("http://10.0.0.47:3001/auth/validate-token", null, {
+            const result = await api.post("http://10.0.0.47:3001/auth/validate-token", null, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -66,9 +65,10 @@ export const AuthProvider: React.FC<AuthProviderProps>  = ({children}) => {
     const logout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("email");
+        localStorage.removeItem("refreshToken");
         setToken("");
         setIsAuthenticated(false);
-        history.push("/login");
+        
     }
     
 

@@ -10,10 +10,10 @@ import {
   notification,
 } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
-import axios from "axios";
+
+import api from "../utils/apiClient";
 import { useNavigate } from "react-router";
 import {Link} from "react-router-dom";
-import LoginForm from "./LoginForm";
 import { useAuth } from "./AuthContext";
 
 const { Title, Text } = Typography;
@@ -24,18 +24,16 @@ const SignupForm: React.FC = () => {
 
   const onFinish = async (values: any) => {
     try {
-      const response = await axios.post(
+      const response = await api.post(
         "http://10.0.0.47:3001/signup",  // Replace with your API endpoint
         values,
       );
 
-      const { token } = response.data;
+      const { token, refreshToken } = response.data;
 
       localStorage.setItem("token", token);
+      localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("email", values.email);
-
-
-      await login();
 
       console.log("Success:", response.data);
       navigate("/get-started");
@@ -48,8 +46,7 @@ const SignupForm: React.FC = () => {
           description:
             "A user with this email exists. Please login or use a different email.",
         });
-      } else {
-      }
+      } 
     }
   };
 
