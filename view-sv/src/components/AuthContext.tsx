@@ -24,45 +24,34 @@ export const AuthProvider: React.FC<AuthProviderProps>  = ({children}) => {
 
     const [email, setEmail] = useState("");
     const [token, setToken] = useState("");
-
-    useEffect( () => {
-        const tokenLocalStorage = localStorage.getItem("token");
-        if(!tokenLocalStorage) {
-            logout();
-        } else {
-            setToken(tokenLocalStorage);
-            login();
-        }
-
-    }, [])
     
     const login = async () => {
 
         try {
 
-            const result = await api.post("http://10.0.0.47:3001/auth/validate-token", null, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+            const result = await api.post("http://10.0.0.47:3001/auth/validate-token",
+            {
+                accessToken: localStorage.getItem("token")
             });
             console.log("AuthContext checking token:");
             if(result.data.valid) {
                 console.log("AuthContext token valid");
-                setEmail(result.data.message.email!);
+                setEmail(result.data.email!);
                 setIsAuthenticated(true);
             } else {
                 console.log("AuthContext token invalid");
-                logout();
+                // logout();
             }
             console.log(result.data.valid);
         } catch(err) {
-            logout();
+            // logout();
         }
         
 
     }
 
     const logout = () => {
+        console.log("logout called");
         localStorage.removeItem("token");
         localStorage.removeItem("email");
         localStorage.removeItem("refreshToken");

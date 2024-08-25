@@ -15,22 +15,22 @@ const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess}) => {
 
 
   const CARD_ELEMENT_OPTIONS = {
-    style: {
-      base: {
-        color: '#32325d',
-        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-        fontSmoothing: 'antialiased',
-        fontSize: '16px',
-        '::placeholder': {
-          color: '#aab7c4',
-        },
-        backgroundColor: 'white', // Set background to white
-      },
-      invalid: {
-        color: '#fa755a',
-        iconColor: '#fa755a',
-      },
-    },
+    // style: {
+    //   base: {
+    //     color: '#32325d',
+    //     fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+    //     fontSmoothing: 'antialiased',
+    //     fontSize: '16px',
+    //     '::placeholder': {
+    //       color: '#aab7c4',
+    //     },
+    //     backgroundColor: 'white', // Set background to white
+    //   },
+    //   invalid: {
+    //     color: '#fa755a',
+    //     iconColor: '#fa755a',
+    //   },
+    // },
   };
 
 

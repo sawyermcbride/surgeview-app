@@ -24,10 +24,13 @@ const LoginForm: React.FC = () => {
         "http://10.0.0.47:3001/login",
         values,
       );
-      const { token } = response.data;
+      const { token, refreshToken } = response.data;
       console.log(token);
       localStorage.setItem("token", token);
-      await login() 
+      localStorage.setItem("refreshToken", refreshToken);
+      
+      
+      await login();
       console.log("Navigating to /dashboard");
       navigate("/dashboard");
     } catch (err) {

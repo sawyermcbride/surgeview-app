@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Menu, Button, Typography, Row, Col, Card } from 'antd';
+import { Layout, Menu, Button, Typography, Row, Col, Card, Steps } from 'antd';
 import { HomeOutlined, InfoCircleOutlined, LoginOutlined } from '@ant-design/icons';
 import {Link} from "react-router-dom";
 import '../App.css';
@@ -8,6 +8,25 @@ const { Header, Footer, Content } = Layout;
 const { Title, Paragraph } = Typography;
 
 const LandingPage = () => {
+  const steps = [
+    {
+      title: 'Step 1: Sign Up',
+      description: 'Create your account and choose a plan.',
+    },
+    {
+      title: 'Step 2: Explore Features',
+      description: 'Discover the powerful tools and features we offer.',
+    },
+    {
+      title: 'Step 3: Start Creating',
+      description: 'Begin designing and building your projects.',
+    },
+    {
+      title: 'Step 4: Share Your Work',
+      description: 'Showcase your creations to the world.',
+    },
+  ]
+
   return (
     <Layout>
       <Header style={{ background: '#fff', padding: '0 20px' }}>
@@ -22,9 +41,9 @@ const LandingPage = () => {
       </Header>
       <Content className="custom-content">
         <div className="mobile-landing-header-text" style={{ textAlign: 'center', padding: '0px 25px' }}>
-          <Title style={{marginTop:"80px"}}> Promote Your Videos With the #1 YouTube Growth Platform</Title>
+          <Title style={{marginTop:"80px"}}> Quickly Grow Your Videos with Real Views</Title>
           <Paragraph style={{fontSize: "19px"}}>
-            The easiest way to boost your YouTube views and grow your audience with one click, software managed ad campaigns.
+            Increase Your Channel's Reach using Our Paid Ads Strategy 
           </Paragraph>
           <Button type="primary" style={{backgroundColor: "#c0392b"}} size="large"><Link to="/signup">Get Started</Link></Button>
           <div style={{margin: "75px auto"}}>
@@ -55,6 +74,13 @@ const LandingPage = () => {
           </Row>
         </div>
         <div>
+        <Card title="How It Works">
+          <Steps current={1}>
+            {steps.map((item, index) => (
+              <Steps.Step key={index} title={item.title} description={item.description} />
+            ))}
+          </Steps>
+        </Card>
         </div>
       </Content>
       <Footer style={{ textAlign: 'center', background: '#f0f2f5', padding: '20px' }}>

@@ -5,7 +5,7 @@ import DashboardView from "../dashboard/DashboardView";
 import { Layout, Menu, Button, Typography, Dropdown } from "antd";
 import { HomeOutlined, BarsOutlined, SettingOutlined, LogoutOutlined } from "@ant-design/icons";
 import { useAuth } from "../components/AuthContext";
-import api from "../utils/apiClient";
+
 
 
 const { Title, Text } = Typography;

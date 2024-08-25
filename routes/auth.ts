@@ -4,13 +4,21 @@ import jwt from "jsonwebtoken";
 const router = express.Router()
 
 
-router.get("/validate-token", (req: Request, res: Response) => {
-    if(!req.user) {
-        console.log("Invalid token: /auth/validate-token", req.user);
-        return res.status(401).json( {valid: false, message: "Token is invalid or expired"});
-    } else {
-        return res.status(200).json( {valid: true, message: req.user});
+router.post("/validate-token", (req: Request, res: Response) => {
+    const token = req.body.accessToken;
+    console.log(req.body);
+    if(!token) {
+        console.log("Invalid token: /auth/validate-token");
+        return res.status(401).json( {valid: false, message: "Token is missing"});
+    } 
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+        return res.status(200).json({valid: true, email: decoded.email});
+    } catch(err) {
+        res.status(401).json({valid: false, message: "Invalid token" });
     }
+
 });
 
 router.post("/refresh-token", (req: Request, res: Response) => {
@@ -28,7 +36,7 @@ router.post("/refresh-token", (req: Request, res: Response) => {
             {expiresIn: "30m"}
         )
 
-        return res.status(200).json(accessToken);
+        return res.status(200).json({accessToken});
     } catch(err) {
         return res.status(403).json( {message: "Invalid refresh token"});
     }

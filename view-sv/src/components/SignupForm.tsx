@@ -35,6 +35,8 @@ const SignupForm: React.FC = () => {
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("email", values.email);
 
+      await login();
+      
       console.log("Success:", response.data);
       navigate("/get-started");
       // Optionally, handle successful signup (e.g., redirect to login)

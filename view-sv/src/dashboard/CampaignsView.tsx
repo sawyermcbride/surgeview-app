@@ -76,8 +76,9 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, campaignStat
 
 
     useEffect(() => {
-        console.log("CampaignsView useeffect")
-        console.log(campaignData);
+      console.log(campaignData);
+
+      if(campaignData) {
         const displayCampaignData = campaignData.map( (element) => {
             return {
               start_date: element.start_date,
@@ -87,8 +88,8 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, campaignStat
               plan_name: element.plan_name
             }
           } );
-
-          setCampaigns(displayCampaignData);
+        setCampaigns(displayCampaignData);
+      }
 
     }, []);
 

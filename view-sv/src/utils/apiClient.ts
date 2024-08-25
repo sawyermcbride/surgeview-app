@@ -27,9 +27,9 @@ api.interceptors.response.use(
             // Attempt to refresh the token
             try {
                 const refreshToken = localStorage.getItem('refreshToken');
-                const { data } = await axios.post('http://10.0.0.47:3001/auth/refresh-token', { token: refreshToken });
+                const { data } = await axios.post('http://10.0.0.47:3001/auth/refresh-token', { refreshToken});
                 localStorage.setItem('token', data.accessToken);
-                originalRequest.headers.Authorization = `Bearer ${data.token}`;
+                originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
                 return api(originalRequest);
             } catch (err) {
                 localStorage.removeItem('token');
