@@ -1,17 +1,45 @@
+
+
+import { vi } from 'vitest';
 import React from "react";
+
 import '@testing-library/jest-dom';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import axios from "axios";
+
+
+vi.mock('axios', async (importOriginal) => {
+  const actualAxios = await importOriginal();
+  
+  return {
+    ...actualAxios,
+    default: {
+      ...actualAxios.default,
+      create: vi.fn(() => ({
+        interceptors: {
+          request: {
+            use: vi.fn(),
+          },
+          response: {
+            use: vi.fn(),
+          },
+        },
+        get: vi.fn(),
+        post: vi.fn(),
+      })),
+    },
+  };
+});
+
 import LoginForm from '../LoginForm';
 import { AuthProvider } from "../AuthContext";
-import axios from "axios";
-import { vi } from 'vitest';
+import api from '../../utils/apiClient';
 
-vi.mock("axios");
 
 test('renders login page and handles login', async () => {
   // Render the LoginPage component inside MemoryRouter to handle routing
-  (axios.post as vi.Mock).mockResolvedValueOnce({
+  (api.post as vi.Mock).mockResolvedValueOnce({
     data: {token: '10002'},
   });
 
@@ -40,7 +68,7 @@ test('renders login page and handles login', async () => {
 
 
   await waitFor(() => {
-    expect(axios.post).toHaveBeenCalledWith(
+    expect(api.post).toHaveBeenCalledWith(
       expect.stringContaining("/login"), 
       expect.objectContaining({
         email: "samcbride11@gmail.com",

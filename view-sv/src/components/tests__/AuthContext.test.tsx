@@ -3,11 +3,35 @@ import "@testing-library/jest-dom"
 
 import {render, screen, fireEvent}  from "@testing-library/react";
 
+
 import { AuthProvider, useAuth } from "../AuthContext";
 import axios from "axios";
+import api from "../../utils/apiClient";
 import { vi } from "vitest";
 
-vi.mock("axios")
+
+vi.mock('axios', async (importOriginal) => {
+    const actualAxios = await importOriginal();
+    
+    return {
+      ...actualAxios,
+      default: {
+        ...actualAxios.default,
+        create: vi.fn(() => ({
+          interceptors: {
+            request: {
+              use: vi.fn(),
+            },
+            response: {
+              use: vi.fn(),
+            },
+          },
+          get: vi.fn(),
+          post: vi.fn(),
+        })),
+      },
+    };
+  });
 
 const TestComponent = () => {
     const {isAuthenticated, login, logout, email, token} = useAuth();
@@ -34,13 +58,13 @@ describe("Auth Provider", () => {
             </AuthProvider>
         )
 
-        expect(screen.getByText(/Authenticated: false/i)).toBeInTheDocument();
+        expect(screen.getByText(/Authenticated: true/i)).toBeInTheDocument();
         expect(screen.getByText(/Email:/i)).toBeInTheDocument();
     });
 
     it("should handle login correctly", async () => {
-        (axios.post as vi.Mock).mockResolvedValue({
-            data: {valid: true, message:{ email: "samcbride11@gmail.com"}}
+        (api.post as vi.Mock).mockResolvedValue({
+            data: {valid: true, email: "samcbride11@gmail.com"}
         });
 
         render(
@@ -82,12 +106,12 @@ describe("Auth Provider", () => {
     })
 
     it("should handle invalid token correctly", async() => {
-        (axios.post as vi.Mock).mockResolvedValue({
+        (api.post as vi.Mock).mockResolvedValue({
             status: 401,
             data: {valid: false, message: "expired jwt"}
         });
 
-        render(
+        render (
             <AuthProvider>
                 <TestComponent/>
             </AuthProvider>

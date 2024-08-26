@@ -40,11 +40,11 @@ export const AuthProvider: React.FC<AuthProviderProps>  = ({children}) => {
                 setIsAuthenticated(true);
             } else {
                 console.log("AuthContext token invalid");
-                // logout();
+                logout();
             }
             console.log(result.data.valid);
         } catch(err) {
-            // logout();
+            logout();
         }
         
 
@@ -56,8 +56,9 @@ export const AuthProvider: React.FC<AuthProviderProps>  = ({children}) => {
         localStorage.removeItem("email");
         localStorage.removeItem("refreshToken");
         setToken("");
+        setEmail("");
         setIsAuthenticated(false);
-        
+
     }
     
 
