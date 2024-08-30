@@ -1,8 +1,13 @@
 import React from 'react';
-import { Layout, Menu, Button, Typography, Row, Col, Card, Steps } from 'antd';
-import { HomeOutlined, InfoCircleOutlined, LoginOutlined } from '@ant-design/icons';
-import {Link} from "react-router-dom";
-import '../App.css';
+import { Layout, Menu, Button, Typography, Row, Col, Card, Steps,
+ } from 'antd';
+ 
+ 
+ import { HomeOutlined, InfoCircleOutlined, LoginOutlined } from '@ant-design/icons';
+ import {Link} from "react-router-dom";
+ import '../App.css';
+ 
+ const {Step} = Steps;
 
 const { Header, Footer, Content } = Layout;
 const { Title, Paragraph } = Typography;
@@ -73,14 +78,14 @@ const LandingPage = () => {
             </Col>
           </Row>
         </div>
-        <div>
-        <Card title="How It Works">
-          <Steps current={1}>
-            {steps.map((item, index) => (
-              <Steps.Step key={index} title={item.title} description={item.description} />
-            ))}
+        <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+          <h2>How It Works</h2>
+          <Steps direction="vertical" current={-1}>
+            <Step title="Step 1" description="This is the first step description." />
+            <Step title="Step 2" description="This is the second step description." />
+            <Step title="Step 3" description="This is the third step description." />
+            <Step title="Step 4" description="This is the fourth step description." />
           </Steps>
-        </Card>
         </div>
       </Content>
       <Footer style={{ textAlign: 'center', background: '#f0f2f5', padding: '20px' }}>

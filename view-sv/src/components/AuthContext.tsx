@@ -33,10 +33,11 @@ export const AuthProvider: React.FC<AuthProviderProps>  = ({children}) => {
             {
                 accessToken: localStorage.getItem("token")
             });
-            console.log("AuthContext checking token:");
+            
             if(result.data.valid) {
                 console.log("AuthContext token valid");
                 setEmail(result.data.email!);
+                setToken(localStorage.getItem("token"));
                 setIsAuthenticated(true);
             } else {
                 console.log("AuthContext token invalid");

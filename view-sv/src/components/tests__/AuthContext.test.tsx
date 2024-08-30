@@ -47,11 +47,17 @@ const TestComponent = () => {
 }
 
 describe("Auth Provider", () => {
+
+    test('matchMedia is mocked', () => {
+        expect(window.matchMedia).toBeDefined();
+        expect(window.matchMedia('(min-width: 600px)').matches).toBe(false);
+    });
+      
     afterEach( () => {
         vi.clearAllMocks();
     });
 
-    it("should intialize with correct default values", () => {
+    test("should intialize with correct default values", () => {
         render(
             <AuthProvider>
                 <TestComponent />
@@ -62,7 +68,7 @@ describe("Auth Provider", () => {
         expect(screen.getByText(/Email:/i)).toBeInTheDocument();
     });
 
-    it("should handle login correctly", async () => {
+    test("should handle login correctly", async () => {
         (api.post as vi.Mock).mockResolvedValue({
             data: {valid: true, email: "samcbride11@gmail.com"}
         });
@@ -86,7 +92,7 @@ describe("Auth Provider", () => {
     });
 
 
-    it("should handle logout correctly", async() => {
+    test("should handle logout correctly", async() => {
         render(
             <AuthProvider>
                 <TestComponent/>
@@ -105,7 +111,7 @@ describe("Auth Provider", () => {
 
     })
 
-    it("should handle invalid token correctly", async() => {
+    test("should handle invalid token correctly", async() => {
         (api.post as vi.Mock).mockResolvedValue({
             status: 401,
             data: {valid: false, message: "expired jwt"}

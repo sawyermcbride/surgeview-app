@@ -192,6 +192,7 @@ const GetStarted: React.FC = () => {
   return (
 
     <Layout style={{ minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
+      <div data-testid="getting-started-component"></div>
       <Header style={{ backgroundColor: 'transparent', textAlign: 'center', padding: '20px' }}>
         <img src="surge_view_new_cropped_transparent.png" alt="Logo" style={{ height: '60px', marginBottom: '20px' }} />
       </Header>
