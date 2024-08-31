@@ -7,34 +7,10 @@ import '@testing-library/jest-dom';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import axios from "axios";
-
-
-vi.mock('axios', async (importOriginal) => {
-  const actualAxios = await importOriginal();
-  
-  return {
-    ...actualAxios,
-    default: {
-      ...actualAxios.default,
-      create: vi.fn(() => ({
-        interceptors: {
-          request: {
-            use: vi.fn(),
-          },
-          response: {
-            use: vi.fn(),
-          },
-        },
-        get: vi.fn(),
-        post: vi.fn(),
-      })),
-    },
-  };
-});
-
 import LoginForm from '../LoginForm';
 import { AuthProvider } from "../AuthContext";
 import api from '../../utils/apiClient';
+
 
 
 test('renders login page and handles login', async () => {

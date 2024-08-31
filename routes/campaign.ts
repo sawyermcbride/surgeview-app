@@ -1,12 +1,18 @@
 import express, { Request, Response, NextFunction } from "express";
 import { expressjwt as jwt } from "express-jwt";
 import { query } from "../db";
+import { emit } from "process";
 
 const router = express.Router();
 
 
+router.use( (req: Request, res: Response, next: NextFunction) => {
+  console.log(`${req.method} ${req.originalUrl}`);
+  next();
+});
+
 router.post("/add", async (req: Request, res: Response) => {
-  console.log("/campaign/add");
+  
   const { videoLink, plan } = req.body;
 
   if (!videoLink || !plan) {
@@ -42,11 +48,10 @@ router.post("/add", async (req: Request, res: Response) => {
 });
 
 router.get("/request", async (req: Request, res: Response) => {
-  console.log("/campaign/request");
 
   try{
     if(!req.user) {
-      return res.status(401).json({message: "User not authorized", err});
+      return res.status(401).json({message: "User not authorized"});
     } else {
       const userEmail = req.user.email;
       const result = await query("SELECT id FROM customers WHERE email= $1", [userEmail]);
@@ -60,9 +65,42 @@ router.get("/request", async (req: Request, res: Response) => {
 
 
   } catch(err) {
-    return res.status(500).json({message: "Error loading campaigns", err});
+    return res.status(500).json({message: "Error loading campaigns"});
   }
 })
+
+router.put("/update/:id", async (req: Request, res: Response) => {
+  const updateFields = ['video_link', 'plan_name'];
+
+  let videoId = req.params.id; 
+  let updateData = req.body;
+
+  console.log(updateData);
+  
+  try {
+    if(!req.user.email) {
+      return res.status(401).json({message: "User not authorized"});
+    } else {
+    
+      console.log(req.user.email);
+      let result = await query(`SELECT customers.email, campaigns.campaign_id, campaigns.video_link, campaigns.plan_name
+        FROM customers JOIN campaigns ON customers.id = campaigns.customer_id
+        WHERE email = $1 AND campaigns.campaign_id = $2`, [req.user.email, videoId]);
+
+      for (const elem of updateFields) {
+          // console.log(`result.rows[0][elem] = ${result.rows[0][elem]} and updateData[elem] = ${updateData[elem]} and elem = ${elem}`);
+        if(updateData[elem] && updateData[elem] !== result.rows[0][elem]) {
+          const queryText = `UPDATE campaigns SET ${elem} = $1 WHERE campaign_id = $2`;
+          await query(queryText, [updateData[elem], videoId]);  
+        }
+      }
+      return res.status(200).json({message: "Campaign updated"});
+    };
+  } catch(err) {
+      return res.status(500).json({message: err});
+  }
+
+});
 
 
 export default router;

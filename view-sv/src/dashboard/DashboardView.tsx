@@ -15,6 +15,7 @@ import {
   Col,
 } from "antd";
 import { HomeOutlined, UserOutlined, SettingOutlined } from "@ant-design/icons";
+import api from "../utils/apiClient";
 
 
 const { Header, Content, Sider } = Layout;
@@ -36,7 +37,7 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
         await login();
         console.log("loading campaigns");
         console.log(token);
-        const result = await axios.get("http://10.0.0.47:3001/campaign/request", {
+        const result = await api.get("http://10.0.0.47:3001/campaign/request", {
             headers:{
                 Authorization: `Bearer ${token}`
             }

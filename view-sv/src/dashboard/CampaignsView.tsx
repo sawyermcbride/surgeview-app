@@ -40,7 +40,7 @@ const data_columns = [
       title: 'Plan Name',
       dataIndex: 'plan_name',
       key: 'plan_name',
-      render: (text: string) => JSON.parse(text).pricing, // Parse JSON and display 'pricing'
+      render: (text: string) => text, // Parse JSON and display 'pricing'
     },
     {
       title: 'Price',
@@ -52,14 +52,14 @@ const data_columns = [
         title: 'Video Link',
         dataIndex: 'video_link',
         key: 'video_link',
-        render: (text:string) => JSON.parse(text).youtube_url
+        render: (text:string) => text,
     },
     {
         title: 'Actions',
         key: 'actions',
         render: (_: any, record: CampaignDisplayObj) => (
           <span>
-            <Button type="default">Edit</Button>
+            <Button style={{marginRight: "4px"}}type="default">Edit</Button>
             <Button type="default" danger>Delete</Button>
           </span>
         ),

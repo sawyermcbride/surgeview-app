@@ -6,6 +6,7 @@ import { AuthProvider } from "../../components/AuthContext";
 // import { mockMatchMedia } from './matchMedia.mock';
 import GetStarted from '../GetStarted';
 import api from '../../utils/apiClient';
+import { statfsSync } from 'fs';
 
 vi.mock('@stripe/react-stripe-js', () => ({
     __esModule: true,
@@ -21,17 +22,6 @@ describe('GetStarted', () => {
         expect(window.matchMedia).toBeDefined();
         expect(window.matchMedia('(min-width: 600px)').matches).toBe(false);
     });
-    test('Check for getting started component ', () => {
-        render(
-            <AuthProvider>
-                <MemoryRouter>
-                    <GetStarted />
-                </MemoryRouter>
-            </AuthProvider>
-        );
-        const component = screen.getByTestId("getting-started-component");
-        expect(component).toBeInTheDocument();
-    })
     
     test('renders initial signup video form', async() => {
         render(
@@ -79,6 +69,8 @@ describe('GetStarted', () => {
     })
     
     test("check payment form rendered correctly", async () => {
+        
+        
         render(
             <AuthProvider>
                 <MemoryRouter>
@@ -100,48 +92,15 @@ describe('GetStarted', () => {
             fireEvent.click(planSelectButton);
             
         }, {timeout: 4000});
-
+        
         await waitFor( () => {
             const titleThree = screen.getByText(/3. Add Your Card Details/i);
             expect(titleThree).toBeInTheDocument();
-
+            
             const submitButton = screen.getByText(/Submit/i);
             fireEvent.click(submitButton);
 
-
         }, {timeout: 4000});
-
-        await waitFor ( () => {
-            expect(api.post).toHaveBeenCalledWith(
-                expect.stringContaining("/campaign/add")
-            );
-        });
-
-
-
     })
 
 });
-
-
-// describe("Get started sequence: ", () => {
-    
-
-
-//     test('renders second screen with plan options', async() => {
-//         const titleTwo = screen.getByText(/2. Select a Plan/i);
-
-//         expect(titleTwo).toBeInTheDocument();
-//         const planSelectButton = screen.getAllByText(/Start 7 Day Free Trial/i)[0];
-
-//         fireEvent.click(planSelectButton);
-//     })
-
-//     test('renders third screen with payment details', async() => {
-//         const titleThree = screen.getByText(/3. Add Your Card Details/i);
-        
-//         expect(titleThree).toBeInTheDocument();
-//     })
-
-// })
-

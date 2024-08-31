@@ -23,6 +23,7 @@ api.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
         if (error.response.status === 401 && !originalRequest._retry) {
+            console.log("Refreshing token");
             originalRequest._retry = true;
             // Attempt to refresh the token
             try {

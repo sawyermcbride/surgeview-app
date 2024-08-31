@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Layout, Button, Typography, Form, Input, Col, Row, Card, List, Spin } from "antd";
 import { CreditCardOutlined, CalendarOutlined, SafetyOutlined, UserOutlined, MailOutlined } from '@ant-design/icons';
 
@@ -12,11 +12,20 @@ const { Title, Text } = Typography;
 
 
 
-
 const GetStarted: React.FC = () => {
-  const [signupStep, setSignupStep] = useState(0);
+  const [signupStep, setSignupStep] = useState(1);
   const [formLoading, setFormLoading] = useState(false);
   const [contentColumnWidth, setContentColumnWidth] = useState("50%");
+  
+  useEffect( () => {
+    const lastStepCompleted = localStorage.getItem("lastStepCompleted");
+
+    if(lastStepCompleted && parseInt(lastStepCompleted) > 0 && parseInt(lastStepCompleted) < 3) {
+      setSignupStep(parseInt(lastStepCompleted) + 1);
+    }
+  }, [])
+
+
 
   const navigate = useNavigate();
 
@@ -50,20 +59,21 @@ const GetStarted: React.FC = () => {
 
   const getHeaderTitle = (num: Number) => {
     switch (num) {
-      case 0:
-        return "1. Select the Video to Recieve Views in Your Campaign";
       case 1:
-        return "2. Select a Plan";
+        return "1. Select the Video to Recieve Views in Your Campaign";
       case 2:
+        return "2. Select a Plan";
+      case 3:
         return "3. Add Your Card Details";
       default:
         return "Error";
     }
   };
 
-  const pricingSubmit = (plan: String) => {
+  const pricingSubmit = (planName: string) => {
     setFormLoading(true);
-    localStorage.setItem("1", JSON.stringify({pricing: plan}));
+    localStorage.setItem("pricing", planName);
+    localStorage.setItem("lastStepCompleted", "2");
     setContentColumnWidth("50%");
 
     setTimeout(() => {
@@ -74,13 +84,14 @@ const GetStarted: React.FC = () => {
   }
 
   const onSubmit = (values: any) => {
-    if(signupStep < 2) {
+    if(signupStep < 3) {
       if(signupStep === 0) {
         setContentColumnWidth("75%");
       } else {
         setContentColumnWidth("50%");
       }
-      localStorage.setItem(signupStep.toString(), JSON.stringify(values));
+      localStorage.setItem("youtubeUrl", values.youtube_url);
+      localStorage.setItem("lastStepCompleted", "1");
       setFormLoading(true);
 
       setTimeout(() => {
@@ -94,8 +105,8 @@ const GetStarted: React.FC = () => {
         console.log("ready to create campaign")
 
         try {
-          const video_link: Object = JSON.parse(localStorage.getItem("0") ?? "{}");
-          const pricing: Object = JSON.parse(localStorage.getItem("1") ?? "{}");
+          const video_link = localStorage.getItem("youtubeUrl");
+          const pricing = localStorage.getItem("pricing");
           const token = localStorage.getItem("token");
 
           const data = {
@@ -105,6 +116,7 @@ const GetStarted: React.FC = () => {
 
           console.log("Token");
           console.log(token);
+          localStorage.setItem("lastStepCompleted", "3");
 
           api.post("http://10.0.0.47:3001/campaign/add", data, {
 
@@ -130,7 +142,7 @@ const GetStarted: React.FC = () => {
 
   const getMainContent = () => {
     switch (signupStep) {
-      case 0:
+      case 1:
         return (
           <Form
             name="layout-multiple-horizontal"
@@ -154,7 +166,7 @@ const GetStarted: React.FC = () => {
             </Form.Item>
           </Form>
         );
-      case 1: 
+      case 2: 
       return (
         <div style={{ padding: '50px 10px', background: '#f0f2f5' }}>
               <Row gutter={16} justify="center">
@@ -181,18 +193,17 @@ const GetStarted: React.FC = () => {
               </Row>
           </div>
       )
-      case 2: 
+      case 3: 
         return (
           <PaymentForm onPaymentSuccess={onSubmit}/>
         )
     }
   };
 
-  const saveData = (obj: Object) => {};
+  
   return (
 
     <Layout style={{ minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
-      <div data-testid="getting-started-component"></div>
       <Header style={{ backgroundColor: 'transparent', textAlign: 'center', padding: '20px' }}>
         <img src="surge_view_new_cropped_transparent.png" alt="Logo" style={{ height: '60px', marginBottom: '20px' }} />
       </Header>
