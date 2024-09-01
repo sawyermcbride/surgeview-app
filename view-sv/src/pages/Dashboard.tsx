@@ -22,6 +22,7 @@ const Dashboard: React.FC = () => {
   }
   
 
+  const [resetCampaignsView, setResetCampaignsView] = useState(false);
 
   const [selectedKey, setSelectedKey] = useState<string>("1");
 
@@ -47,9 +48,12 @@ const Dashboard: React.FC = () => {
   },[]);
 
   const handleMenuClick = (e: {key: string}) => {
-    
     setSelectedKey(e.key);
     setTitle(headerTitle[e.key]);
+  }
+
+  const handleCampaignsClick = () => {
+    setResetCampaignsView(true);
   }
 
 
@@ -66,7 +70,7 @@ const Dashboard: React.FC = () => {
           <Menu.Item key="1" icon={<HomeOutlined />}>
             Dashboard
           </Menu.Item>
-          <Menu.Item key="2" icon={<BarsOutlined />}>
+          <Menu.Item key="2" onClick={handleCampaignsClick} icon={<BarsOutlined />}>
             Campaigns
           </Menu.Item>
           <Menu.Item key="3" icon={<SettingOutlined />}>
@@ -106,7 +110,7 @@ const Dashboard: React.FC = () => {
             paddingTop: "50px",
           }}
         >
-          <DashboardView selectedMenu={selectedKey}/>
+          <DashboardView resetCampaignsView = {resetCampaignsView} setResetCampaignsView = {setResetCampaignsView} selectedMenu={selectedKey}/>
         </Content>
       </Layout>
     </Layout>

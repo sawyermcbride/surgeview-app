@@ -94,7 +94,7 @@ router.put("/update/:id", async (req: Request, res: Response) => {
           await query(queryText, [updateData[elem], videoId]);  
         }
       }
-      return res.status(200).json({message: "Campaign updated"});
+      return res.status(200).json({complete: true, message: "Campaign updated"});
     };
   } catch(err) {
       return res.status(500).json({message: err});

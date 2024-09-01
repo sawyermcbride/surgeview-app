@@ -13,6 +13,7 @@ import {
   Card,
   Row,
   Col,
+  Breadcrumb,
 } from "antd";
 import { HomeOutlined, UserOutlined, SettingOutlined } from "@ant-design/icons";
 import api from "../utils/apiClient";
@@ -23,6 +24,8 @@ const { Title, Text } = Typography;
 
 interface DashboardViewProps {
   selectedMenu: string
+  resetCampaignsView: boolean,
+  setResetCampaignsView: (arg: boolean) => void,
 }
 
 const DashboardView: React.FC<DashboardViewProps> = (props) => {
@@ -55,10 +58,11 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
     }
   }
 
+
   useEffect( () => {
     loadCampaignData();
-
-  }, []);
+    console.log("reset campaigns view from DashboardView.tsx");
+  }, [props.resetCampaignsView]);
 
   const renderView = () => {
     switch (props.selectedMenu) {
@@ -71,6 +75,9 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
           <CampaignsView 
             campaignData = {campaignData}
             campaignStatistics = {campaignStatistics}
+            resetCampaignsView = {props.resetCampaignsView}
+            setResetCampaignsView={props.setResetCampaignsView}
+            loadCampaignData = {loadCampaignData}
           />
         )
 
@@ -84,9 +91,11 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
     }
   };
 
-  return <div style={{width: "90%"}} >{
-      renderView()
-    }</div>;
+  return ( 
+    <div style={{width: "90%"}} >
+        {renderView()}
+    </div>
+  )
 };
 
 export default DashboardView;
