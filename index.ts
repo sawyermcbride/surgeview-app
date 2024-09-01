@@ -1,14 +1,19 @@
+//index.ts
+
+import * as dotenv from "dotenv";
+dotenv.config();
+
 import express, {
   NextFunction,
   Request,
   Response,
   ErrorRequestHandler,
 } from "express";
-import dotenv from "dotenv";
 import signupRouter from "./routes/signup";
 import loginRouter from "./routes/login";
 import campaignRouter from "./routes/campaign";
 import authRouter from "./routes/auth";
+import youtubeRouter from "./routes/youtube";
 
 import { fileURLToPath } from "url";
 import path, { dirname } from "path";
@@ -16,11 +21,13 @@ import { testConnection } from "./db";
 import cors from "cors";
 import { expressjwt as jwt } from "express-jwt";
 
-dotenv.config();
 
 
 if (!process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET is not defined");
+}
+if(!process.env.YOUTUBE_API_KEY) {
+  throw new Error("YouTube API key is not defined");
 }
 
 const app = express();
@@ -58,6 +65,7 @@ if (!process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET is not defined");
 }
 
+app.use("/youtube", youtubeRouter);
 
 app.use("/signup", signupRouter);
 app.use("/login", loginRouter);
@@ -68,7 +76,13 @@ app.use(
     secret: process.env.JWT_SECRET,
     algorithms: ["HS256"],
     requestProperty: "user",
-  }),
+  }).unless({
+    path: [
+      '/signup',
+      '/login',
+      '/youtube', // Exclude this route from JWT authentication
+    ]
+  })
 );
 
 

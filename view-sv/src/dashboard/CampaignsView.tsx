@@ -165,14 +165,17 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
     return (
       <div>
         {showBreadcrumb ? (
-          <Breadcrumb>
-            <Breadcrumb.Item onClick={() => handleBreadcrumbClick('Campaigns')}>
-              Campaigns
-            </Breadcrumb.Item>
-            <Breadcrumb.Item>
-              {getVideoLink()}
-            </Breadcrumb.Item>
-          </Breadcrumb>
+
+          <Breadcrumb
+            items={[
+              {
+                title: <span style={{cursor: 'pointer'}} onClick={() => handleBreadcrumbClick('Campaigns')}>Campaigns</span>
+              },
+              {
+                title: getVideoLink()
+              }              
+            ]}
+          />
         ) : null}
         {loading ? (
           <div style={{display: 'flex', justifyContent: 'center'}}>

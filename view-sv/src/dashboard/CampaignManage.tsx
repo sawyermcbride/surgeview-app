@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react";
 import {Form, Input, Button, Typography, notification, Space, Select,
-     Breadcrumb, RadioChangeEvent, Radio} from "antd";
+     Breadcrumb, RadioChangeEvent, Radio, Alert} from "antd";
 import api from "../utils/apiClient";
 
 const {Option} = Select;
@@ -70,6 +70,12 @@ const CampaignManage: React.FC<CampaignManageProps> = ( {data, setLoading, loadC
 
     return (
         <div>
+            <Alert 
+                message="Updates will apply immediately and be valid for the remainder of your current month. Updates will also apply for following months."
+                type="info"
+                showIcon
+                style={{ marginBottom: '16px' }}
+            />
             <Title level={5}>
                 Current link: 
                 <Text code>
