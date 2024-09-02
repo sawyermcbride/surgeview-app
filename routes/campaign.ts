@@ -2,8 +2,17 @@ import express, { Request, Response, NextFunction } from "express";
 import { expressjwt as jwt } from "express-jwt";
 import { query } from "../db";
 import { emit } from "process";
+import YouTubeService from "../services/YouTubeService";
 
 const router = express.Router();
+const youtubeService = new YouTubeService();
+
+
+const pricingTable = {
+  'Standard': 99.0,
+  'Premium': 199.0,
+  'Pro': 399.0
+}
 
 
 router.use( (req: Request, res: Response, next: NextFunction) => {
@@ -12,12 +21,22 @@ router.use( (req: Request, res: Response, next: NextFunction) => {
 });
 
 router.post("/add", async (req: Request, res: Response) => {
-  
-  const { videoLink, plan } = req.body;
 
-  if (!videoLink || !plan) {
+  const { videoLink, plan } = req.body;
+  let videoDetails;
+
+  try {
+    videoDetails = await youtubeService.validateVideoLink(videoLink);
+
+  } catch(err) {
+    
+    return res.status(400).json( {error: "Invalid YouTube URL"});
+  }
+
+  if (!videoLink || !plan || !(plan in pricingTable) ) {
     return res.status(400).json({ error: "Missing required fields" });
   }
+
 
   try {
     const userEmail = req.user.email;
@@ -30,20 +49,23 @@ router.post("/add", async (req: Request, res: Response) => {
       "SELECT ID FROM customers WHERE email = $1",
       [userEmail],
     );
-    console.log(customerID.rows[0].id);
-
+  
+    console.log(videoDetails);
     await query("BEGIN");
     await query(
-      "INSERT INTO campaigns (customer_id, video_link, start_date, end_date, price, plan_name) VALUES ($1, $2, $3, $4, $5, $6)",
-      [customerID.rows[0].id, videoLink, startDate, endDate, 99.0, plan],
+      `INSERT INTO campaigns (customer_id, video_link, start_date, end_date, price, plan_name, video_title, channel_title)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [customerID.rows[0].id, videoLink, startDate, endDate, pricingTable[plan], plan, videoDetails.title, videoDetails.channelTitle],
     );
 
     await query("COMMIT");
 
-    res.status(201).json({ message: "Campaign added" });
+    return res.status(201).json({ message: "Campaign added" });
+  
   } catch (err) {
     await query("ROLLBACK");
-    res.status(500).json({ message: "Error adding campaign", err });
+  
+    return res.status(500).json({ message: "Error adding campaign", err });
   }
 });
 
@@ -74,8 +96,21 @@ router.put("/update/:id", async (req: Request, res: Response) => {
 
   let videoId = req.params.id; 
   let updateData = req.body;
+  let videoDetails;
 
-  console.log(updateData);
+  if(updateData.video_link)  {
+    try {
+      videoDetails = youtubeService.validateVideoLink(updateData.video_link);
+
+    } catch(err) {
+      return res.status(400).json({error: err});
+    }
+
+  }
+
+  if(updateData.plan_name && !(updateData.plan_name in pricingTable)) {
+    return res.status(400).json({error: "Missing required fields"});
+  }
   
   try {
     if(!req.user.email) {

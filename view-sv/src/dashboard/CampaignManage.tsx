@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react";
 import {Form, Input, Button, Typography, notification, Space, Select,
-     Breadcrumb, RadioChangeEvent, Radio, Alert} from "antd";
+     Breadcrumb, RadioChangeEvent, Radio, Alert, Descriptions} from "antd";
 import api from "../utils/apiClient";
 
 const {Option} = Select;
@@ -10,6 +10,8 @@ const {Title, Link, Text} = Typography;
 interface CampaignData {
     plan_name: string, 
     video_link: string,
+    video_title: string, 
+    channel_title: string,
 }
 
 interface CampaignManageProps {
@@ -76,20 +78,24 @@ const CampaignManage: React.FC<CampaignManageProps> = ( {data, setLoading, loadC
                 showIcon
                 style={{ marginBottom: '16px' }}
             />
-            <Title level={5}>
-                Current link: 
-                <Text code>
-                {data.video_link}
-                </Text>
-            </Title>
+            <Title level={5}>Campaign Information</Title>
+            <Descriptions column={1} bordered size="small" items={
+                [
+                    {label: "Current Link", children: <Text>{data.video_link}</Text>},
+                    {label: "Current Title", children: <Text>{data.video_title}</Text>},
+                    {label: "Current Channel", children: <Text>{data.channel_title}</Text>},
+                    {label: "Current Plan", children: <Text>{data.plan_name} @ ${data.price} / Month</Text>},
+                ]
+            }
+            />
             <Form
             form={form}
             name="control-hooks"
-            style={{ maxWidth: 1500, width: 700, marginTop: '25px' }}
+            style={{ maxWidth: 1500, width: '100%', marginTop: '25px' }}
             onFinish={onFinish}
             initialValues={{plan_name: data.plan_name}}
             >
-                <Form.Item name="updated_link" label="New Link" rules={[{ required: false }]}>
+                <Form.Item name="updated_link" label="New Link" style={{maxWidth: "600px"}} rules={[{ required: false }]}>
                     <Input />
                 </Form.Item>
                 <Form.Item label="Select Plan" name="plan_name">

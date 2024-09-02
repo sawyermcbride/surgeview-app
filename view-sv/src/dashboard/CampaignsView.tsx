@@ -1,11 +1,11 @@
 import React, {useState, useEffect} from 'react';
-import { Table, Typography, Spin, Alert, Button, Breadcrumb } from 'antd';
+import { Table, Typography, Spin, Alert, Button, Breadcrumb, Tooltip } from 'antd';
 import 'antd/dist/reset.css'; // Ensure Ant Design styles are imported
 import { useAuth } from '../components/AuthContext';
 import CampaignManage from './CampaignManage';
 
 import { StripePaymentMethodMessagingElement } from '@stripe/stripe-js';
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 // Sample data for the table
 
@@ -67,10 +67,22 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
         render: (text: string) => `$${text}`, // Format as currency
       },
       {
-          title: 'Video Link',
-          dataIndex: 'video_link',
-          key: 'video_link',
-          render: (text:string) => text,
+          title: 'Video Title',
+          dataIndex: 'video_title',
+          key: 'video_title',
+          render: (text:string) => (
+            <Tooltip title={text}>
+                <Text style={{
+                    display: 'inline-block',
+                    maxWidth: '250px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                }}>
+                    {text}
+                </Text>
+            </Tooltip>
+          ),
       },
       {
           title: 'Actions',
@@ -94,6 +106,8 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
               end_date: element.end_date,
               video_link: element.video_link,
               price: element.price,
+              video_title: element.video_title, 
+              channel_title: element.channel_title,
               plan_name: element.plan_name
             }
           } );
@@ -132,7 +146,8 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
 
     const getVideoLink = () => {
       const dataResult = campaigns.find(c => c.campaign_id === selectedVideoID);
-      return dataResult ? dataResult.video_link : '';
+      console.log(dataResult);
+      return dataResult ? dataResult.video_title : '';
     }
 
     const getView = () => {

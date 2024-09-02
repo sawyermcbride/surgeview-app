@@ -48,7 +48,7 @@ const GetStarted: React.FC = () => {
       buttonText: "Start 7 Day Free Trial",
     },
     {
-      title: "Premium",
+      title: "Pro",
       price: "$399 / month",
       features: ["16,000 to 20,000 Average Monthly Views","5% to 10% of Viewers, on Average Become Subscribers", "100% Safe Strategy Using Official YouTube Ads Platform", "View Campaign Statistics in Dashboard", 
         "24/7 Email Support from US Based Team"
