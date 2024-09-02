@@ -3,10 +3,11 @@ import { expressjwt as jwt } from "express-jwt";
 import { query } from "../db";
 import { emit } from "process";
 import YouTubeService from "../services/YouTubeService";
+import StatisticsService from "../services/StatisticsService";
 
 const router = express.Router();
 const youtubeService = new YouTubeService();
-
+const statisticsService = new StatisticsService();
 
 const pricingTable = {
   'Standard': 99.0,
@@ -126,6 +127,11 @@ router.put("/update/:id", async (req: Request, res: Response) => {
           // console.log(`result.rows[0][elem] = ${result.rows[0][elem]} and updateData[elem] = ${updateData[elem]} and elem = ${elem}`);
         if(updateData[elem] && updateData[elem] !== result.rows[0][elem]) {
           const queryText = `UPDATE campaigns SET ${elem} = $1 WHERE campaign_id = $2`;
+          if(elem === 'plan_name') {
+            console.log(`updating price, current price = ${pricingTable[result.rows[0]['plan_name']]} and new price = ${pricingTable[updateData.plan_name]} `);
+
+            await query('UPDATE campaigns SET price = $1 WHERE campaign_id = $2', [pricingTable[updateData.plan_name], videoId]);
+          }
           await query(queryText, [updateData[elem], videoId]);  
         }
       }
@@ -135,6 +141,13 @@ router.put("/update/:id", async (req: Request, res: Response) => {
       return res.status(500).json({message: err});
   }
 
+});
+
+
+router.get("/statistics", async(req: Request, res: Response) => {
+  const statisticsJson = await statisticsService.getBaseStatisics(req.user.email);
+
+  return res.status(200).json(statisticsJson );
 });
 
 

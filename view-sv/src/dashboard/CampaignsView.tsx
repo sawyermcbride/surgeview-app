@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { Table, Typography, Spin, Alert, Button, Breadcrumb, Tooltip } from 'antd';
+import { Table, Typography, Spin, Alert, Button, Breadcrumb, Tooltip, Tag } from 'antd';
 import 'antd/dist/reset.css'; // Ensure Ant Design styles are imported
 import { useAuth } from '../components/AuthContext';
 import CampaignManage from './CampaignManage';
@@ -46,19 +46,31 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
         title: 'Start Date',
         dataIndex: 'start_date',
         key: 'start_date',
-        render: (text: string) => new Date(text).toLocaleDateString(), // Format date
+        render: (text: string) => (
+          <Tag color="green">
+            {new Date(text).toLocaleDateString()}
+          </Tag>
+        ), // Format date
       },
       {
         title: 'End Date',
         dataIndex: 'end_date',
         key: 'end_date',
-        render: (text: string) => new Date(text).toLocaleDateString(), // Format date
+        render: (text: string) => (
+          <Tag color="green">
+            {new Date(text).toLocaleDateString()}
+          </Tag>
+        ), // Format date
       },
       {
         title: 'Plan Name',
         dataIndex: 'plan_name',
         key: 'plan_name',
-        render: (text: string) => text, // Parse JSON and display 'pricing'
+        render: (text: string) => (
+          <Tag color="blue">
+            {text}
+          </Tag>
+        ), 
       },
       {
         title: 'Price',
@@ -89,8 +101,8 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
           key: 'actions',
           render: (_: any, record: CampaignDisplayObj) => (
             <span>
-              <Button style={{marginRight: "4px"}} onClick={() => handleCampaignClick(record.campaign_id)} type="default">Edit</Button>
-              <Button type="default" danger>Delete</Button>
+              <Button style={{marginRight: "4px"}} type="primary">Details</Button>
+              <Button  onClick={() => handleCampaignClick(record.campaign_id)} type="default">Edit</Button>
             </span>
           ),
         }
@@ -100,18 +112,21 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
     useEffect(() => {
       if(campaignData) {
         const displayCampaignData = campaignData.map( (element) => {
-            return {
-              campaign_id: element.campaign_id,
-              start_date: element.start_date,
-              end_date: element.end_date,
-              video_link: element.video_link,
-              price: element.price,
-              video_title: element.video_title, 
-              channel_title: element.channel_title,
-              plan_name: element.plan_name
-            }
-          } );
+          return {
+            campaign_id: element.campaign_id,
+            start_date: element.start_date,
+            end_date: element.end_date,
+            video_link: element.video_link,
+            price: element.price,
+            video_title: element.video_title, 
+            channel_title: element.channel_title,
+            plan_name: element.plan_name
+          }
+        } );
+        
+
         setCampaigns(displayCampaignData);
+
       }
 
       if(resetCampaignsView) {
@@ -146,7 +161,6 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
 
     const getVideoLink = () => {
       const dataResult = campaigns.find(c => c.campaign_id === selectedVideoID);
-      console.log(dataResult);
       return dataResult ? dataResult.video_title : '';
     }
 
@@ -167,7 +181,7 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
             <div style={{display: 'flex', justifyContent: 'center'}}>
               <CampaignManage loadCampaignData = { loadCampaignData} setLoading={setLoading} 
                 data={campaigns.find(c => c.campaign_id === selectedVideoID)}
-              />
+                />
             </div>
           </div>
         )

@@ -50,19 +50,26 @@ const StatCard: React.FC<StatCardProps> = (props) => {
         style={{ 
           width: 300, 
           backgroundColor: colors[props.color], // Dark background
-          color: '#fff', // White text color
-          margin: "5px 10px"
+          color: '#fff !important', // White text color
+          margin: "5px 10px",
+          borderRadius: 8,
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+          transition: 'transform 0.3s', // Smooth transition
           
         }}
+        className="card-white-text"
         bordered={true}
-
+        hoverable // Makes the card respond to hover
+        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
       >
       <Statistic
         title= {props.text}
         value={props.data}
         suffix={props.suffix}
         prefix={icons[props.icon]}
-        style={{color: "white", fontWeight: "normal"}}
+        style={{color: "white !important", fontWeight: "normal"}}
+        className="statistic-white-text"
       />
       </Card>
   )

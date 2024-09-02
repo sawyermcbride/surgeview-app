@@ -23,6 +23,7 @@ const Dashboard: React.FC = () => {
   
 
   const [resetCampaignsView, setResetCampaignsView] = useState(false);
+  const [resetDashboardView, setResetDashboardView] = useState(false);
 
   const [selectedKey, setSelectedKey] = useState<string>("1");
 
@@ -56,6 +57,11 @@ const Dashboard: React.FC = () => {
     setResetCampaignsView(true);
   }
 
+  const handleDashboardClick = () => {
+    console.log("dashboard view reset");
+    setResetDashboardView(true);
+  }
+
 
   return (
     <Layout style={{ minHeight: "100vh", minWidth: "700px" }}>
@@ -67,7 +73,7 @@ const Dashboard: React.FC = () => {
           SurgeView
         </div>
         <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]} selectedKeys ={ [selectedKey]} onClick={handleMenuClick}>
-          <Menu.Item key="1" icon={<HomeOutlined />}>
+          <Menu.Item key="1" onClick={handleDashboardClick} icon={<HomeOutlined />}>
             Dashboard
           </Menu.Item>
           <Menu.Item key="2" onClick={handleCampaignsClick} icon={<BarsOutlined />}>
@@ -110,7 +116,9 @@ const Dashboard: React.FC = () => {
             paddingTop: "50px",
           }}
         >
-          <DashboardView resetCampaignsView = {resetCampaignsView} setResetCampaignsView = {setResetCampaignsView} selectedMenu={selectedKey}/>
+          <DashboardView resetCampaignsView = {resetCampaignsView} setResetCampaignsView = {setResetCampaignsView}
+           selectedMenu={selectedKey} setResetDashboardView={setResetDashboardView} resetDashboardView={resetDashboardView}/>
+
         </Content>
       </Layout>
     </Layout>

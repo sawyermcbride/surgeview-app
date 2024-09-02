@@ -55,3 +55,8 @@
     padding: '50px';
   }
 }
+
+.ant-statistic .ant-statistic-content, .ant-statistic .ant-statistic-title {
+  color: white;
+
+}

@@ -35,9 +35,6 @@ const CampaignManage: React.FC<CampaignManageProps> = ( {data, setLoading, loadC
 
 
     const onFinish = async (values: any) => {
-
-        console.log("Campaign managed submited");
-        console.log(values);
         setLoading(true);
         const token = localStorage.getItem("token");
         try {
@@ -51,7 +48,6 @@ const CampaignManage: React.FC<CampaignManageProps> = ( {data, setLoading, loadC
             })
         await loadCampaignData();
         
-        console.log(data.plan_name);
 
         setLoading(false);
         notification.success({
@@ -65,6 +61,9 @@ const CampaignManage: React.FC<CampaignManageProps> = ( {data, setLoading, loadC
             console.log(err);
         }
     }
+    useEffect(() => {
+        form.setFieldsValue({ plan_name: data.plan_name });
+    }, [data]); // This will run every time `data` changes
 
     const onPlanChange = ({target: {value}}: RadioChangeEvent) => {
         setPlanSelect(value);
