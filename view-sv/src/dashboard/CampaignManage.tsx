@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react";
 import {Form, Input, Button, Typography, notification, Space, Select,
-     Breadcrumb, RadioChangeEvent, Radio, Alert, Descriptions} from "antd";
+     Breadcrumb, RadioChangeEvent, Radio, Alert, Descriptions, Popconfirm, message, Modal} from "antd";
 import api from "../utils/apiClient";
 
 const {Option} = Select;
@@ -25,7 +25,7 @@ const CampaignManage: React.FC<CampaignManageProps> = ( {data, setLoading, loadC
     
     const [form] = Form.useForm();
     const [planSelect, setPlanSelect] = useState(data.plan_name);
-    
+    const [cancelClicked, setCancelClick] = useState(false); 
     
     const planOptions: Array<object> = [
         {label: 'Standard', value: 'Standard'},
@@ -33,6 +33,15 @@ const CampaignManage: React.FC<CampaignManageProps> = ( {data, setLoading, loadC
         {label: 'Pro', value: 'Pro'},
     ]
 
+    const handleCancelClick = () => {
+        setCancelClick(true);
+    }
+    const handleModalOk = () => {
+        setCancelClick(false);
+    }
+    const handleModalCancel = () => {
+        setCancelClick(false);
+    }
 
     const onFinish = async (values: any) => {
         setLoading(true);
@@ -83,6 +92,18 @@ const CampaignManage: React.FC<CampaignManageProps> = ( {data, setLoading, loadC
                 showIcon
                 style={{ marginBottom: '16px' }}
             />
+            <Modal
+                title="Confirm Cancellation"
+                visible={cancelClicked}
+                onOk={handleModalOk}
+                onCancel={handleModalCancel}
+                okText="Yes, Cancel"
+                cancelText="No"
+            >
+                <p>Are you sure you want to cancel this campaign? You will not be charged again.</p>
+                <p>Your campaign will continue to run until the end of your billing period.</p>
+                {/* You can add more detailed text or even additional content here */}
+            </Modal>
             <Title level={5}>Campaign Information</Title>
             <Descriptions column={1} bordered size="small" items={
                 [
@@ -114,10 +135,10 @@ const CampaignManage: React.FC<CampaignManageProps> = ( {data, setLoading, loadC
                 <Form.Item>
                     <Space>
                     <Button type="primary" htmlType="submit">
-                        Submit
+                        Update
                     </Button>
-                    <Button htmlType="button" >
-                        Reset
+                    <Button danger onClick={handleCancelClick} htmlType="button" >
+                        Cancel Campaign
                     </Button>
                     </Space>
                 </Form.Item>

@@ -37,41 +37,57 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
   const [campaignStatistics, setCampaignStatistics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
+  
+  
   const loadCampaignData = async () => {
     try {
-        // await login();
+      // await login();
+      
+      const lastCampaignRefresh = localStorage.getItem("lastCampaignRefresh");
+      let statisticsResult: object;
+      let shouldRefresh: boolean = true;
+        
         setLoading(true);
 
-        const lastCampaignRefresh = localStorage.getItem("lastCampaignRefresh");
+        const result = await api.get("http://10.0.0.47:3001/campaign/request", {
+          headers:{
+            Authorization: `Bearer ${token}`
+          }
+        } );
+        
+
         if(lastCampaignRefresh) {
           const storedTime = parseInt(lastCampaignRefresh, 10);
           const currentTime = Date.now();
 
           const timeDiff = currentTime - storedTime;
           const minutes = Math.floor(timeDiff / (1000 * 60));
-          if(minutes < 6) {
-            console.log("Short refresh");
-          }
+          shouldRefresh = (minutes >= 5);
+          console.log(`Should refresh value = ${shouldRefresh} and minutes since last refresh = ${minutes}`);
         } 
 
 
-        const result = await api.get("http://10.0.0.47:3001/campaign/request", {
+        if(shouldRefresh) {
+          console.log("Making statistics request");
+          const requestResult = await api.get("http://10.0.0.47:3001/campaign/statistics", {
             headers:{
-                Authorization: `Bearer ${token}`
+              Authorization: `Bearer ${token}`
             }
-        } );
+          });
 
-        const statisticsResult = await api.get("http://10.0.0.47:3001/campaign/statistics", {
-          headers:{
-            Authorization: `Bearer ${token}`
-          }
-        })
+          statisticsResult = requestResult.data;
 
-        localStorage.setItem("statisticsData", JSON.stringify(statisticsResult.data));
+          localStorage.setItem("lastCampaignRefresh", Date.now().toString());
+          localStorage.setItem("statisticsData", JSON.stringify(statisticsResult));
+          shouldRefresh = false;
+          
+        } else {
+          statisticsResult = JSON.parse(localStorage.getItem("statisticsData"));
+        }
+
         localStorage.setItem("campaignData", JSON.stringify(result.data));
 
-        setCampaignStatistics(statisticsResult.data);
+        setCampaignStatistics(statisticsResult);
         setCampaignData(result.data);
         props.setResetDashboardView(false);
         // console.log("New campaigns data loaded");
@@ -82,7 +98,7 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
     } finally {
         setTimeout( () => {
           setLoading(false);
-        },1500);
+        },500);
     }
   }
 
@@ -102,7 +118,7 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
           )
         } else {
           return (
-            <BaseStatistics  loading={loading} campaignStatistics = {campaignStatistics}  />
+            <BaseStatistics loading={loading} campaignStatistics = {campaignStatistics}  />
           );
         }
       case "2":

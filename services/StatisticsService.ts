@@ -24,7 +24,7 @@ class StatisticsService {
         FROM customers AS cu
         JOIN campaigns AS c ON cu.id = c.customer_id
         JOIN campaignstatistics AS cs ON c.campaign_id = cs.campaign_id
-        WHERE cu.email = $1`, [email]);
+        WHERE cu.email = $1 ORDER BY cs.end_timestamp DESC;`, [email]);
 
         const currentTime = new Date();
         const sevenDaysAgo = new Date(currentTime.getTime() - 7 * 24 * 60 * 60 *1000);
@@ -36,6 +36,9 @@ class StatisticsService {
         })
         const totalViewsValue = filteredArr.reduce( (sum, elem) => sum + elem.views, 0);
         const totalSubscribersValue = filteredArr.reduce( (sum, elem) => sum + elem.subscribers, 0);
+
+        const groupedCampaignStatistics = this.getStatisticsByCampaignId(result.rows);
+
         return {
             views: {
                 lastDay: lastDay.views,
@@ -44,7 +47,8 @@ class StatisticsService {
             subscribers: {
                 lastDay: lastDay.subscribers,
                 lastWeek: totalSubscribersValue
-            }
+            },
+            campaigns: groupedCampaignStatistics 
         }
     }
 
@@ -57,6 +61,18 @@ class StatisticsService {
         const numberofSetup = result.rows.filter(obj => obj.status === 'setup').length;
 
         return {numberofActive, numberofSetup};
+    }
+
+    private getStatisticsByCampaignId(arr: Array): Array {
+        let groupedCampaigns = {};
+
+        arr.forEach(element => {
+           if(!(element.campaign_id in groupedCampaigns)) {
+                groupedCampaigns[element.campaign_id] = [];
+            } 
+            groupedCampaigns[element.campaign_id].push(element);
+        });
+        return groupedCampaigns;
     }
 }
 

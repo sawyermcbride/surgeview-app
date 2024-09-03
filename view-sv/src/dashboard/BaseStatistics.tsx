@@ -4,14 +4,8 @@ import {
   Menu,
   Button,
   Typography,
-  Progress,
-  Card,
   Row,
   Col,
-  Statistic,
-  Spin,
-  Flex,
-  Alert
 } from "antd";
 
 import { HomeOutlined, UserOutlined, SettingOutlined } from "@ant-design/icons";
@@ -25,7 +19,7 @@ interface BaseStatisticsProps {
   loading: boolean;
 }
 
-const BaseStatistics = ({campaignStatistics, loading}) => {
+const BaseStatistics: React.FC<BaseStatisticsProps> = ({campaignStatistics, loading}) => {
   const [displayMessageBox, setDisplayMessageBox] = useState(false);
 
   useEffect( ()=> {
@@ -42,20 +36,32 @@ const BaseStatistics = ({campaignStatistics, loading}) => {
             Please allow a few hours before it begins running"/>
           </div>
           ) : (null)}
-          <div style={{display: "flex", flexWrap: "wrap", justifyContent:"center", alignItems: "flex-start", gap:"2px"}}>
-          {(campaignStatistics && campaignStatistics.status.numberofSetup > 0) ? (
-            <StatCard color="yellow" text="Campaign in Setup" icon="setting" suffix="In Setup" 
-            data={campaignStatistics.status.numberofSetup}/>
-          ): (null)}
-          {(campaignStatistics && campaignStatistics.status.numberofActive > 0) ? (
-              <StatCard color="green" text="Campaigns Active" icon="setting" suffix="Active"
-                data={campaignStatistics.status.numberofActive}/>
-          ): (null)}
-            <StatCard color="blue" text="Last 24 Hours" icon="bar_chart" suffix="Views" data={campaignStatistics.statistics.views.lastDay}/>
-            <StatCard color="blue" text="Last 24 Hours" icon="bar_chart" suffix="Subscribers" data={campaignStatistics.statistics.subscribers.lastDay}/>
-            <StatCard color="blue" text="Last 24 Hours" icon="bar_chart" suffix="Views" data={campaignStatistics.statistics.views.lastWeek}/>
-            <StatCard color="blue" text="Last 7 Days" icon="bar_chart" suffix="Subscribers" data={campaignStatistics.statistics.subscribers.lastWeek}/>
-          </div>
+          <Row gutter={[24, 24]}>
+            <Col xxl={6} xl={8} lg={12} md={12} sm={12} xs={24}>
+              {(campaignStatistics && campaignStatistics.status.numberofSetup > 0) ? (
+                <StatCard textColor="white" color="yellow" text="Campaign in Setup" icon="setting" suffix="In Setup" 
+                data={campaignStatistics.status.numberofSetup}/>
+              ): (null)}
+            </Col>
+            <Col xxl={6} xl={8} lg={12} md={12} sm={12} xs={24}>
+              {(campaignStatistics && campaignStatistics.status.numberofActive > 0) ? (
+                  <StatCard textColor="white" color="green" text="Campaigns Active" icon="setting" suffix="Active"
+                    data={campaignStatistics.status.numberofActive}/>
+              ): (null)}
+            </Col>
+            <Col xxl={6} xl={8} lg={12} md={12} sm={12} xs={24}>
+              <StatCard textColor="blue" color="white" text="Last 24 Hours" icon="bar_chart" suffix="Views" data={campaignStatistics.statistics.views.lastDay}/>
+            </Col>
+            <Col xxl={6} xl={8} lg={12} md={12} sm={12} xs={24}>
+              <StatCard textColor="blue" color="white" text="Last 24 Hours" icon="bar_chart" suffix="Subscribers" data={campaignStatistics.statistics.subscribers.lastDay}/>
+            </Col>
+            <Col xxl={6} xl={8} lg={12} md={12} sm={12} xs={24}>
+              <StatCard textColor="blue" color="white" text="Last 7 Days" icon="bar_chart" suffix="Views" data={campaignStatistics.statistics.views.lastWeek}/>
+            </Col>
+            <Col xxl={6} xl={8} lg={12} md={12} sm={12} xs={24} >
+              <StatCard textColor="blue" color="white" text="Last 7 Days" icon="bar_chart" suffix="Subscribers" data={campaignStatistics.statistics.subscribers.lastWeek}/>
+            </Col>
+          </Row>
         </div>
       )
     }

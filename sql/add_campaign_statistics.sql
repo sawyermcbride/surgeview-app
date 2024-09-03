@@ -1,5 +1,19 @@
-SELECT * FROM campaigns JOIN customers 
-ON customers.id = campaigns.customer_id WHERE customers.email = 'samcbride11@gmail.com';
-
-
-UPDATE campaigns SET status='setup' WHERE campaign_id = 40;
+INSERT INTO CampaignStatistics (
+    campaign_id,
+    views,
+    likes,
+    comments,
+    start_timestamp,
+    end_timestamp,
+    time_period,
+    subscribers
+) VALUES (
+    39,
+    105,
+    5,
+    0,
+    '2024-09-02T08:00:00Z', -- UTC time
+    '2024-09-03T08:00:00Z', -- UTC time
+    'day',
+    4
+);

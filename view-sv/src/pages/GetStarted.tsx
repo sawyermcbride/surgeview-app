@@ -60,11 +60,11 @@ const GetStarted: React.FC = () => {
   const getHeaderTitle = (num: Number) => {
     switch (num) {
       case 1:
-        return "1. Select the Video to Recieve Views in Your Campaign";
+        return "1. Choose Video to Promote";
       case 2:
-        return "2. Select a Plan";
+        return "2. Choose a Plan";
       case 3:
-        return "3. Add Your Card Details";
+        return "3. Payment Information";
       default:
         return "Error";
     }
@@ -74,7 +74,7 @@ const GetStarted: React.FC = () => {
     setFormLoading(true);
     localStorage.setItem("pricing", planName);
     localStorage.setItem("lastStepCompleted", "2");
-    setContentColumnWidth("50%");
+    setContentColumnWidth("75%");
 
     setTimeout(() => {
       setFormLoading(false);
@@ -101,6 +101,7 @@ const GetStarted: React.FC = () => {
 
     } else {
       setFormLoading(true);
+      setContentColumnWidth("100%");
       setTimeout(() => {
         console.log("ready to create campaign")
 
@@ -171,7 +172,7 @@ const GetStarted: React.FC = () => {
         <div style={{ padding: '50px 10px', background: '#f0f2f5' }}>
               <Row gutter={16} justify="center">
                 {plans.map((plan) => (
-                  <Col md={8} lg={8} sm={24}  xs={24} key={plan.title}>
+                  <Col md={12} lg={8} sm={24}  xs={24} key={plan.title}>
                     <Card
                       title={plan.title}
                       bordered={false}
@@ -195,7 +196,9 @@ const GetStarted: React.FC = () => {
       )
       case 3: 
         return (
-          <PaymentForm onPaymentSuccess={onSubmit}/>
+          <div style={{marginTop: "10%"}}>
+            <PaymentForm onPaymentSuccess={onSubmit}/>
+          </div>
         )
     }
   };

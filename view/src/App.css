@@ -36,32 +36,3 @@
     transform: rotate(360deg);
   }
 }
-
-@media (min-width: 600px) {
-  .custom-content {
-    text-align: "center";
-    padding: '0 100px'; 
-    margin-top: '20px'; 
-    max-width: "2000px";
-  }
-}
-@media (max-width: 600px) {
-  .custom-content {
-    text-align: "center";
- 
-    max-width: "2000px";
-  }
-  .mobile-landing-header-text {
-    padding: '50px';
-  }
-}
-
-.ant-statistic .ant-statistic-title.custom-statistic-title-white {
-  color: white;
-}
-.ant-statistic .ant-statistic-title.custom-statistic-title-black {
-  color: #2c3e50;
-}
-.ant-statistic .ant-statistic-title{
-  color: #333333;
-}

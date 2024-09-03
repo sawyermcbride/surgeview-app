@@ -3,7 +3,7 @@ import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { Form, Input, Button, Row, Col, Typography } from "antd";
 import { UserOutlined, MailOutlined } from "@ant-design/icons";
 
-const {Title, Paragraph} = Typography;
+const {Title, Paragraph, Text} = Typography;
 
 type PaymentFormProps = {
     onPaymentSuccess: (a: any) => void;
@@ -67,7 +67,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess}) => {
           <Form.Item
             name="name"
             label="Cardholder Name"
-            rules={[{ required: true, message: 'Please enter the cardholder name!' }]}
+            rules={[{ required: true, message: 'Please enter the cardholder name' }]}
           >
             <Input prefix={<UserOutlined />} placeholder="John Doe" />
           </Form.Item>
@@ -75,18 +75,9 @@ const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess}) => {
           <Form.Item label="Card Information">
             <CardElement options={CARD_ELEMENT_OPTIONS} />
           </Form.Item>
-
-          <Form.Item
-            name="zipCode"
-            label="Zip Code"
-            rules={[{ required: true, message: 'Please enter your zip code!' }]}
-          >
-            <Input prefix={<MailOutlined />} placeholder="12345" />
-          </Form.Item>
-
           <Form.Item>
-            <Button type="primary" htmlType="submit" disabled={!stripe || !elements}>
-              Submit
+            <Button size="large" type="primary" htmlType="submit" disabled={!stripe || !elements}>
+              Complete Signup
             </Button>
           </Form.Item>
         </Form>
@@ -94,8 +85,9 @@ const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess}) => {
       <Col lg={12} sm={24}>
         <div style={{padding: "25px 50px" }}>
           <Title level={4}>Start Getting New Views Today</Title>
-          <Paragraph>Compete signup to start marketing your video today. 
-            Manage your campaign and view details within our software. You can cancel at anytime in your account. </Paragraph>
+          <Text style={{fontSize: "18px"}}>Compete signup to start marketing your video today. 
+            Manage your campaign and view results within our software. <br/><br/>
+            You can easily cancel at anytime in your account. </Text>
         </div>
       </Col>
     </Row>

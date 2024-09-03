@@ -3,6 +3,7 @@ import { Table, Typography, Spin, Alert, Button, Breadcrumb, Tooltip, Tag } from
 import 'antd/dist/reset.css'; // Ensure Ant Design styles are imported
 import { useAuth } from '../components/AuthContext';
 import CampaignManage from './CampaignManage';
+import CampaignDetails from './CampaignDetails';
 
 import { StripePaymentMethodMessagingElement } from '@stripe/stripe-js';
 const { Title, Text } = Typography;
@@ -38,6 +39,7 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
   const [breadcrumbLink, setBreadcrumbLink] = useState("");
   const [loading, setLoading] = useState(false);
   const [showBreadcrumb, setShowBreadcrumb] = useState(false);
+  const [breadcrumbSecondaryTitle, setBreadcrumbSecondaryTitle] = useState("");
 
   // const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,27 +58,33 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
         },
         render: (text: string) => (
           text === 'active' ? (
-            <Text
-              style={{
-                color: '#27ae60', 
-                fontWeight: 'bold', 
-                display: 'inline-block',
-                margin: 0,
-              }}
-            >
-              {text && text.charAt(0).toUpperCase() + text.slice(1)}
-            </Text> 
+            <Tooltip title={"Your campaign is active. Click details to the right to view results, their may be a delay in these numbers."}>
+              <Text
+                style={{
+                  color: '#27ae60', 
+                  fontWeight: 'bold', 
+                  display: 'inline-block',
+                  margin: 0,
+                  cursor: "pointer"
+                }}
+              >
+                {text && text.charAt(0).toUpperCase() + text.slice(1)}
+              </Text> 
+            </Tooltip>
           ) : (
-            <Text
-              style={{
-                color:'#e67e22', 
-                fontWeight: 'bold', 
-                display: 'inline-block',
-                margin: 0,
-              }}
-            >
-            {text && text.charAt(0).toUpperCase() + text.slice(1)}
-          </Text>
+            <Tooltip title={"Your campaign is waiting approval by YouTube. This usually takes a few hours"}>
+              <Text
+                style={{
+                  color:'#e67e22', 
+                  fontWeight: 'bold', 
+                  display: 'inline-block',
+                  margin: 0,
+                  cursor: "pointer"
+                }}
+              >
+                {text && "In-" + text.charAt(0).toUpperCase() + text.slice(1)}
+              </Text>
+          </Tooltip>
           )
         ), 
       },
@@ -130,7 +138,7 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
           },
           render: (_: any, record: CampaignDisplayObj) => (
             <span>
-              <Button style={{marginRight: "4px"}} type="primary">Details</Button>
+              <Button onClick={() => handleCampaignDetailsClick(record.campaign_id)}style={{marginRight: "4px"}} type="primary">Details</Button>
               <Button  onClick={() => handleCampaignClick(record.campaign_id)} type="default">Edit</Button>
             </span>
           ),
@@ -173,9 +181,21 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
     }, [resetCampaignsView, campaignData]);
 
     const handleCampaignClick = (id: number) => {
-
+      setBreadcrumbSecondaryTitle("Edit");
       setSelectedVideoID(id);
       setCampaignViewSetting(1);
+      setBreadcrumbLink(campaigns.find( c => c.campaign_id === id).video_link);
+      setLoading(true);
+      setShowBreadcrumb(true);
+      setTimeout( () => {
+        setLoading(false);
+      }, 1000)
+    }
+
+    const handleCampaignDetailsClick = (id: number) => {
+      setBreadcrumbSecondaryTitle("Details");
+      setSelectedVideoID(id);
+      setCampaignViewSetting(2);
       setBreadcrumbLink(campaigns.find( c => c.campaign_id === id).video_link);
       setLoading(true);
       setShowBreadcrumb(true);
@@ -215,6 +235,12 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
             </div>
           </div>
         )
+      } else if(campaignViewSetting === 2) {
+        return (
+          <div style={{display: 'flex', justifyContent: 'center'}}>
+            <CampaignDetails campaignStatistics={campaignStatistics} setLoading={setLoading}/>
+          </div>
+        )
       }
     }
 
@@ -231,8 +257,11 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
                 title: <span style={{cursor: 'pointer'}} onClick={() => handleBreadcrumbClick('Campaigns')}>Campaigns</span>
               },
               {
+                title: breadcrumbSecondaryTitle   
+              },
+              {
                 title: getVideoLink()
-              }              
+              } 
             ]}
           />
         ) : null}

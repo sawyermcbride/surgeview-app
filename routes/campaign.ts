@@ -54,9 +54,9 @@ router.post("/add", async (req: Request, res: Response) => {
     console.log(videoDetails);
     await query("BEGIN");
     await query(
-      `INSERT INTO campaigns (customer_id, video_link, start_date, end_date, price, plan_name, video_title, channel_title)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-      [customerID.rows[0].id, videoLink, startDate, endDate, pricingTable[plan], plan, videoDetails.title, videoDetails.channelTitle],
+      `INSERT INTO campaigns (customer_id, video_link, start_date, end_date, price, plan_name, video_title, channel_title, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [customerID.rows[0].id, videoLink, startDate, endDate, pricingTable[plan], plan, videoDetails.title, videoDetails.channelTitle, 'setup'],
     );
 
     await query("COMMIT");
@@ -93,7 +93,7 @@ router.get("/request", async (req: Request, res: Response) => {
 })
 
 router.put("/update/:id", async (req: Request, res: Response) => {
-  const updateFields = ['video_link', 'plan_name'];
+  const updateFields = ['video_link', 'plan_name', 'status'];
 
   let videoId = req.params.id; 
   let updateData = req.body;
@@ -123,7 +123,7 @@ router.put("/update/:id", async (req: Request, res: Response) => {
         WHERE email = $1 AND campaigns.campaign_id = $2`, [req.user.email, videoId]);
         
         for (const elem of updateFields) {
-        console.log(`Updating ${elem} field where updateData[elem] = ${updateData[elem]} and database has value ${result.rows[0][elem]}`);
+        // console.log(`Updating ${elem} field where updateData[elem] = ${updateData[elem]} and database has value ${result.rows[0][elem]}`);
           // console.log(`result.rows[0][elem] = ${result.rows[0][elem]} and updateData[elem] = ${updateData[elem]} and elem = ${elem}`);
         if(updateData[elem] && updateData[elem] !== result.rows[0][elem]) {
           const queryText = `UPDATE campaigns SET ${elem} = $1 WHERE campaign_id = $2`;
