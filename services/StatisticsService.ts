@@ -24,7 +24,7 @@ class StatisticsService {
         FROM customers AS cu
         JOIN campaigns AS c ON cu.id = c.customer_id
         JOIN campaignstatistics AS cs ON c.campaign_id = cs.campaign_id
-        WHERE cu.email = $1;`, [email]);
+        WHERE cu.email = $1`, [email]);
 
         const currentTime = new Date();
         const sevenDaysAgo = new Date(currentTime.getTime() - 7 * 24 * 60 * 60 *1000);

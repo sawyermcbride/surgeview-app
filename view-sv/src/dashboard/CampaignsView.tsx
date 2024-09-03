@@ -56,13 +56,27 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
         },
         render: (text: string) => (
           text === 'active' ? (
-            <Title level={5} type="success">
-            {text && text.charAt(0).toUpperCase() + text.slice(1)}
-            </Title>  
-          ) : (
-            <Title level={5} type="warning">
+            <Text
+              style={{
+                color: '#27ae60', 
+                fontWeight: 'bold', 
+                display: 'inline-block',
+                margin: 0,
+              }}
+            >
               {text && text.charAt(0).toUpperCase() + text.slice(1)}
-            </Title>
+            </Text> 
+          ) : (
+            <Text
+              style={{
+                color:'#e67e22', 
+                fontWeight: 'bold', 
+                display: 'inline-block',
+                margin: 0,
+              }}
+            >
+            {text && text.charAt(0).toUpperCase() + text.slice(1)}
+          </Text>
           )
         ), 
       },
@@ -72,9 +86,6 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
         key: 'plan_name',
         width: 120,
         render: (text: string) => (
-          // <Tag color="blue">
-          //   {text}
-          // </Tag>
           <Text>
             {text}
           </Text>

@@ -42,22 +42,19 @@ const BaseStatistics = ({campaignStatistics, loading}) => {
             Please allow a few hours before it begins running"/>
           </div>
           ) : (null)}
-        
-          <div style={{}}>
-            <div style={{display: "flex", flexWrap: "wrap", gap:"2px"}}>
-            {(campaignStatistics && campaignStatistics.status.numberofSetup > 0) ? (
-              <StatCard color="yellow" text="Campaign in Setup" icon="setting" suffix="In Setup" 
-              data={campaignStatistics.status.numberofSetup}/>
-            ): (null)}
-            {(campaignStatistics && campaignStatistics.status.numberofActive > 0) ? (
-                <StatCard color="green" text="Campaigns Active" icon="setting" suffix="Active"
-                 data={campaignStatistics.status.numberofActive}/>
-            ): (null)}
-              <StatCard color="blue" text="Last 24 Hours" icon="bar_chart" suffix="Views" data={campaignStatistics.statistics.views.lastDay}/>
-              <StatCard color="blue" text="Last 24 Hours" icon="bar_chart" suffix="Subscribers" data={campaignStatistics.statistics.subscribers.lastDay}/>
-              <StatCard color="blue" text="Last 24 Hours" icon="bar_chart" suffix="Views" data={campaignStatistics.statistics.views.lastWeek}/>
-              <StatCard color="blue" text="Last 7 Days" icon="bar_chart" suffix="Subscribers" data={campaignStatistics.statistics.subscribers.lastWeek}/>
-            </div>
+          <div style={{display: "flex", flexWrap: "wrap", justifyContent:"center", alignItems: "flex-start", gap:"2px"}}>
+          {(campaignStatistics && campaignStatistics.status.numberofSetup > 0) ? (
+            <StatCard color="yellow" text="Campaign in Setup" icon="setting" suffix="In Setup" 
+            data={campaignStatistics.status.numberofSetup}/>
+          ): (null)}
+          {(campaignStatistics && campaignStatistics.status.numberofActive > 0) ? (
+              <StatCard color="green" text="Campaigns Active" icon="setting" suffix="Active"
+                data={campaignStatistics.status.numberofActive}/>
+          ): (null)}
+            <StatCard color="blue" text="Last 24 Hours" icon="bar_chart" suffix="Views" data={campaignStatistics.statistics.views.lastDay}/>
+            <StatCard color="blue" text="Last 24 Hours" icon="bar_chart" suffix="Subscribers" data={campaignStatistics.statistics.subscribers.lastDay}/>
+            <StatCard color="blue" text="Last 24 Hours" icon="bar_chart" suffix="Views" data={campaignStatistics.statistics.views.lastWeek}/>
+            <StatCard color="blue" text="Last 7 Days" icon="bar_chart" suffix="Subscribers" data={campaignStatistics.statistics.subscribers.lastWeek}/>
           </div>
         </div>
       )
