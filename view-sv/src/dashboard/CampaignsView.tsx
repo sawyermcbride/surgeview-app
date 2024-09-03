@@ -28,7 +28,8 @@ interface CampaignDisplayObj {
 
 
 
-const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaignData, resetCampaignsView, setResetCampaignsView}) => {
+const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaignData, campaignStatistics,
+   resetCampaignsView, setResetCampaignsView}) => {
   
   const {login, token} = useAuth();
   const [campaigns, setCampaigns] = useState<any[]>([]);
@@ -41,53 +42,66 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
   // const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   
+  
+
   const data_columns = [
       {
-        title: 'Start Date',
-        dataIndex: 'start_date',
-        key: 'start_date',
+        title: 'Status',
+        dataIndex: 'status',
+        key: 'status',
+        width: 120,
+        align: 'center',
+        onCell: () => {
+          return { style: { textAlign: "center" } }; // Flexbox style to allow column to shrink or expand
+        },
         render: (text: string) => (
-          <Tag color="green">
-            {new Date(text).toLocaleDateString()}
-          </Tag>
-        ), // Format date
-      },
-      {
-        title: 'End Date',
-        dataIndex: 'end_date',
-        key: 'end_date',
-        render: (text: string) => (
-          <Tag color="green">
-            {new Date(text).toLocaleDateString()}
-          </Tag>
-        ), // Format date
+          text === 'active' ? (
+            <Title level={5} type="success">
+            {text && text.charAt(0).toUpperCase() + text.slice(1)}
+            </Title>  
+          ) : (
+            <Title level={5} type="warning">
+              {text && text.charAt(0).toUpperCase() + text.slice(1)}
+            </Title>
+          )
+        ), 
       },
       {
         title: 'Plan Name',
         dataIndex: 'plan_name',
         key: 'plan_name',
+        width: 120,
         render: (text: string) => (
-          <Tag color="blue">
+          // <Tag color="blue">
+          //   {text}
+          // </Tag>
+          <Text>
             {text}
-          </Tag>
+          </Text>
         ), 
       },
       {
         title: 'Price',
         dataIndex: 'price',
         key: 'price',
+        width: 120,
         render: (text: string) => `$${text}`, // Format as currency
       },
       {
           title: 'Video Title',
           dataIndex: 'video_title',
           key: 'video_title',
+          responsive:["sm"],
+          ellipsis: true,
+          onCell: () => {
+            return { style: { minWidth: '150px', flex: 1 } }; // Flexbox style to allow column to shrink or expand
+          },
           render: (text:string) => (
+            // text
             <Tooltip title={text}>
                 <Text style={{
-                    display: 'inline-block',
+                    display: 'block',
                     overflow: 'hidden',
-                    maxWidth: '300px',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
                 }}>
@@ -99,6 +113,10 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
       {
           title: 'Actions',
           key: 'actions',
+          width: 200,
+          onCell: () => {
+            return { style: { textAlign: "center" } }; // Flexbox style to allow column to shrink or expand
+          },
           render: (_: any, record: CampaignDisplayObj) => (
             <span>
               <Button style={{marginRight: "4px"}} type="primary">Details</Button>
@@ -115,6 +133,7 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
           return {
             campaign_id: element.campaign_id,
             start_date: element.start_date,
+            status: element.status,
             end_date: element.end_date,
             video_link: element.video_link,
             price: element.price,

@@ -43,7 +43,8 @@ const BaseStatistics = ({campaignStatistics, loading}) => {
           </div>
           ) : (null)}
         
-          <div style={{display: "flex", justifyContent: "center", flexWrap:"wrap", gap:"2px"}}>
+          <div style={{}}>
+            <div style={{display: "flex", flexWrap: "wrap", gap:"2px"}}>
             {(campaignStatistics && campaignStatistics.status.numberofSetup > 0) ? (
               <StatCard color="yellow" text="Campaign in Setup" icon="setting" suffix="In Setup" 
               data={campaignStatistics.status.numberofSetup}/>
@@ -56,6 +57,7 @@ const BaseStatistics = ({campaignStatistics, loading}) => {
               <StatCard color="blue" text="Last 24 Hours" icon="bar_chart" suffix="Subscribers" data={campaignStatistics.statistics.subscribers.lastDay}/>
               <StatCard color="blue" text="Last 24 Hours" icon="bar_chart" suffix="Views" data={campaignStatistics.statistics.views.lastWeek}/>
               <StatCard color="blue" text="Last 7 Days" icon="bar_chart" suffix="Subscribers" data={campaignStatistics.statistics.subscribers.lastWeek}/>
+            </div>
           </div>
         </div>
       )
