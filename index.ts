@@ -47,10 +47,10 @@ app.use(
   }),
 );
 
-app.use( (req: Request, res: Response, next) => {
-  console.log(req.url);
-  next();
-})
+// app.use( (req: Request, res: Response, next) => {
+//   console.log(req.url);
+//   next();
+// })
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

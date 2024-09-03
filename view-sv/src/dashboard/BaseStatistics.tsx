@@ -43,7 +43,7 @@ const BaseStatistics = ({campaignStatistics, loading}) => {
           </div>
           ) : (null)}
         
-          <div style={{display: "flex", justifyContent: "start", flexWrap:"wrap", gap:"2px"}}>
+          <div style={{display: "flex", justifyContent: "center", flexWrap:"wrap", gap:"2px"}}>
             {(campaignStatistics && campaignStatistics.status.numberofSetup > 0) ? (
               <StatCard color="yellow" text="Campaign in Setup" icon="setting" suffix="In Setup" 
               data={campaignStatistics.status.numberofSetup}/>

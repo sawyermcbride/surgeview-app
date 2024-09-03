@@ -86,8 +86,8 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
             <Tooltip title={text}>
                 <Text style={{
                     display: 'inline-block',
-                    maxWidth: '250px',
                     overflow: 'hidden',
+                    maxWidth: '300px',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
                 }}>
@@ -211,7 +211,7 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
             <Spin size="large" style={{marginTop: "25px"}}/>
           </div>
         ): (
-          <div>
+          <div style={{width: '100%'}}>
               <div style={{ padding: '24px', width: '100%'}}>
                 {getView()}
               </div>

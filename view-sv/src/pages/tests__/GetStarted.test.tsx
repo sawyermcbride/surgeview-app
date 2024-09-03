@@ -52,7 +52,7 @@ describe('GetStarted', () => {
         const textFieldOne = screen.getByLabelText(/YouTube URL/i);
         const button = screen.getByText(/Submit/i);
         
-        fireEvent.change(textFieldOne, { target: { value: 'youtube.com/trump' } });
+        fireEvent.change(textFieldOne, { target: { value: 'https://www.youtube.com/watch?v=YsfIg2SgN5Q' } });
         
         fireEvent.click(button);
 

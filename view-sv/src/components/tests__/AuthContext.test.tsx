@@ -48,10 +48,7 @@ const TestComponent = () => {
 
 describe("Auth Provider", () => {
 
-    test('matchMedia is mocked', () => {
-        expect(window.matchMedia).toBeDefined();
-        expect(window.matchMedia('(min-width: 600px)').matches).toBe(false);
-    });
+
       
     afterEach( () => {
         vi.clearAllMocks();

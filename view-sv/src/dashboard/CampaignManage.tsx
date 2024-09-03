@@ -58,10 +58,16 @@ const CampaignManage: React.FC<CampaignManageProps> = ( {data, setLoading, loadC
 
         } catch(err) {
             setLoading(false);
-            console.log(err);
+            
+            notification.error({
+                message: "Failed to Update",
+                description: "Please check your link and try again."
+            })
+
         }
     }
     useEffect(() => {
+
         form.setFieldsValue({ plan_name: data.plan_name });
     }, [data]); // This will run every time `data` changes
 

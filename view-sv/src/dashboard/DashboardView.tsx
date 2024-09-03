@@ -97,17 +97,18 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
         if(loading) {
           return (
             <div style={{display: 'flex', justifyContent: 'center'}}>
-              <Spin size="large" style={{marginTop: "25px"}}/>
+              <Spin data-testid="spinner" size="large" style={{marginTop: "25px"}}/>
             </div>
           )
         } else {
           return (
-            <BaseStatistics loading={loading} campaignStatistics = {campaignStatistics}  />
+            <BaseStatistics  loading={loading} campaignStatistics = {campaignStatistics}  />
           );
         }
       case "2":
         return(
           <CampaignsView 
+            data-testid="campaigns-view"
             campaignData = {campaignData}
             campaignStatistics = {campaignStatistics}
             resetCampaignsView = {props.resetCampaignsView}
@@ -127,7 +128,7 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
   };
 
   return ( 
-    <div style={{width: "90%"}} >
+    <div style={{width: "100%"}} >
         {renderView()}
     </div>
   )

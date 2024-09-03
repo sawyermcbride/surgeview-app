@@ -15,7 +15,7 @@ const { Title, Text } = Typography;
 const GetStarted: React.FC = () => {
   const [signupStep, setSignupStep] = useState(1);
   const [formLoading, setFormLoading] = useState(false);
-  const [contentColumnWidth, setContentColumnWidth] = useState("50%");
+  const [contentColumnWidth, setContentColumnWidth] = useState("75%");
   
   useEffect( () => {
     const lastStepCompleted = localStorage.getItem("lastStepCompleted");
@@ -88,7 +88,7 @@ const GetStarted: React.FC = () => {
       if(signupStep === 0) {
         setContentColumnWidth("75%");
       } else {
-        setContentColumnWidth("50%");
+        setContentColumnWidth("100%");
       }
       localStorage.setItem("youtubeUrl", values.youtube_url);
       localStorage.setItem("lastStepCompleted", "1");
@@ -208,7 +208,7 @@ const GetStarted: React.FC = () => {
         <img src="surge_view_new_cropped_transparent.png" alt="Logo" style={{ height: '60px', marginBottom: '20px' }} />
       </Header>
       <Content style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', flexDirection: 'column', paddingTop: '50px' }}>
-        <div style={{ width: contentColumnWidth, minWidth: "350px", maxWidth: "1200px", textAlign: 'center' }}>
+        <div style={{ width: contentColumnWidth, minWidth: "350px", textAlign: 'center' }}>
           <Title level={3} style={{ color: '#333' }}>{getHeaderTitle(signupStep)}</Title>
           {formLoading ? (<Spin size="large" style={{marginTop: "25px"}}/>) : (
             getMainContent()
