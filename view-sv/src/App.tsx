@@ -12,6 +12,8 @@ import { Elements } from "@stripe/react-stripe-js";
 
 import "antd/dist/reset.css";
 import AuthLayout from "./components/AuthLayout";
+import { StripeProvider } from "./contexts/StripeContext";
+
 import { AuthProvider, useAuth } from "./components/AuthContext";
 import LoginForm from "./components/LoginForm";
 import Dashboard from "./pages/Dashboard";
@@ -53,14 +55,15 @@ const AuthRoutes: React.FC = () => {
 };
 
 const App: React.FC = () => {
-
   return (
     <AuthProvider>
-      <Elements stripe={stripePromise}>
-        <Router>
-          <AuthRoutes/>
-        </Router>
-      </Elements>
+      <StripeProvider>
+        <Elements options={{clientSecret: "pi_3PvEa5KG6RDK9K4g1YATYpG2_secret_CEtDF8DAhArxEPU9kEObtH2Vj"}} stripe={stripePromise}>
+          <Router>
+            <AuthRoutes/>
+          </Router>
+        </Elements>
+      </StripeProvider>
     </AuthProvider>
   )
 }

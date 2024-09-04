@@ -25,13 +25,13 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({setLoading, campaignSt
             <div style={{margin:"0px 10px"}}>
                 <Row gutter={[24,24]}>
                     <Col style={{ border: "0px solid red" }} xxl={8} xl={8} lg={12} md={12} sm={24}>
-                        <StatCard textColor="green" color="white" icon="bar_chart" text={"Yesterday"} data={15} suffix="Views"/>
+                        <StatCard textColor="white" color="blue" icon="bar_chart" text="Yesterday" data={15} suffix="Views"/>
                     </Col>
                     <Col style={{ border: "0px solid red" }} xxl={8} xl={8} lg={12} md={12} sm={24}>
-                        <StatCard textColor="green" color="white" icon="bar_chart" text={"Yesterday"} data={4} suffix="New Subscribers"/>
+                        <StatCard textColor="white" color="blue" icon="bar_chart" text="Yesterday" data={4} suffix="New Subscribers"/>
                     </Col>
                     <Col style={{ border: "0px solid red" }} xxl={8} xl={8} lg={12} md={12} sm={24}>
-                        <StatCard textColor="green" color="white" icon="bar_chart" text={"Yesterday"} data={4} suffix="New Subscribers"/>
+                        <StatCard textColor="white" color="blue" icon="bar_chart" text="Yesterday" data={4} suffix="New Subscribers"/>
                     </Col>
                 </Row>
             </div>

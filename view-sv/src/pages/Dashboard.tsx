@@ -2,8 +2,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import DashboardView from "../dashboard/DashboardView";
 
-import { Layout, Menu, Button, Typography, Dropdown } from "antd";
-import { HomeOutlined, BarsOutlined, SettingOutlined, LogoutOutlined } from "@ant-design/icons";
+import { Layout, Menu, Button, Typography, Dropdown, Drawer } from "antd";
+import { HomeOutlined, BarsOutlined, SettingOutlined, LogoutOutlined, MenuOutlined } from "@ant-design/icons";
 import { useAuth } from "../components/AuthContext";
 
 
@@ -29,7 +29,10 @@ const Dashboard: React.FC = () => {
 
   const [title, setTitle] = useState<string>(headerTitle["1"]);
   const {email, login, logout} = useAuth();
-  
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+
   const handleLogout = () => {
 
     logout();
@@ -43,7 +46,18 @@ const Dashboard: React.FC = () => {
     </Menu>
   );
   
+  const handleDrawerOpen = () => {
+    setDrawerVisible(true);
+  }
+  const handleDrawerClose = () => {
+    setDrawerVisible(false);
+  }
+
   useEffect( () => {
+    window.addEventListener('resize', () => {
+        setIsMobile(window.innerWidth < 800);
+    });
+
     login();
 
   },[]);
@@ -62,16 +76,24 @@ const Dashboard: React.FC = () => {
     setResetDashboardView(true);
   }
 
+  const renderMenu = () => {
 
-  return (
-    <Layout style={{ minHeight: "100vh", minWidth: "700px" }}>
-      <Sider collapsible>
-        <div
-          className="logo"
-          style={{ padding: "16px", textAlign: "center", color: "#fff" }}
-        >
-          SurgeView
-        </div>
+    if(isMobile) {
+      return (
+          <Menu theme="light" mode="inline" defaultSelectedKeys={["1"]} selectedKeys ={ [selectedKey]} onClick={handleMenuClick}>
+            <Menu.Item key="1" onClick={handleDashboardClick} icon={<HomeOutlined />}>
+              Dashboard
+            </Menu.Item>
+            <Menu.Item key="2" onClick={handleCampaignsClick} icon={<BarsOutlined />}>
+              Campaigns
+            </Menu.Item>
+            <Menu.Item key="3" icon={<SettingOutlined />}>
+              Settings
+            </Menu.Item>
+          </Menu>
+        )
+    } else {
+      return (
         <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]} selectedKeys ={ [selectedKey]} onClick={handleMenuClick}>
           <Menu.Item key="1" onClick={handleDashboardClick} icon={<HomeOutlined />}>
             Dashboard
@@ -83,10 +105,49 @@ const Dashboard: React.FC = () => {
             Settings
           </Menu.Item>
         </Menu>
-      </Sider>
+      )
+    }
+  }
+
+
+  return (
+    <Layout style={{ minHeight: "100vh", minWidth: "700px" }}>
+      {
+        isMobile ? (
+          <>
+            <Drawer
+                title="SurgeView"
+                placement="left"
+                onClose={handleDrawerClose}
+                open={drawerVisible}
+                style={{ padding: 0 }}
+            >
+                {renderMenu()}
+            </Drawer>
+            <Button
+                className="menu-toggle"
+                style={{ display: (isMobile ? 'inline-block': 'none'), position: 'fixed', top: 16, left: 16, zIndex: 1000 }}
+                type="primary"
+                icon={<MenuOutlined />}
+                onClick={handleDrawerOpen}
+            />
+          </>
+        ) : (
+          <Sider collapsible>
+            <div
+              className="logo"
+              style={{ padding: "16px", textAlign: "center", color: "#fff" }}
+            >
+              SurgeView Marketing
+            </div>
+            {renderMenu()}
+          </Sider>
+          
+        )
+      }
       <Layout>
         <Header style={{ background: "#fff", padding: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Title level={2} style={{ margin: "16px" }}>
+          <Title level={2} style={{ marginTop: "16px", marginRight: "16px", marginBottom: "16px", marginLeft: (isMobile ? "70px" : "16px") }}>
             {title}
           </Title>
           <Dropdown 
@@ -116,7 +177,7 @@ const Dashboard: React.FC = () => {
             paddingTop: "50px",
           }}
         >
-          <DashboardView resetCampaignsView = {resetCampaignsView} setResetCampaignsView = {setResetCampaignsView}
+          <DashboardView isMobile={isMobile} resetCampaignsView = {resetCampaignsView} setResetCampaignsView = {setResetCampaignsView}
            selectedMenu={selectedKey} setResetDashboardView={setResetDashboardView} resetDashboardView={resetDashboardView}/>
 
         </Content>

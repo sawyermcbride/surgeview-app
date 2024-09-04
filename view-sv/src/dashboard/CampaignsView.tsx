@@ -4,6 +4,7 @@ import 'antd/dist/reset.css'; // Ensure Ant Design styles are imported
 import { useAuth } from '../components/AuthContext';
 import CampaignManage from './CampaignManage';
 import CampaignDetails from './CampaignDetails';
+import CampaignsViewMobile from './CampaignsViewMobile';
 
 import { StripePaymentMethodMessagingElement } from '@stripe/stripe-js';
 const { Title, Text } = Typography;
@@ -15,6 +16,7 @@ interface CampaignsViewProps {
     campaignStatistics: any;
     loading: boolean;
     resetCampaignsView: boolean,
+    isMobile: boolean,
     setResetCampaignsView: (arg: boolean) => void,
     loadCampaignData: () => Promise<void>,
 }
@@ -30,7 +32,7 @@ interface CampaignDisplayObj {
 
 
 const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaignData, campaignStatistics,
-   resetCampaignsView, setResetCampaignsView}) => {
+   resetCampaignsView, setResetCampaignsView, isMobile}) => {
   
   const {login, token} = useAuth();
   const [campaigns, setCampaigns] = useState<any[]>([]);
@@ -216,15 +218,27 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
 
     const getView = () => {
       if(campaignViewSetting === 0) {
-        return (
-          <div style={{display: 'flex', justifyContent: 'center'}}>
-            <Table
-              dataSource={campaignData}
-              columns={data_columns}
-              pagination={false}
-            />
-          </div>
-        )
+
+        if(isMobile) {
+          return (
+            <div style={{display: 'flex', justifyContent: 'center'}}>
+              <CampaignsViewMobile campaignsData = {campaignData}
+              handleCampaignClick={handleCampaignClick} handleCampaignDetailsClick={handleCampaignDetailsClick}/>
+            </div>
+          )
+        } else {
+          return (  
+            <div style={{display: 'flex', justifyContent: 'center'}}>
+  
+              <Table
+                dataSource={campaignData}
+                columns={data_columns}
+                pagination={false}
+              />
+            </div>
+          )
+
+        }
       } else if (campaignViewSetting === 1) {
         return (
           <div>

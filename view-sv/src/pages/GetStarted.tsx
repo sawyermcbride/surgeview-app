@@ -6,10 +6,13 @@ import PaymentForm from "../components/PaymentForm";
 
 import { useNavigate } from "react-router";
 import api from "../utils/apiClient";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
 
 const { Header, Footer, Content } = Layout;
 const { Title, Text } = Typography;
 
+const stripePromise = loadStripe("pk_test_51PmqG6KG6RDK9K4gUxR1E9XN8qvunE6UUfkM1Y5skfm48UnhrQ4SjHyUM4kAsa4kpJAfQjANu6L8ikSnx6qMu4fY00I6aJBlkG");
 
 
 const GetStarted: React.FC = () => {
@@ -84,9 +87,20 @@ const GetStarted: React.FC = () => {
   }
 
   const onSubmit = (values: any) => {
+    /**
+     * On submit is not called for pricing submit 
+     * Step 1 is on startup when just the video link page is displaying
+     * Step 2 is reached after the video link is submitted and the packages choice is displaying
+     * Step 3 is the payment form and indicates the previous two are complete
+     * The statement below for (signupStep < 3) is used for all pages untill signupStep is --
+     *  incremented to 4 which means payment information is submitted 
+     */
+
     if(signupStep < 3) {
-      if(signupStep === 0) {
+      if(signupStep === 1) {
         setContentColumnWidth("75%");
+        
+
       } else {
         setContentColumnWidth("100%");
       }

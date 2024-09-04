@@ -1,9 +1,16 @@
-import React from "react";
-import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import { Form, Input, Button, Row, Col, Typography } from "antd";
+import React, {useState, useEffect} from "react";
+import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+
+
+import { Form, Input, Button, Row, Col, Typography, Alert } from "antd";
 import { UserOutlined, MailOutlined } from "@ant-design/icons";
+import api from "../utils/apiClient";
+import { useStripeContext } from "../contexts/StripeContext";
+
 
 const {Title, Paragraph, Text} = Typography;
+
+
 
 type PaymentFormProps = {
     onPaymentSuccess: (a: any) => void;
@@ -12,10 +19,43 @@ type PaymentFormProps = {
 const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess}) => {
   const stripe = useStripe();
   const elements = useElements();
+  const [showMessage, setShowMessage] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [loading, isLoading] = useState(false);
+  const [status, setStatus] = useState("default");
+  const [intentId, setIntentId] = useState(null);
 
+  const {clientSecret, fetchClientSecret} = useStripeContext();
 
+  useEffect( () => {
 
-  const CARD_ELEMENT_OPTIONS = {
+    if (!stripe) {
+      return;
+    }
+
+    if (!clientSecret) {
+      return;
+    }
+
+    fetchClientSecret(99);
+
+    stripe.retrievePaymentIntent(clientSecret).then(({paymentIntent}) => {
+      if (!paymentIntent) {
+        return;
+      }
+
+      setStatus(paymentIntent.status);
+      setIntentId(paymentIntent.id);
+    })
+    .catch(err => {
+      console.error(err);
+      setShowMessage(true);
+      setErrorMessage(err);
+    })
+
+  },[])
+
+  const paymentElementOptions = {
     // style: {
     //   base: {
     //     color: '#32325d',
@@ -41,16 +81,12 @@ const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess}) => {
     }
 
     // Create a payment method with the card details
-    const { error, paymentMethod } = await stripe.createPaymentMethod({
-      type: 'card',
-      card: elements.getElement(CardElement)!,
-      billing_details: {
-        name: values.name,
-        address: {
-          postal_code: values.zipCode,
-        },
-      },
-    });
+    const {error} = await stripe.confirmPayment({
+      elements, 
+      confirmParams: {
+        return_url: 'http://10.0.0.47:5173/dashboard'
+      }
+    })
 
     if (error) {
       console.error(error);
@@ -61,22 +97,24 @@ const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess}) => {
   };
 
   return (
+    <>
+    {showMessage && (
+      <Alert
+        message="Payment Error"
+        description={errorMessage}
+        type="error"
+        showIcon
+        style={{marginBottom: "40px"}}
+      />
+    )}
     <Row>
       <Col lg={12} sm={24}>
         <Form onFinish={onSubmit} layout="vertical">
-          <Form.Item
-            name="name"
-            label="Cardholder Name"
-            rules={[{ required: true, message: 'Please enter the cardholder name' }]}
-          >
-            <Input prefix={<UserOutlined />} placeholder="John Doe" />
-          </Form.Item>
-
           <Form.Item label="Card Information">
-            <CardElement options={CARD_ELEMENT_OPTIONS} />
+            <PaymentElement  id='payment-element' options={paymentElementOptions}/>
           </Form.Item>
           <Form.Item>
-            <Button size="large" type="primary" htmlType="submit" disabled={!stripe || !elements}>
+            <Button size="large" type="primary" htmlType="submit" disabled={loading || !stripe || !elements}>
               Complete Signup
             </Button>
           </Form.Item>
@@ -91,6 +129,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess}) => {
         </div>
       </Col>
     </Row>
+    </>
   );
 };
 

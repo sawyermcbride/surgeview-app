@@ -14,6 +14,7 @@ import loginRouter from "./routes/login";
 import campaignRouter from "./routes/campaign";
 import authRouter from "./routes/auth";
 import youtubeRouter from "./routes/youtube";
+import paymentRouter from "./routes/payment"
 
 import { fileURLToPath } from "url";
 import path, { dirname } from "path";
@@ -70,6 +71,7 @@ app.use("/youtube", youtubeRouter);
 app.use("/signup", signupRouter);
 app.use("/login", loginRouter);
 app.use("/auth", authRouter);
+app.use("/payment", paymentRouter);
 
 app.use(
   jwt({

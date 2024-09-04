@@ -27,6 +27,7 @@ interface DashboardViewProps {
   selectedMenu: string
   resetCampaignsView: boolean,
   resetDashboardView: boolean,
+  isMobile: boolean,
   setResetCampaignsView: (arg: boolean) => void,
   setResetDashboardView: (arg: boolean) => void,
 }
@@ -118,7 +119,7 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
           )
         } else {
           return (
-            <BaseStatistics loading={loading} campaignStatistics = {campaignStatistics}  />
+            <BaseStatistics isMobile={props.isMobile} loading={loading} campaignStatistics = {campaignStatistics}  />
           );
         }
       case "2":
@@ -127,6 +128,7 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
             data-testid="campaigns-view"
             campaignData = {campaignData}
             campaignStatistics = {campaignStatistics}
+            isMobile={props.isMobile}
             resetCampaignsView = {props.resetCampaignsView}
             setResetCampaignsView={props.setResetCampaignsView}
             loadCampaignData = {loadCampaignData}

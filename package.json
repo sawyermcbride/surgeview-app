@@ -25,7 +25,8 @@
     "pg": "^8.12.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router": "^6.26.0"
+    "react-router": "^6.26.0",
+    "stripe": "^16.9.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.8",
@@ -39,6 +40,7 @@
     "@types/pg": "^8.11.6",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "@types/stripe": "^8.0.417",
     "concurrently": "^8.2.2",
     "cypress": "^13.13.3",
     "express": "^4.19.2",

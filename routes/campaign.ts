@@ -53,15 +53,15 @@ router.post("/add", async (req: Request, res: Response) => {
   
     console.log(videoDetails);
     await query("BEGIN");
-    await query(
+    const result = await query(
       `INSERT INTO campaigns (customer_id, video_link, start_date, end_date, price, plan_name, video_title, channel_title, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING campaign_id`,
       [customerID.rows[0].id, videoLink, startDate, endDate, pricingTable[plan], plan, videoDetails.title, videoDetails.channelTitle, 'setup'],
     );
 
     await query("COMMIT");
 
-    return res.status(201).json({ message: "Campaign added" });
+    return res.status(201).json({campaignId: result.rows[0].campaign_id, message: "Campaign added" });
   
   } catch (err) {
     await query("ROLLBACK");

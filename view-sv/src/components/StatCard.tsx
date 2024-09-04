@@ -26,7 +26,8 @@ interface StatCardProps {
   icon: keyof Icons, 
   text: string, 
   data: number,
-  suffix: string
+  suffix: string,
+  isMobile: boolean
 }
 
 
@@ -53,21 +54,22 @@ const StatCard: React.FC<StatCardProps> = (props) => {
   useEffect(() => {
     const elems = document.querySelectorAll('.ant-statistic div.ant-statistic-title');
     const getTitleElems = Array.from(elems).filter(e => e.textContent?.includes(props.text));
+    console.log(`Rendering font for isMobile = ${props.isMobile} at size = ${(props.isMobile ? '10px' : '15px')}`);
     getTitleElems.forEach( (e) => {
+      e.style.fontSize = (props.isMobile ? '10px' : '14px');
       if(props.color === 'white') {
         e.style.color = '#333333';
-        // e.style.color = 'blue';
       } else {
         e.style.color = colors.white;
       }
     }
   )
-  }, []);
+  }, [props.isMobile]);
 
   return (
       <Card
         style={{ 
-          width: 250, 
+          width: (props.isMobile ? 175 : 250), 
           backgroundColor: colors[props.color], // Dark background
           color: (props.color === 'white'? '#333333 !important' :'#fff !important'), // White text color
           margin: "5px 10px",
@@ -87,7 +89,7 @@ const StatCard: React.FC<StatCardProps> = (props) => {
         value={props.data}
         suffix={props.suffix}
         prefix={icons[props.icon]}
-        valueStyle={{fontSize:"20px", color: colors[props.textColor]}}
+        valueStyle={{fontSize:(props.isMobile ? "15px":"20px") , color: colors[props.textColor]}}
         style={{fontWeight: "normal"}}
         className="statistic-white-text"
       />

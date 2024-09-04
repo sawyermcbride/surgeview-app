@@ -17,9 +17,10 @@ import MessageBox from "../components/MessageBox";
 interface BaseStatisticsProps {
   campaignStatisics: any;
   loading: boolean;
+  isMobile: boolean;
 }
 
-const BaseStatistics: React.FC<BaseStatisticsProps> = ({campaignStatistics, loading}) => {
+const BaseStatistics: React.FC<BaseStatisticsProps> = ({campaignStatistics, loading, isMobile}) => {
   const [displayMessageBox, setDisplayMessageBox] = useState(false);
 
   useEffect( ()=> {
@@ -39,29 +40,30 @@ const BaseStatistics: React.FC<BaseStatisticsProps> = ({campaignStatistics, load
           <Row gutter={[24, 24]}>
             <Col xxl={6} xl={8} lg={12} md={12} sm={12} xs={24}>
               {(campaignStatistics && campaignStatistics.status.numberofSetup > 0) ? (
-                <StatCard textColor="white" color="yellow" text="Campaign in Setup" icon="setting" suffix="In Setup" 
+                <StatCard isMobile={false} textColor="white" color="yellow" text="Campaign in Setup" icon="setting" suffix="In Setup" 
                 data={campaignStatistics.status.numberofSetup}/>
               ): (null)}
             </Col>
             <Col xxl={6} xl={8} lg={12} md={12} sm={12} xs={24}>
               {(campaignStatistics && campaignStatistics.status.numberofActive > 0) ? (
-                  <StatCard textColor="white" color="green" text="Campaigns Active" icon="setting" suffix="Active"
+                  <StatCard isMobile={false} textColor="white" color="green" text="Campaigns Active" icon="setting" suffix="Active"
                     data={campaignStatistics.status.numberofActive}/>
               ): (null)}
             </Col>
             <Col xxl={6} xl={8} lg={12} md={12} sm={12} xs={24}>
-              <StatCard textColor="blue" color="white" text="Last 24 Hours" icon="bar_chart" suffix="Views" data={campaignStatistics.statistics.views.lastDay}/>
+              <StatCard isMobile={false} textColor="blue" color="white" text="Last 24 Hours" icon="bar_chart" suffix="Views" data={campaignStatistics.statistics.views.lastDay}/>
             </Col>
             <Col xxl={6} xl={8} lg={12} md={12} sm={12} xs={24}>
-              <StatCard textColor="blue" color="white" text="Last 24 Hours" icon="bar_chart" suffix="Subscribers" data={campaignStatistics.statistics.subscribers.lastDay}/>
+              <StatCard isMobile={false} textColor="blue" color="white" text="Last 24 Hours" icon="bar_chart" suffix="Subscribers" data={campaignStatistics.statistics.subscribers.lastDay}/>
             </Col>
             <Col xxl={6} xl={8} lg={12} md={12} sm={12} xs={24}>
-              <StatCard textColor="blue" color="white" text="Last 7 Days" icon="bar_chart" suffix="Views" data={campaignStatistics.statistics.views.lastWeek}/>
+              <StatCard isMobile={false} textColor="blue" color="white" text="Last 7 Days" icon="bar_chart" suffix="Views" data={campaignStatistics.statistics.views.lastWeek}/>
             </Col>
             <Col xxl={6} xl={8} lg={12} md={12} sm={12} xs={24} >
-              <StatCard textColor="blue" color="white" text="Last 7 Days" icon="bar_chart" suffix="Subscribers" data={campaignStatistics.statistics.subscribers.lastWeek}/>
+              <StatCard isMobile={false} textColor="blue" color="white" text="Last 7 Days" icon="bar_chart" suffix="Subscribers" data={campaignStatistics.statistics.subscribers.lastWeek}/>
             </Col>
           </Row>
+
         </div>
       )
     }
