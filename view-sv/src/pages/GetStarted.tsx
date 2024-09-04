@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Button, Typography, Form, Input, Col, Row, Card, List, Spin } from "antd";
+import { Layout, Button, Typography, Form, Input, Col, Row, Card, List, Spin, Alert } from "antd";
 import { CreditCardOutlined, CalendarOutlined, SafetyOutlined, UserOutlined, MailOutlined } from '@ant-design/icons';
 
 import PaymentForm from "../components/PaymentForm";
 
 import { useNavigate } from "react-router";
 import api from "../utils/apiClient";
+
+import { PaymentElement, useStripe, useElements, Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
-import { Elements } from "@stripe/react-stripe-js";
+import { sign } from "crypto";
 
 const { Header, Footer, Content } = Layout;
 const { Title, Text } = Typography;
@@ -19,14 +21,64 @@ const GetStarted: React.FC = () => {
   const [signupStep, setSignupStep] = useState(1);
   const [formLoading, setFormLoading] = useState(false);
   const [contentColumnWidth, setContentColumnWidth] = useState("75%");
+  const [videoLinkError, setVideoLinkError] = useState("");
+  const [paymentPlanError, setPaymentPlanError] = useState("");
+  const [clientSecret, setClientSecret] = useState("");
+  const [forceRender, setForceRender] = useState(0);
   
-  useEffect( () => {
-    const lastStepCompleted = localStorage.getItem("lastStepCompleted");
+  const priceList = {Pro: 399, Premium: 199, Standard: 99};
 
-    if(lastStepCompleted && parseInt(lastStepCompleted) > 0 && parseInt(lastStepCompleted) < 3) {
-      setSignupStep(parseInt(lastStepCompleted) + 1);
+  const fetchClientSecret = async(amount: number) => {
+
+    try {
+      const price = priceList[localStorage.getItem("pricing")];
+      const campaignId = localStorage.getItem("campaignId");
+
+      if(!price || !campaignId ) {
+        setPaymentPlanError("Error");
+      }
+
+        const response = await api.post("http://10.0.0.47:3001/payment/create", {
+            amount: price,
+            currency: 'usd',
+            campaignId
+          });
+        
+          const data = response.data;              
+          // console.log(`Client secret response - ${data.clientSecret}`);
+          return data.clientSecret;
+
+    } catch(error) {
+        console.error("Error fetching client secret");
+        setPaymentPlanError("An Error Occured");
     }
-  }, [])
+  } 
+
+  useEffect(() => {
+    setFormLoading(true);
+    const checkStepAndLoadSecret = async () => {
+      const lastStepCompleted = localStorage.getItem("lastStepCompleted");
+      const lastStep = lastStepCompleted ? parseInt(lastStepCompleted) : 0;
+      let newStep;
+      if (lastStepCompleted && lastStep > 0 && lastStep < 3) {
+        newStep = lastStep + 1;
+        if(newStep != signupStep) {
+          setSignupStep(newStep); 
+          console.log(`Current step = ${signupStep}`);
+        }
+        setFormLoading(false);
+      }
+
+      if(newStep === 3) {
+        const result = await fetchClientSecret(99);
+        setClientSecret(result);
+      }
+      
+      setFormLoading(false);
+    };
+
+    checkStepAndLoadSecret();
+  }, [signupStep]);
 
 
 
@@ -79,10 +131,44 @@ const GetStarted: React.FC = () => {
     localStorage.setItem("lastStepCompleted", "2");
     setContentColumnWidth("75%");
 
+    try {
+      const video_link = localStorage.getItem("youtubeUrl");
+      const pricing = localStorage.getItem("pricing");
+      const token = localStorage.getItem("token");
+
+      const data = {
+        "videoLink": video_link, 
+        "plan": pricing
+      }
+
+      
+      api.post("http://10.0.0.47:3001/campaign/add", data, {
+        
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(res => {
+        setFormLoading(false);
+        localStorage.setItem("lastStepCompleted", "2");
+        localStorage.setItem("campaignId", res.data.campaignId);
+        setSignupStep(prev => prev + 1);
+        setPaymentPlanError("");
+      })
+      .catch(err => {
+        console.error("Error in submitting campaign data");
+        setPaymentPlanError("An error occured. Please try again.");
+      })
+
+    } catch(err) {
+      setPaymentPlanError("An error occured. Please try again.");
+    }
+
+
+
     setTimeout(() => {
       setFormLoading(false);
       setSignupStep(signupStep + 1);
-
     }, 1000)
   }
 
@@ -99,66 +185,47 @@ const GetStarted: React.FC = () => {
     if(signupStep < 3) {
       if(signupStep === 1) {
         setContentColumnWidth("75%");
-        
+        setFormLoading(true);
+        api.post("http://10.0.0.47:3001/youtube/validate", {
+          url: values.youtube_url
+        }).then(res => {
+          if(res.data.valid) {
+            localStorage.setItem("youtubeUrl", values.youtube_url);
+            localStorage.setItem("lastStepCompleted", "1");
+            
+            setTimeout(() => {
+              setFormLoading(false);
+              setSignupStep(signupStep + 1);
+            }, 1000)
+          }
+        }).catch(error => {
+          setVideoLinkError("Your provided link is not a valid video. Please check and try again.");
+          setFormLoading(false);
+        })
 
       } else {
         setContentColumnWidth("100%");
       }
-      localStorage.setItem("youtubeUrl", values.youtube_url);
-      localStorage.setItem("lastStepCompleted", "1");
-      setFormLoading(true);
 
-      setTimeout(() => {
-        setFormLoading(false);
-        setSignupStep(signupStep + 1);
-      }, 1000)
 
     } else {
       setFormLoading(true);
       setContentColumnWidth("100%");
-      setTimeout(() => {
-        console.log("ready to create campaign")
-
-        try {
-          const video_link = localStorage.getItem("youtubeUrl");
-          const pricing = localStorage.getItem("pricing");
-          const token = localStorage.getItem("token");
-
-          const data = {
-            "videoLink": video_link, 
-            "plan": pricing
-          }
-
-          console.log("Token");
-          console.log(token);
-          localStorage.setItem("lastStepCompleted", "3");
-
-          api.post("http://10.0.0.47:3001/campaign/add", data, {
-
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          .then(res => {
-            setFormLoading(false);
-            navigate("/dashboard");
-  
-          })
-          .catch(err => {
-            console.error("Error in submitting campaign data");
-          })
-
-        } catch(err) {
-          console.error("Problem reading saved data");
-        }
-      }, 1500)
+      setTimeout( () => {
+        setFormLoading(false);
+      },1000)
+      
     }
   }
 
   const getMainContent = () => {
+    // console.log("Loading getMainContent()");
     switch (signupStep) {
       case 1:
         return (
+          <>
+          {videoLinkError && 
+          <Alert message={videoLinkError} showIcon type="error" style={{marginTop: "20px"}} /> }
           <Form
             name="layout-multiple-horizontal"
             layout="horizontal"
@@ -170,19 +237,24 @@ const GetStarted: React.FC = () => {
             <Form.Item
               label="YouTube URL"
               name="youtube_url"
-              rules={[{ required: true }]}
+              rules={[{ required: true, message: "Please enter your YouTube video URL" }]}
             >
               <Input />
             </Form.Item>
-            <Form.Item style={{marginTop: "25px"}}>
+            <Form.Item style={{marginTop: "40px"}}>
               <Button type="primary" htmlType="submit">
                 Submit
               </Button>
             </Form.Item>
           </Form>
+          </>
         );
       case 2: 
       return (
+        <>
+        {paymentPlanError &&
+        <Alert message={paymentPlanError} showIcon type="error" style={{marginTop: "20px"}} />  }
+
         <div style={{ padding: '50px 10px', background: '#f0f2f5' }}>
               <Row gutter={16} justify="center">
                 {plans.map((plan) => (
@@ -207,13 +279,22 @@ const GetStarted: React.FC = () => {
                 ))}
               </Row>
           </div>
+        </>
       )
       case 3: 
-        return (
-          <div style={{marginTop: "10%"}}>
-            <PaymentForm onPaymentSuccess={onSubmit}/>
-          </div>
-        )
+        if(!clientSecret) {
+          console.log(`Attempt to render without client secret`);
+        } else {
+          console.log(`Value of clientSecret = ${clientSecret}`);
+          return (
+            // <Elements stripe={stripePromise} options={{mode: "setup", currency: "usd"}}>
+            <Elements stripe={stripePromise} options={{clientSecret}}>
+                <div style={{marginTop: "10%"}}>
+                  <PaymentForm onPaymentSuccess={onSubmit} clientSecret={clientSecret} />
+                </div>
+            </Elements>
+          )
+        }
     }
   };
 
@@ -227,9 +308,9 @@ const GetStarted: React.FC = () => {
       <Content style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', flexDirection: 'column', paddingTop: '50px' }}>
         <div style={{ width: contentColumnWidth, minWidth: "350px", textAlign: 'center' }}>
           <Title level={3} style={{ color: '#333' }}>{getHeaderTitle(signupStep)}</Title>
-          {formLoading ? (<Spin size="large" style={{marginTop: "25px"}}/>) : (
-            getMainContent()
-          )}
+            {formLoading ? (<Spin size="large" style={{marginTop: "25px"}}/>) : (
+              getMainContent()
+            )}
         </div>
       </Content>
     </Layout>

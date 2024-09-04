@@ -82,7 +82,8 @@ app.use(
     path: [
       '/signup',
       '/login',
-      '/youtube', // Exclude this route from JWT authentication
+      '/youtube',
+      '/payment' // Exclude this route from JWT authentication
     ]
   })
 );

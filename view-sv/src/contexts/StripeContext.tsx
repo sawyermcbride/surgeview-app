@@ -17,13 +17,15 @@ export const StripeProvider: React.FC = ({children}) => {
 
     const fetchClientSecret = async(amount: number) => {
         try {
-            const response = await api.post("10.0.0.47:3001/payment/create", {
+            const response = await api.post("http://10.0.0.47:3001/payment/create", {
                 amount
               });
             
-              const data = response.data;
-
+              const data = response.data;              
+              console.log(`Client secret response - ${data.clientSecret}`);
               setClientSecret(data.clientSecret);
+              console.log(`Client secret response`);
+
         } catch(error) {
             console.error("Error fetching client secret");
         }

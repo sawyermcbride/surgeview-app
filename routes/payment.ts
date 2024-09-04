@@ -12,23 +12,30 @@ const router = express.Router();
 
 router.post('/create', async (req: Request, res: Response,) => {
     try {
-        const {amount, paymentMethodId, campaignDetails} = req.body;
+        const {amount, paymentMethodId, campaignId} = req.body;
 
         const paymentIntent = await stripe.paymentIntents.create({
             amount,
             currency: 'usd',
+            metadata: {
+                campaignId
+            }
+
         });
 
-        res.status(200).send({
+        return res.status(200).send({
             clientSecret: paymentIntent.client_secret,
         })
     } catch(err) {
-        res.status(500).send({error: err.message});
+        return res.status(500).send({error: err.message});
     }
 });
 
-router.post('/confirm', async(req: Request, res: Response) => {
+router.get('/confirm', async(req: Request, res: Response) => {
     const {payment_intent, payment_intent_client_secret, redirect_status} = req.query;
+    console.log(`Stripe confirm recieved`);
+    return res.status(200).json({payment_intent, payment_intent_client_secret, redirect_status});
+
 });
 
 export default router;
