@@ -24,7 +24,7 @@ export const StripeProvider: React.FC = ({children}) => {
               const data = response.data;              
               console.log(`Client secret response - ${data.clientSecret}`);
               setClientSecret(data.clientSecret);
-              console.log(`Client secret response`);
+              console.log(`Client secret response`);    
 
         } catch(error) {
             console.error("Error fetching client secret");

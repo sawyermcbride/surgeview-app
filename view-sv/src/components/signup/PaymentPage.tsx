@@ -57,20 +57,9 @@ const PaymentPage: React.FC = () => {
 
 
     const onSubmit = () => {
-      updateSignupData(
-        {
-          formLoading: true,
-          contentColumnWidth: "100%"
-        }
-      )
+      alert("submitcalled");
+      window.localStorage.setItem("lastStepCompleted", "3");
       
-      setTimeout( () => {
-        updateSignupData(
-          {
-            formLoading: true
-          }
-        )
-      },1000)
     }
 
     return (

@@ -4,7 +4,7 @@ import { query } from "../db";
 import { emit } from "process";
 import YouTubeService from "../services/YouTubeService";
 import StatisticsService from "../services/StatisticsService";
-
+import { deleteCampaign } from "./campaign/deleteCampaign";
 const router = express.Router();
 const youtubeService = new YouTubeService();
 const statisticsService = new StatisticsService();
@@ -17,9 +17,11 @@ const pricingTable = {
 
 
 router.use( (req: Request, res: Response, next: NextFunction) => {
-  // console.log(`${req.method} ${req.originalUrl}`);
+  console.log(`${req.method} ${req.originalUrl}`);
   next();
 });
+
+router.delete('/delete/:campaignId', deleteCampaign);
 
 router.post("/add", async (req: Request, res: Response) => {
 

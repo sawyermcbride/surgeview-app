@@ -1,13 +1,12 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Layout, Button, Typography, Form, Input, Col, Row, Card, List, Spin, Alert } from "antd";
-import { CreditCardOutlined, CalendarOutlined, SafetyOutlined, UserOutlined, MailOutlined } from '@ant-design/icons';
 
 
 import VideoLinkPage from "../components/signup/VideoLinkPage";
 import SelectPlan from "../components/signup/SelectPlan";
 import PaymentPage from "../components/signup/PaymentPage";
 
-import { useNavigate } from "react-router";
+import { redirect, useNavigate } from "react-router";
 import api from "../utils/apiClient";
 
 import { SignupContext, SignupProvider } from "../contexts/SignupContext";
@@ -50,10 +49,11 @@ const GetStarted: React.FC = () => {
             step: newStep
           }); 
         }
-        setFormLoading(false);
+        
+      } else if(lastStep > 3) {
+        navigate('/dashboard');
       }
       
-      setFormLoading(false);
     };
 
     checkStepAndLoadSecret();

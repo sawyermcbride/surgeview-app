@@ -56,6 +56,10 @@ export const AuthProvider: React.FC<AuthProviderProps>  = ({children}) => {
         localStorage.removeItem("token");
         localStorage.removeItem("email");
         localStorage.removeItem("refreshToken");
+        localStorage.removeItem("lastStepCompleted");
+        localStorage.removeItem("pricing");
+        localStorage.removeItem("campaignId");
+        localStorage.removeItem("statisticsData");
         setToken("");
         setEmail("");
         setIsAuthenticated(false);
