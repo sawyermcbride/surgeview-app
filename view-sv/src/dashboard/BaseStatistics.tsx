@@ -38,18 +38,18 @@ const BaseStatistics: React.FC<BaseStatisticsProps> = ({campaignStatistics, load
           </div>
           ) : (null)}
           <Row gutter={[24, 24]}>
-            <Col xxl={6} xl={8} lg={12} md={12} sm={12} xs={24}>
               {(campaignStatistics && campaignStatistics.status.numberofSetup > 0) ? (
-                <StatCard isMobile={false} textColor="white" color="yellow" text="Campaign in Setup" icon="setting" suffix="In Setup" 
-                data={campaignStatistics.status.numberofSetup}/>
+                <Col xxl={6} xl={8} lg={12} md={12} sm={12} xs={24}>
+                    <StatCard isMobile={false} textColor="white" color="yellow" text="Campaign in Setup" icon="setting" suffix="In Setup" 
+                    data={campaignStatistics.status.numberofSetup}/>
+                </Col>
               ): (null)}
-            </Col>
-            <Col xxl={6} xl={8} lg={12} md={12} sm={12} xs={24}>
               {(campaignStatistics && campaignStatistics.status.numberofActive > 0) ? (
-                  <StatCard isMobile={false} textColor="white" color="green" text="Campaigns Active" icon="setting" suffix="Active"
-                    data={campaignStatistics.status.numberofActive}/>
+                <Col xxl={6} xl={8} lg={12} md={12} sm={12} xs={24}>
+                      <StatCard isMobile={false} textColor="white" color="green" text="Campaigns Active" icon="setting" suffix="Active"
+                        data={campaignStatistics.status.numberofActive}/>
+                </Col>
               ): (null)}
-            </Col>
             <Col xxl={6} xl={8} lg={12} md={12} sm={12} xs={24}>
               <StatCard isMobile={false} textColor="blue" color="white" text="Last 24 Hours" icon="bar_chart" suffix="Views" data={campaignStatistics.statistics.views.lastDay}/>
             </Col>

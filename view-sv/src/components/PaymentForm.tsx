@@ -2,10 +2,12 @@ import React, {useState, useEffect} from "react";
 import { PaymentElement, useStripe, useElements, Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
-import { Form, Input, Button, Row, Col, Typography, Alert } from "antd";
+import { Form, Input, Button, Row, Col, Typography, Alert, Spin } from "antd";
 import { UserOutlined, MailOutlined } from "@ant-design/icons";
 import api from "../utils/apiClient";
 import { useStripeContext } from "../contexts/StripeContext";
+import { useNavigate } from "react-router";
+
 
 
 const {Title, Paragraph, Text} = Typography;
@@ -21,34 +23,19 @@ const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess, clientSecret
   const stripe = useStripe();
   const elements = useElements();
   const [showMessage, setShowMessage] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [message, setMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState(false);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("default");
   const [intentId, setIntentId] = useState(null);
 
+  const navigate = useNavigate();
 
   useEffect( () => {
     
-
     if (!stripe || !clientSecret) {
       return;
     }
-
-
-
-    stripe.retrievePaymentIntent(clientSecret).then(({paymentIntent}) => {
-      if (!paymentIntent) {
-        return;
-      }
-
-      setStatus(paymentIntent.status);
-      setIntentId(paymentIntent.id);
-    })
-    .catch(err => {
-      console.error(err);
-      setShowMessage(true);
-      setErrorMessage(err);
-    })
 
   },[])
 
@@ -78,7 +65,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess, clientSecret
     }
     try {
       setLoading(true);
-      const {error} = await stripe.confirmPayment({
+      const {error, paymentIntent} = await stripe.confirmPayment({
         elements, 
         redirect: "if_required",
         confirmParams: {
@@ -88,13 +75,27 @@ const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess, clientSecret
       setLoading(false);
       if(error) {
           setShowMessage(true);
-          setErrorMessage(error.message);
-      } else {
-        setShowMessage(true);
-        setErrorMessage(error.message);
+          setMessage(error.message);
+      } else if(paymentIntent && paymentIntent.status === 'succeeded') {
+          setSuccessMessage(true);
+          setShowMessage(true)
+          setMessage("Payment successful. Redirecting to dashboard...");
+          setTimeout( () => {
+            navigate('/dashboard');
+          }, 1000);
+          
+
+          const result = await api.post('http://10.0.0.47:3001/payment/update-payment', {
+            paymentIntentId: paymentIntent.id,
+            amount: paymentIntent.amount,
+            status: paymentIntent.status,
+          })
+
+          console.log(result);
       }
 
     } catch(error){
+      setLoading(false);
       console.error(error);
     }
     // Create a payment method with the card details
@@ -104,25 +105,24 @@ const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess, clientSecret
     <>
     {showMessage && (
       <Alert
-        message={errorMessage}
-        type="error"
+        message={message}
+        type= {(successMessage ? 'success' : 'error')}
         showIcon
         style={{marginBottom: "40px"}}
       />
     )}
-
       <Row>
         <Col lg={12} sm={24}>
-          <Form onFinish={onSubmit} layout="vertical">
-            <Form.Item label="Card Information">
-              <PaymentElement  id='payment-element' options={paymentElementOptions}/>
-            </Form.Item>
-            <Form.Item>
-              <Button size="large" type="primary" htmlType="submit" disabled={loading || !stripe || !elements}>
-                Complete Signup
-              </Button>
-            </Form.Item>
-          </Form>
+        <Form onFinish={onSubmit} layout="vertical">
+          <Form.Item label="Card Information">
+            <PaymentElement  id='payment-element' options={paymentElementOptions}/>
+          </Form.Item>
+          <Form.Item>
+            <Button size="large" type="primary" htmlType="submit" disabled={loading || !stripe || !elements}>
+              Complete Signup
+            </Button>
+          </Form.Item>
+        </Form>
         </Col>
         <Col lg={12} sm={24}>
           <div style={{padding: "25px 50px" }}>
@@ -133,6 +133,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess, clientSecret
           </div>
         </Col>
       </Row>
+
     </>
   );
 };

@@ -63,6 +63,9 @@ const SignupForm: React.FC = () => {
       onFinish={onFinish}
       onFinishFailed={onFinishFailed}
     >
+      <Title level={3} style={{ textAlign: "center" }}>
+        Signup
+      </Title>
       <Form.Item
         name="email"
         rules={[

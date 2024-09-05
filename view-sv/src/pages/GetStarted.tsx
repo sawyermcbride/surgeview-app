@@ -24,7 +24,6 @@ const GetStarted: React.FC = () => {
   const [videoLinkError, setVideoLinkError] = useState("");
   const [paymentPlanError, setPaymentPlanError] = useState("");
   const [clientSecret, setClientSecret] = useState("");
-  const [forceRender, setForceRender] = useState(0);
   
   const priceList = {Pro: 399, Premium: 199, Standard: 99};
 
@@ -57,6 +56,16 @@ const GetStarted: React.FC = () => {
   useEffect(() => {
     setFormLoading(true);
     const checkStepAndLoadSecret = async () => {
+      const token = localStorage.getItem("token");
+      if(!token) {
+        localStorage.deleteItem('lastStepCompleted');
+        localStorage.deleteItem('campaignId');        
+        localStorage.deleteItem('pricing');        
+        localStorage.deleteItem('youtubeUrl');        
+
+        navigate('/signup');
+      }
+
       const lastStepCompleted = localStorage.getItem("lastStepCompleted");
       const lastStep = lastStepCompleted ? parseInt(lastStepCompleted) : 0;
       let newStep;
@@ -151,6 +160,7 @@ const GetStarted: React.FC = () => {
       .then(res => {
         setFormLoading(false);
         localStorage.setItem("lastStepCompleted", "2");
+        console.log("campaign added");
         localStorage.setItem("campaignId", res.data.campaignId);
         setSignupStep(prev => prev + 1);
         setPaymentPlanError("");

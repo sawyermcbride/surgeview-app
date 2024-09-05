@@ -20,7 +20,8 @@ import { fileURLToPath } from "url";
 import path, { dirname } from "path";
 import { testConnection } from "./db";
 import cors from "cors";
-import { expressjwt as jwt } from "express-jwt";
+import { expressjwt} from "express-jwt";
+import jwt from "jsonwebtoken";
 
 
 
@@ -38,6 +39,21 @@ const __dirname = dirname(__filename);
 const port = 3001;
 
 console.log("JWT_SECRET: ", process.env.JWT_SECRET);
+
+const optionalJwtMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if(token) {
+    try {
+      console.log(`OptionalJWTmiddleware token value = ${token}`);
+      const decryptedData = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = decryptedData;
+    } catch(error) {
+    }
+  }
+
+  next();
+
+}
 
 app.use(
   cors({
@@ -71,10 +87,10 @@ app.use("/youtube", youtubeRouter);
 app.use("/signup", signupRouter);
 app.use("/login", loginRouter);
 app.use("/auth", authRouter);
-app.use("/payment", paymentRouter);
+app.use("/payment", optionalJwtMiddleware, paymentRouter);
 
 app.use(
-  jwt({
+  expressjwt({
     secret: process.env.JWT_SECRET,
     algorithms: ["HS256"],
     requestProperty: "user",
@@ -83,7 +99,8 @@ app.use(
       '/signup',
       '/login',
       '/youtube',
-      '/payment' // Exclude this route from JWT authentication
+      '/payment',// Exclude this route from JWT authentication
+      '/auth'
     ]
   })
 );

@@ -41,14 +41,14 @@ class StatisticsService {
 
         return {
             views: {
-                lastDay: lastDay.views,
-                lastWeek: totalViewsValue
+                lastDay: lastDay?.views ?? 0,
+                lastWeek: totalViewsValue ?? 0,
             }, 
             subscribers: {
-                lastDay: lastDay.subscribers,
-                lastWeek: totalSubscribersValue
+                lastDay: lastDay?.subscribers ?? 0,
+                lastWeek: totalSubscribersValue ?? 0
             },
-            campaigns: groupedCampaignStatistics 
+            campaigns: groupedCampaignStatistics ?? {}
         }
     }
 
