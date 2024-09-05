@@ -18,7 +18,7 @@ import { AuthProvider, useAuth } from "./components/AuthContext";
 import LoginForm from "./components/LoginForm";
 import Dashboard from "./pages/Dashboard";
 import SignupForm from "./components/SignupForm";
-import GetStarted from "./pages/GetStarted";
+import SignupContainer from "./pages/SignupContainer";
 import LandingPage from "./pages/LandingPage";
 
 const stripePromise = loadStripe("pk_test_51PmqG6KG6RDK9K4gUxR1E9XN8qvunE6UUfkM1Y5skfm48UnhrQ4SjHyUM4kAsa4kpJAfQjANu6L8ikSnx6qMu4fY00I6aJBlkG");
@@ -48,7 +48,7 @@ const AuthRoutes: React.FC = () => {
               </AuthLayout>
             }
           />
-          <Route path="/get-started" element={isAuthenticated ? <GetStarted /> : <Navigate to="/signup"/> } />
+          <Route path="/get-started" element={isAuthenticated ? <SignupContainer /> : <Navigate to="/signup"/> } />
           <Route path="/" element={<LandingPage/>}></Route>
         </Routes>
   );
