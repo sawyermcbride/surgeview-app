@@ -23,7 +23,7 @@ export const SignupProvider = ({ children }) => {
         setSignupData(prev => ({
             ...prev, 
             ...newData  
-        }))
+        }));
     }
 
     return (

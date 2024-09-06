@@ -1,7 +1,8 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useContext} from "react";
 import {Form, Input, Button, Typography, notification, Space, Select,
      Breadcrumb, RadioChangeEvent, Radio, Alert, Descriptions, Popconfirm, message, Modal} from "antd";
 import api from "../utils/apiClient";
+import { CampaignsContext } from "../contexts/CampaignsContext";
 
 const {Option} = Select;
 const {Title, Link, Text} = Typography;
@@ -16,13 +17,13 @@ interface CampaignData {
 
 interface CampaignManageProps {
     data: CampaignData,
-    setLoading: (arg: boolean) => void,
     loadCampaignData: () => Promise<void>,
 }
 
 
-const CampaignManage: React.FC<CampaignManageProps> = ( {data, setLoading, loadCampaignData} ) => {
-    
+const CampaignManage: React.FC<CampaignManageProps> = ( {data, loadCampaignData} ) => {
+    const {campaignsStateData, updateCampaignData} = useContext(CampaignsContext);
+
     const [form] = Form.useForm();
     const [planSelect, setPlanSelect] = useState(data.plan_name);
     const [cancelClicked, setCancelClick] = useState(false); 
@@ -36,15 +37,32 @@ const CampaignManage: React.FC<CampaignManageProps> = ( {data, setLoading, loadC
     const handleCancelClick = () => {
         setCancelClick(true);
     }
-    const handleModalOk = () => {
-        setCancelClick(false);
+    const handleModalOk = async () => {
+      try {
+        const result = await api.delete(`http://10.0.0.47:3001/campaign/delete/${data.campaign_id}`, {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("token")
+            }
+          })
+
+          notification.success({
+            message: "Campaign Updated",
+            description:
+              "Your campaign has been updated. Any changes are now effective.",
+          })
+
+          setCancelClick(false);
+
+      } catch(err) {
+        notification.error({message: "Failed to update", description: "Please try again."});
+      }
     }
     const handleModalCancel = () => {
         setCancelClick(false);
     }
 
     const onFinish = async (values: any) => {
-        setLoading(true);
+        updateCampaignData({loading:true});
         const token = localStorage.getItem("token");
         try {
             const result = await api.put(`http://10.0.0.47:3001/campaign/update/${data.campaign_id}`, {
@@ -55,18 +73,19 @@ const CampaignManage: React.FC<CampaignManageProps> = ( {data, setLoading, loadC
                   Authorization: `Bearer ${token}`,
                 },
             })
-        await loadCampaignData();
-        
-
-        setLoading(false);
+            await loadCampaignData();
+            
+            
+        updateCampaignData({loading:false});
         notification.success({
             message: "Campaign Updated",
             description:
-              "Your campaign has been updated. Any changes are now effective.",
+            "Your campaign has been updated. Any changes are now effective.",
         })
-
+        
         } catch(err) {
-            setLoading(false);
+            updateCampaignData({loading:false});
+
             
             notification.error({
                 message: "Failed to Update",
@@ -94,7 +113,7 @@ const CampaignManage: React.FC<CampaignManageProps> = ( {data, setLoading, loadC
             />
             <Modal
                 title="Confirm Cancellation"
-                visible={cancelClicked}
+                open={cancelClicked}
                 onOk={handleModalOk}
                 onCancel={handleModalCancel}
                 okText="Yes, Cancel"

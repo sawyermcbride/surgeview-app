@@ -2,26 +2,12 @@ import React, { useState, useEffect } from "react";
 import BaseStatistics from "./BaseStatistics";
 import CampaignsView from "./CampaignsView";
 import { useAuth } from "../components/AuthContext";
+import {CampaignsProvider } from "../contexts/CampaignsContext";
 import axios from "axios";
 
-import {
-  Layout,
-  Menu,
-  Button,
-  Typography,
-  Progress,
-  Card,
-  Row,
-  Col,
-  Breadcrumb,
-  Spin
-} from "antd";
-import { HomeOutlined, UserOutlined, SettingOutlined } from "@ant-design/icons";
+import { Spin } from "antd";
+
 import api from "../utils/apiClient";
-
-
-const { Header, Content, Sider } = Layout;
-const { Title, Text } = Typography;
 
 interface DashboardViewProps {
   selectedMenu: string
@@ -124,15 +110,17 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
         }
       case "2":
         return(
-          <CampaignsView 
-            data-testid="campaigns-view"
-            campaignData = {campaignData}
-            campaignStatistics = {campaignStatistics}
-            isMobile={props.isMobile}
-            resetCampaignsView = {props.resetCampaignsView}
-            setResetCampaignsView={props.setResetCampaignsView}
-            loadCampaignData = {loadCampaignData}
-          />
+          <CampaignsProvider>
+            <CampaignsView 
+              campaignData = {campaignData}
+              campaignStatistics = {campaignStatistics}
+              isMobile={props.isMobile}
+              resetCampaignsView = {props.resetCampaignsView}
+              setResetCampaignsView={props.setResetCampaignsView}
+              loadCampaignData = {loadCampaignData}
+              loading={loading}
+            />
+          </CampaignsProvider>
         )
 
       case "3":

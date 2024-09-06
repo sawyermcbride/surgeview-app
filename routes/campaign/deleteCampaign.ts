@@ -1,9 +1,11 @@
+//deleteCampaign.ts
+
 import express, {Request, Response} from "express";
 import {query} from '../../db';
 
 export const deleteCampaign = async(req: Request, res: Response) => {
     const campaignId = req.params.campaignId;
-  console.log("deleting campaign");
+
     if(!campaignId) {
         return res.status(400).json({message: "Missing campaign ID"});
     }

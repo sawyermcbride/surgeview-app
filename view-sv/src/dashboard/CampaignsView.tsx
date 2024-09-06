@@ -1,15 +1,14 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import { Table, Typography, Spin, Alert, Button, Breadcrumb, Tooltip, Tag } from 'antd';
 import 'antd/dist/reset.css'; // Ensure Ant Design styles are imported
 import { useAuth } from '../components/AuthContext';
 import CampaignManage from './CampaignManage';
 import CampaignDetails from './CampaignDetails';
 import CampaignsViewMobile from './CampaignsViewMobile';
+import { CampaignsContext } from '../contexts/CampaignsContext';
 
-import { StripePaymentMethodMessagingElement } from '@stripe/stripe-js';
 const { Title, Text } = Typography;
 
-// Sample data for the table
 
 interface CampaignsViewProps {
     campaignData: any;
@@ -27,21 +26,28 @@ interface CampaignDisplayObj {
     video_link: string,
     price: number,
     plan_name: string
-}
-
+  }
+  
+  const statusOrder = {
+    'active': 1,
+    'setup': 2,
+    'stopped': 3
+  }
 
 
 const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaignData, campaignStatistics,
-   resetCampaignsView, setResetCampaignsView, isMobile}) => {
-  
+  resetCampaignsView, setResetCampaignsView, isMobile, loading}) => {
+    
   const {login, token} = useAuth();
   const [campaigns, setCampaigns] = useState<any[]>([]);
-  const [campaignViewSetting, setCampaignViewSetting] = useState(0);
-  const [selectedVideoID, setSelectedVideoID] = useState(0);
-  const [breadcrumbLink, setBreadcrumbLink] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [showBreadcrumb, setShowBreadcrumb] = useState(false);
-  const [breadcrumbSecondaryTitle, setBreadcrumbSecondaryTitle] = useState("");
+  // const [campaignViewSetting, setCampaignViewSetting] = useState(0);
+  // const [selectedVideoID, setSelectedVideoID] = useState(0);
+  // const [breadcrumbLink, setBreadcrumbLink] = useState("");
+  // const [loading, setLoading] = useState(false);
+  // const [showBreadcrumb, setShowBreadcrumb] = useState(false);
+  // const [breadcrumbSecondaryTitle, setBreadcrumbSecondaryTitle] = useState("");
+
+  const {campaignsStateData, updateCampaignData} = useContext(CampaignsContext);
 
   // const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -58,37 +64,50 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
         onCell: () => {
           return { style: { textAlign: "center" } }; // Flexbox style to allow column to shrink or expand
         },
-        render: (text: string) => (
-          text === 'active' ? (
-            <Tooltip title={"Your campaign is active. Click details to the right to view results, their may be a delay in these numbers."}>
+        render: (text: string) => {
+          let toolTipMessage = "";
+          let displayText = "";
+          let color = "";
+
+          switch(text.toLowerCase()) {
+            case "active":
+              toolTipMessage = "Your campaign is active. Click details to the right to view results, there may be a delay in these numbers.";
+              displayText = text.charAt(0).toUpperCase() + text.slice(1);
+              color = '#27ae60'; // Green
+              break;
+            case "setup":
+              toolTipMessage = "Your campaign is waiting approval by YouTube. This usually takes a few hours.";
+              displayText = "In-Setup";
+              color = '#f39c12'; // Yellow
+              break;
+            case "stopped":
+              toolTipMessage = "Your campaign is stopped. To restart it click edit and start.";
+              displayText = "Stopped";
+              color = "#e74c3c";
+              break;
+            default:
+              toolTipMessage = "Unknown campaign status.";
+              displayText = "Unknown";
+              color = '#bdc3c7'; // Gray
+              
+              
+          }
+          return (
+            <Tooltip title={toolTipMessage}>
               <Text
                 style={{
-                  color: '#27ae60', 
+                  color: color, 
                   fontWeight: 'bold', 
                   display: 'inline-block',
                   margin: 0,
                   cursor: "pointer"
                 }}
               >
-                {text && text.charAt(0).toUpperCase() + text.slice(1)}
+                {displayText}
               </Text> 
             </Tooltip>
-          ) : (
-            <Tooltip title={"Your campaign is waiting approval by YouTube. This usually takes a few hours"}>
-              <Text
-                style={{
-                  color:'#e67e22', 
-                  fontWeight: 'bold', 
-                  display: 'inline-block',
-                  margin: 0,
-                  cursor: "pointer"
-                }}
-              >
-                {text && "In-" + text.charAt(0).toUpperCase() + text.slice(1)}
-              </Text>
-          </Tooltip>
           )
-        ), 
+        }
       },
       {
         title: 'Plan Name',
@@ -149,6 +168,8 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
     
 
     useEffect(() => {
+      updateCampaignData({loading: true});
+
       if(campaignData) {
         const displayCampaignData = campaignData.map( (element) => {
           return {
@@ -163,19 +184,23 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
             plan_name: element.plan_name
           }
         } );
+        const sortedCampaigns = displayCampaignData.sort( (a, b) => {
+          return statusOrder[a.status] - statusOrder[b.status];
+        })
         
-
-        setCampaigns(displayCampaignData);
-
+        setCampaigns(sortedCampaigns);
+        updateCampaignData({loading: false});
       }
 
       if(resetCampaignsView) {
+        updateCampaignData({
+          loading: true,
+          campaignViewSetting: 0,
+          showBreadcrumb: false
+        })
 
-        setLoading(true);
-        setCampaignViewSetting(0);
-        setShowBreadcrumb(false);
         setTimeout( () => {
-          setLoading(false);
+          updateCampaignData({loading: false});
         }, 1500);
         setResetCampaignsView(false);
       }
@@ -183,42 +208,58 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
     }, [resetCampaignsView, campaignData]);
 
     const handleCampaignClick = (id: number) => {
-      setBreadcrumbSecondaryTitle("Edit");
-      setSelectedVideoID(id);
-      setCampaignViewSetting(1);
-      setBreadcrumbLink(campaigns.find( c => c.campaign_id === id).video_link);
-      setLoading(true);
-      setShowBreadcrumb(true);
+      updateCampaignData({
+        breadcrumbSecondaryTitle: "Edit",
+        selectedVideoID: id,
+        campaignViewSetting: 1,
+        breadcrumbLink: campaigns.find( c => c.campaign_id === id).video_link,
+        showBreadcrumb: true,
+        loading: true
+      })
+
       setTimeout( () => {
-        setLoading(false);
+        updateCampaignData({
+          loading: false
+        })
       }, 1000)
     }
 
     const handleCampaignDetailsClick = (id: number) => {
-      setBreadcrumbSecondaryTitle("Details");
-      setSelectedVideoID(id);
-      setCampaignViewSetting(2);
-      setBreadcrumbLink(campaigns.find( c => c.campaign_id === id).video_link);
-      setLoading(true);
-      setShowBreadcrumb(true);
+      updateCampaignData({
+        breadcrumbSecondaryTitle: "Details",
+        selectedVideoId: id,
+        campaignViewSetting: 2,
+        breadcrumbLink: campaigns.find( c => c.campaign_id === id).video_link,
+        loading: true,
+        showBreadcrumb: true,
+      })
+
       setTimeout( () => {
-        setLoading(false);
+        updateCampaignData({
+          loading: false
+        })
       }, 1000)
     }
 
     const handleBreadcrumbClick = (page: string) => {
       setResetCampaignsView(true);
-      
+      // updateCampaignData({
+      //   showbreadCrumb: false
+      // })
     }
 
     const getVideoLink = () => {
-      const dataResult = campaigns.find(c => c.campaign_id === selectedVideoID);
+      const dataResult = campaigns.find(c => c.campaign_id === campaignsStateData.selectedVideoId);
       return dataResult ? dataResult.video_title : '';
+    }
+    
+    const handleRowClick = (record) => {
+      handleCampaignDetailsClick(record.campaign_id);
     }
 
     const getView = () => {
-      if(campaignViewSetting === 0) {
-
+      console.log(`New getView render campaignsStateData.campaignViewSetting = ${campaignsStateData.campaignViewSetting}`);
+      if(campaignsStateData.campaignViewSetting === 0) {
         if(isMobile) {
           return (
             <div style={{display: 'flex', justifyContent: 'center'}}>
@@ -231,28 +272,35 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
             <div style={{display: 'flex', justifyContent: 'center'}}>
   
               <Table
-                dataSource={campaignData}
+                dataSource={campaigns}
                 columns={data_columns}
                 pagination={false}
+                onRow={(record) => {
+                  return {
+                    onClick: () => {
+                      handleRowClick(record);
+                    }
+                  }
+                }}
               />
             </div>
           )
 
         }
-      } else if (campaignViewSetting === 1) {
+      } else if (campaignsStateData.campaignViewSetting === 1) {
         return (
           <div>
             <div style={{display: 'flex', justifyContent: 'center'}}>
-              <CampaignManage loadCampaignData = { loadCampaignData} setLoading={setLoading} 
-                data={campaigns.find(c => c.campaign_id === selectedVideoID)}
+              <CampaignManage loadCampaignData = { loadCampaignData}
+                data={campaigns.find(c => c.campaign_id === campaignsStateData.selectedVideoId)}
                 />
             </div>
           </div>
         )
-      } else if(campaignViewSetting === 2) {
+      } else if(campaignsStateData.campaignViewSetting === 2) {
         return (
           <div style={{display: 'flex', justifyContent: 'center'}}>
-            <CampaignDetails campaignStatistics={campaignStatistics} setLoading={setLoading}/>
+            <CampaignDetails campaignStatistics={campaignStatistics}/>
           </div>
         )
       }
@@ -263,7 +311,7 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
      */
     return (
       <div>
-        {showBreadcrumb ? (
+        {campaignsStateData.showBreadcrumb ? (
 
           <Breadcrumb
             items={[
@@ -271,15 +319,16 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
                 title: <span style={{cursor: 'pointer'}} onClick={() => handleBreadcrumbClick('Campaigns')}>Campaigns</span>
               },
               {
-                title: breadcrumbSecondaryTitle   
+                title: campaignsStateData.breadcrumbSecondaryTitle   
               },
               {
                 title: getVideoLink()
+                // title: campaignsStateData.selectedVideoId
               } 
             ]}
           />
         ) : null}
-        {loading ? (
+        {(loading || campaignsStateData.loading) ? (
           <div style={{display: 'flex', justifyContent: 'center'}}>
             <Spin size="large" style={{marginTop: "25px"}}/>
           </div>

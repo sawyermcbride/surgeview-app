@@ -1,17 +1,19 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useContext} from "react";
 import {Form, Typography, notification, Space, Select,
      Breadcrumb, Alert, Col, Row} from "antd";
 import api from "../utils/apiClient";
 import StatCard from "../components/StatCard";
 
-const {Option} = Select;
-const {Title, Link, Text} = Typography;
+import { CampaignsContext } from "../contexts/CampaignsContext";
+
 
 interface CampaignDetailsProps {
-    setLoading: (arg: boolean) => void,
     campaignStatistics: object
 }
-const CampaignDetails: React.FC<CampaignDetailsProps> = ({setLoading, campaignStatistics}) => {
+const CampaignDetails: React.FC<CampaignDetailsProps> = ({campaignStatistics}) => {
+
+    const {campaignsStateData, updateCampaignData} = useContext(CampaignsContext);
+
     return(
         <div style={{width: "100%"}}>
             <div style={{width: '100%', display: 'inline-block'}}>
@@ -25,7 +27,8 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({setLoading, campaignSt
             <div style={{margin:"0px 10px"}}>
                 <Row gutter={[24,24]}>
                     <Col style={{ border: "0px solid red" }} xxl={8} xl={8} lg={12} md={12} sm={24}>
-                        <StatCard textColor="white" color="blue" icon="bar_chart" text="Yesterday" data={15} suffix="Views"/>
+                        <StatCard textColor="white" color="blue" icon="bar_chart" text="Yesterday" data={5}
+                         suffix="Views"/>
                     </Col>
                     <Col style={{ border: "0px solid red" }} xxl={8} xl={8} lg={12} md={12} sm={24}>
                         <StatCard textColor="white" color="blue" icon="bar_chart" text="Yesterday" data={4} suffix="New Subscribers"/>
