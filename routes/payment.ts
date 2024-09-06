@@ -1,6 +1,8 @@
 import express, {Request, Response} from "express";
 import Stripe from 'stripe'; 
 import {query} from '../db';
+import Payments from "../services/Payments";
+import Campaigns from "../services/Campaigns";
 const stripe = new Stripe('sk_test_51PmqG6KG6RDK9K4gSDxcza88uYRyVuFV0LJUQLQyPopCIBxR0rPHbnNu2LHHzf9DO4eqv0kvpNgczOaOOyB7HcKO00qg3j3lTw');
 
 const router = express.Router();
@@ -10,9 +12,24 @@ const router = express.Router();
  * &redirect_status=succeeded
  */
 
+const payments = new Payments();
+const campaigns = new Campaigns();
+
 router.post('/create', async (req: Request, res: Response,) => {
     try {
         const {amount, paymentMethodId, campaignId} = req.body;
+
+        const campaignExistsResult = await campaigns.checkExists(campaignId);
+
+
+        if(campaignExistsResult.error) {
+            console.error(campaignExistsResult.errorMessage);
+            return res.status(500).json({ message: "Internal server error. Please try again later." });
+        }
+
+        if(!campaignExistsResult.exists) {
+            return res.status(400).json({messsage: "Campaign not found, unable to create payment."});
+        }
 
         const paymentIntent = await stripe.paymentIntents.create({
             amount,
@@ -23,9 +40,15 @@ router.post('/create', async (req: Request, res: Response,) => {
 
         });
 
-        return res.status(200).send({
-            clientSecret: paymentIntent.client_secret,
-        })
+        const paymentRecordResult = await payments.createPaymentRecord(paymentIntent);
+        if(paymentRecordResult.created && !paymentRecordResult.error) {
+            return res.status(200).send({
+                clientSecret: paymentIntent.client_secret,
+            })
+        } else {
+            return res.status(500).json({error: paymentRecordResult.message});
+        }
+
     } catch(err) {
         return res.status(500).send({error: err.message});
     }
@@ -40,17 +63,23 @@ router.get('/confirm', async(req: Request, res: Response) => {
 
 router.post('/update-payment', async (req: Request, res: Response) => {
     const {paymentIntentId, amount, status, campaignId} = req.body;
+
     if(!req.user) {
         return res.status(401);
     }
+
     try {
 
         const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
         const connectedCampaignId = paymentIntent.metadata.campaignId;
         await query(`UPDATE campaigns SET payment_status = $1 FROM customers WHERE
                     campaigns.customer_id = customers.id AND campaigns.campaign_id = $2 AND 
-                    customers.email = $3;`, [paymentIntent.status, connectedCampaignId, req.user.email]);        
-        return res.status(200).json({success: true, status: paymentIntent.status,
+                    customers.email = $3;`, [paymentIntent.status, connectedCampaignId, req.user.email]);  
+        
+        const result = await payments.updateRecord(paymentIntent);
+
+        
+        return res.status(200).json({updated: result.updated, success: true, status: paymentIntent.status,
              campaignConnected: paymentIntent.metadata.campaignId});
     } catch(error) {
         console.log(error);

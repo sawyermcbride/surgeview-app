@@ -56,12 +56,7 @@
   }
 }
 
-.ant-statistic .ant-statistic-title.custom-statistic-title-white {
-  color: white;
-}
-.ant-statistic .ant-statistic-title.custom-statistic-title-black {
-  color: #2c3e50;
-}
+
 .ant-statistic .ant-statistic-title{
-  color: #333333;
+  /* color: #333333; */
 }

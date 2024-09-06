@@ -20,7 +20,7 @@ const GetStarted: React.FC = () => {
   const [contentColumnWidth, setContentColumnWidth] = useState("75%");
 
   
-  const {signupData, updateSignupData} = useContext(SignupContext);
+  const {signupData, updateSignupData, resetSignupData} = useContext(SignupContext);
 
   const navigate = useNavigate();
 
@@ -31,10 +31,7 @@ const GetStarted: React.FC = () => {
     const checkStepAndLoadSecret = async () => {
       const token = localStorage.getItem("token");
       if(!token) {
-        localStorage.deleteItem('lastStepCompleted');
-        localStorage.deleteItem('campaignId');        
-        localStorage.deleteItem('pricing');        
-        localStorage.deleteItem('youtubeUrl');        
+        resetSignupData();     
 
         navigate('/signup');
       }

@@ -20,6 +20,7 @@ const PaymentPage: React.FC = () => {
       try {
 
         const campaignId = localStorage.getItem("campaignId");
+
   
         if(!price || !campaignId ) {
           updateSignupData({})

@@ -2,6 +2,7 @@
 
 import express, {Request, Response} from "express";
 import YouTubeService from "../../services/YouTubeService";
+import {query} from '../../db';
 
 const youtubeService = new YouTubeService();
 
@@ -64,4 +65,4 @@ export const updateCampaign = async (req: Request, res: Response) => {
         console.log(err);
         return res.status(500).json({message: err});
     }
-  
+}
