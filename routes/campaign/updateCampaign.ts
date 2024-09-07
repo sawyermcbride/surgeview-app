@@ -20,6 +20,10 @@ export const updateCampaign = async (req: Request, res: Response) => {
     let updateData = req.body;
     let videoDetails;
     console.log(`video_link in request = ${updateData.video_link}`);
+    if(!updateData[updateFields[0]] && !updateData[updateFields[1]] &&
+        !updateData[updateFields[2]]) {
+          return res.status(400).json({error: "No fields to update"});
+    }
     if(updateData.video_link)  {
       try {
         videoDetails = await youtubeService.validateVideoLink(updateData.video_link);

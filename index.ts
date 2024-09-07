@@ -33,8 +33,14 @@ if(!process.env.YOUTUBE_API_KEY) {
 }
 
 const app = express();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+
+/**
+ * Removed for testing
+ * Consider mocking import.meta.url for testing
+ */
+
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = dirname(__filename);
 
 const port = 3001;
 
@@ -82,26 +88,12 @@ if (!process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET is not defined");
 }
 
-app.get('/test-route', (req: Request, res: Response) => {
-  return res.status(200).json({message: 'Successful'});
-})
-
 app.use("/youtube", youtubeRouter);
 
 app.use("/signup", signupRouter);
 app.use("/login", loginRouter);
 app.use("/auth", authRouter);
 app.use("/payment", optionalJwtMiddleware, paymentRouter);
-
-
-request(app)
-  .get('/test-route')
-  .expect('Content-Type', /json/)
-  .expect('Content-Length', '24')
-  .expect(200)
-  .end(function(err, res) {
-    if (err) throw err;
-  });
 
 app.use(
   expressjwt({
@@ -143,6 +135,15 @@ app.use(
   },
 );
 
-app.listen(port,'0.0.0.0', () => {
-  console.log(`Server running on port ${port}`);
-});
+app.use((err: ErrorRequestHandler, req: Request, res: Response, next: NextFunction) => {
+  return res.status(500).json({message: 'Unknown error occured'});
+})
+
+
+if(process.env.NODE_ENV !== 'test') {
+  app.listen(port,'0.0.0.0', () => {
+    console.log(`Server running on port ${port}`);
+  });
+}
+
+export default app;

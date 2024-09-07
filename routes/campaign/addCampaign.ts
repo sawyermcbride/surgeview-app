@@ -10,10 +10,14 @@ const pricingTable = {
   'Pro': 399.0
 }
 
+
 export const addCampaign = async (req: Request, res: Response) => {
     
   const { videoLink, plan } = req.body;
   let videoDetails;
+  
+  console.log(videoDetails);
+  console.log(plan);
 
   try {
     videoDetails = await youtubeService.validateVideoLink(videoLink);
@@ -24,6 +28,7 @@ export const addCampaign = async (req: Request, res: Response) => {
   }
 
   if (!videoLink || !plan || !(plan in pricingTable) ) {
+    console.log('missing required fields');
     return res.status(400).json({ error: "Missing required fields" });
   }
 
@@ -39,7 +44,7 @@ export const addCampaign = async (req: Request, res: Response) => {
       "SELECT ID FROM customers WHERE email = $1",
       [userEmail],
     );
-  
+    
     console.log(videoDetails);
     await query("BEGIN");
     const result = await query(
