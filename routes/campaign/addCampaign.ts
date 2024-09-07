@@ -4,6 +4,11 @@ import {query} from '../../db';
 
 const youtubeService = new YouTubeService();
 
+const pricingTable = {
+  'Standard': 99.0,
+  'Premium': 199.0,
+  'Pro': 399.0
+}
 
 export const addCampaign = async (req: Request, res: Response) => {
     

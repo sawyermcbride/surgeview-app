@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useContext} from "react";
 import { PaymentElement, useStripe, useElements, Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
@@ -7,7 +7,7 @@ import { UserOutlined, MailOutlined } from "@ant-design/icons";
 import api from "../utils/apiClient";
 import { useStripeContext } from "../contexts/StripeContext";
 import { useNavigate } from "react-router";
-
+import { SignupContext } from "../contexts/SignupContext";
 
 
 const {Title, Paragraph, Text} = Typography;
@@ -26,8 +26,10 @@ const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess, clientSecret
   const [message, setMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState("default");
-  const [intentId, setIntentId] = useState(null);
+  // const [status, setStatus] = useState("default");
+  // const [intentId, setIntentId] = useState(null);
+
+  const {resetSignupData} = useContext(SignupContext);
 
   const navigate = useNavigate();
 
@@ -79,7 +81,10 @@ const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess, clientSecret
       } else if(paymentIntent && paymentIntent.status === 'succeeded') {
           setSuccessMessage(true);
           setShowMessage(true)
+          onPaymentSuccess();
           setMessage("Payment successful. Redirecting to dashboard...");
+
+          resetSignupData();
           setTimeout( () => {
             navigate('/dashboard');
           }, 1000);

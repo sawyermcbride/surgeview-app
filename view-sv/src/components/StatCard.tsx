@@ -1,7 +1,7 @@
 import React, {useState, ReactNode, useEffect} from "react";
 
 import { Card, Row, Col, Statistic} from "antd";
-import { HomeOutlined, UserOutlined, SettingOutlined, BarChartOutlined } from "@ant-design/icons";
+import { HomeOutlined, UserOutlined, SettingOutlined, BarChartOutlined, ArrowUpOutlined } from "@ant-design/icons";
 
 
 type Colors = {
@@ -18,6 +18,7 @@ type Icons = {
   user: ReactNode,
   setting: ReactNode,
   bar_chart: ReactNode
+  up_arrow: ReactNode
 }
 
 interface StatCardProps {
@@ -48,7 +49,8 @@ const StatCard: React.FC<StatCardProps> = (props) => {
     home: <HomeOutlined/>,
     user: <UserOutlined/>,
     setting: <SettingOutlined/>,
-    bar_chart: <BarChartOutlined/>
+    bar_chart: <BarChartOutlined/>,
+    up_arrow: <ArrowUpOutlined/>
   }
 
   useEffect(() => {

@@ -5,9 +5,11 @@ export const SignupContext = createContext({
         step: 1, paymentPlanError: "", videoLinkError: "",
         contentColumnWidth: '75%', formLoading: false
    }, 
-   updateSignupData: (obj) => {}
+   updateSignupData: (obj) => {},
+   resetSignupData: () => {},
 });
 // export const SignupContext = createContext(null);
+
 
 export const SignupProvider = ({ children }) => {
     const [signupData, setSignupData] = useState({
@@ -25,9 +27,16 @@ export const SignupProvider = ({ children }) => {
             ...newData  
         }));
     }
+    
+    const resetSignupData = () => {
+        localStorage.removeItem('lastStepCompleted');
+        localStorage.removeItem('campaignId');        
+        localStorage.removeItem('pricing');        
+        localStorage.removeItem('youtubeUrl');     
+    }
 
     return (
-        <SignupContext.Provider value={{signupData, updateSignupData}}>
+        <SignupContext.Provider value={{signupData, updateSignupData, resetSignupData}}>
             {children}
         </SignupContext.Provider>
     )
