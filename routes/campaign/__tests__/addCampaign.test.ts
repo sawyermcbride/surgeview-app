@@ -6,8 +6,6 @@ import app from '../../../index';
 import request from 'supertest';
 
 import generateToken from '../../../utils/jwtHelper';
-import { Server } from 'http';
-let server: Server;
 const createToken = generateToken({email: 'samcbride11@gmail.com'}, false);
 
 YouTubeService.prototype.validateVideoLink = jest.fn().mockResolvedValue({
@@ -33,9 +31,6 @@ jest.mock('../../../db', () => ({
 beforeEach(() => {
   // server = app.listen(3001);
   jest.clearAllMocks();
-})
-afterAll(() => {
-  // server.close();
 })
 
 test('true', () => {

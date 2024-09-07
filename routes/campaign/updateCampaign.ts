@@ -42,6 +42,7 @@ export const updateCampaign = async (req: Request, res: Response) => {
       if(!req.user.email) {
         return res.status(401).json({message: "User not authorized"});
       } else {
+        console.log("Making query");
         let result = await query(`SELECT customers.email, campaigns.campaign_id, campaigns.video_link, campaigns.plan_name,
           campaigns.video_title, campaigns.channel_title
           FROM customers JOIN campaigns ON customers.id = campaigns.customer_id
