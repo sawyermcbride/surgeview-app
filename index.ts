@@ -23,7 +23,7 @@ import cors from "cors";
 import { expressjwt} from "express-jwt";
 import jwt from "jsonwebtoken";
 
-
+import request from 'supertest';
 
 if (!process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET is not defined");
@@ -82,12 +82,26 @@ if (!process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET is not defined");
 }
 
+app.get('/test-route', (req: Request, res: Response) => {
+  return res.status(200).json({message: 'Successful'});
+})
+
 app.use("/youtube", youtubeRouter);
 
 app.use("/signup", signupRouter);
 app.use("/login", loginRouter);
 app.use("/auth", authRouter);
 app.use("/payment", optionalJwtMiddleware, paymentRouter);
+
+
+request(app)
+  .get('/test-route')
+  .expect('Content-Type', /json/)
+  .expect('Content-Length', '24')
+  .expect(200)
+  .end(function(err, res) {
+    if (err) throw err;
+  });
 
 app.use(
   expressjwt({
