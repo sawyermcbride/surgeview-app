@@ -56,7 +56,7 @@ const StatCard: React.FC<StatCardProps> = (props) => {
   useEffect(() => {
     const elems = document.querySelectorAll('.ant-statistic div.ant-statistic-title');
     const getTitleElems = Array.from(elems).filter(e => e.textContent?.includes(props.text));
-    console.log(`Rendering font for isMobile = ${props.isMobile} at size = ${(props.isMobile ? '10px' : '15px')}`);
+    // console.log(`Rendering font for isMobile = ${props.isMobile} at size = ${(props.isMobile ? '10px' : '15px')}`);
     getTitleElems.forEach( (e) => {
       e.style.fontSize = (props.isMobile ? '10px' : '14px');
       if(props.color === 'white') {

@@ -19,7 +19,7 @@ interface DashboardViewProps {
 }
 
 const DashboardView: React.FC<DashboardViewProps> = (props) => {
-  const {login, logout, isAuthenticated, token} = useAuth();
+  const {token} = useAuth();
   const [campaignData, setCampaignData] = useState(null);
   const [campaignStatistics, setCampaignStatistics] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -109,6 +109,7 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
           );
         }
       case "2":
+
         return(
           <CampaignsProvider>
             <CampaignsView 

@@ -28,7 +28,7 @@ interface CampaignsViewProps {
 const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaignData, campaignStatistics,
   resetCampaignsView, setResetCampaignsView, isMobile, loading}) => {
     
-  const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [campaigns, setCampaigns] = useState();
 
   const {campaignsStateData, updateCampaignData} = useContext(CampaignsContext);
 
@@ -36,6 +36,8 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
   
     useEffect(() => {
       updateCampaignData({loading: true});
+      console.log('New data in CampaignsView');
+      console.log(campaignData);
 
       if(campaignData) {
         const displayCampaignData = campaignData.map( (element) => {
@@ -54,6 +56,7 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
         const sortedCampaigns = displayCampaignData.sort( (a, b) => {
           return statusOrder[a.status] - statusOrder[b.status];
         })
+        console.log("Sorted campaigns");
         console.log(sortedCampaigns);
         setCampaigns(sortedCampaigns);
         updateCampaignData({loading: false});
@@ -71,16 +74,16 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
         }, 1500);
         setResetCampaignsView(false);
       }
+      console.log(`New getView render campaignsStateData.campaignViewSetting = ${campaignsStateData.campaignViewSetting}`);
 
-    }, [resetCampaignsView, campaignData]);
+    }, [resetCampaignsView, campaignData, campaignsStateData.campaignViewSetting]);
 
     const handleCampaignClick = (id: number) => {
-      alert('Campaign edit click');
       console.log(campaigns.find( c => c.campaign_id === id));
       
       updateCampaignData({
         breadcrumbSecondaryTitle: "Edit",
-        selectedVideoID: id,
+        selectedVideoId: id,
         campaignViewSetting: 1,
         breadcrumbLink: campaigns.find( c => c.campaign_id === id).video_link,
         showBreadcrumb: true,
@@ -94,7 +97,8 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
       }, 1000)
     }
 
-    const handleCampaignDetailsClick = (id: number) => {
+    const handleCampaignDetailsClick = async (id: number) => {
+      await loadCampaignData();
       updateCampaignData({
         breadcrumbSecondaryTitle: "Details",
         selectedVideoId: id,
@@ -128,7 +132,8 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
     }
 
     const getView = () => {
-      console.log(`New getView render campaignsStateData.campaignViewSetting = ${campaignsStateData.campaignViewSetting}`);
+
+      // console.log(`New getView render campaignsStateData.campaignViewSetting = ${campaignsStateData.campaignViewSetting}`);
       if(campaignsStateData.campaignViewSetting === 0) {
         if(isMobile) {
           return (
@@ -160,6 +165,11 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
 
         }
       } else if (campaignsStateData.campaignViewSetting === 1) {
+        console.log('View setting 1, loading data into CampaignsManage component');
+        console.log(campaigns);
+        console.log(typeof campaigns);
+        console.log(campaignsStateData.selectedVideoId);
+        console.log(campaigns.find(c => c.campaign_id === campaignsStateData.selectedVideoId));
         return (
           <div>
             <div style={{display: 'flex', justifyContent: 'center'}}>
@@ -170,6 +180,8 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
           </div>
         )
       } else if(campaignsStateData.campaignViewSetting === 2) {
+        console.log(campaignStatistics)
+        console.log(campaignsStateData.selectedVideoId);
         console.log(campaignStatistics.statistics.campaigns[campaignsStateData.selectedVideoId]);
         return (
           <div style={{display: 'flex', justifyContent: 'center'}}>

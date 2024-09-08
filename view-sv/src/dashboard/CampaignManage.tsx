@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useContext} from "react";
 import {Form, Input, Button, Typography, notification, Space, Select,
-     Breadcrumb, RadioChangeEvent, Radio, Alert, Descriptions, Popconfirm, message, Modal} from "antd";
+     Breadcrumb, RadioChangeEvent, Radio, Alert, Descriptions, Popconfirm, message, Modal, Spin} from "antd";
 import api from "../utils/apiClient";
 import { CampaignsContext } from "../contexts/CampaignsContext";
 import ManagePlanSelect from "../components/dashboard/ManagePlanSelect";
@@ -23,36 +23,64 @@ interface CampaignManageProps {
 
 
 const CampaignManage: React.FC<CampaignManageProps> = function( {data, loadCampaignData} ) {
+    
+
     const {campaignsStateData, updateCampaignData} = useContext(CampaignsContext);
-    console.log(data);
     const [form] = Form.useForm();
-    const [planSelect, setPlanSelect] = useState(data.plan_name);
+    const [planSelect, setPlanSelect] = useState<string>("");
+
     const [cancelClicked, setCancelClick] = useState(false); 
+    const [restartClicked, setRestartClicked] = useState(false);
     
     const planOptions: Array<object> = [
         {label: 'Standard', value: 'Standard'},
         {label: 'Premium', value: 'Premium'},
         {label: 'Pro', value: 'Pro'},
     ]
+    const pricing = {
+        'Standard': 99,
+        'Premium': 199,
+        'Pro': 399
+    }
 
-    const handleCancelClick = () => {
-        setCancelClick(true);
+    const handleUpdateStatusClick = (operation: string) => {
+        if(operation === 'cancel') {
+            setCancelClick(true);
+        } else {
+            setRestartClicked(true);
+        }
+
     }
     const handleModalOk = async () => {
       try {
-        const result = await api.delete(`http://10.0.0.47:3001/campaign/delete/${data.campaign_id}`, {
-            headers: {
-              Authorization: "Bearer " + localStorage.getItem("token")
-            }
-          })
-
-          notification.success({
+        let result;
+        if(cancelClicked) {
+            result = await api.delete(`http://10.0.0.47:3001/campaign/delete/${data.campaign_id}`, {
+                headers: {
+                  Authorization: "Bearer " + localStorage.getItem("token")
+                }
+            })
+        } else {
+            result = await api.put(`http://10.0.0.47:3001/campaign/update/${data.campaign_id}`,{
+                status: 'active',
+                plan_name: planSelect
+            }, {
+                headers: {
+                  Authorization: "Bearer " + localStorage.getItem("token")
+                }
+            })
+        }
+        console.log(result);
+    
+        await loadCampaignData();
+        notification.success({
             message: "Campaign Updated",
             description:
-              "Your campaign has been updated. Any changes are now effective.",
-          })
+                "Your campaign has been updated. Any changes are now effective.",
+        })
 
           setCancelClick(false);
+          setRestartClicked(false);
 
       } catch(err) {
         notification.error({message: "Failed to update", description: "Please try again."});
@@ -60,6 +88,7 @@ const CampaignManage: React.FC<CampaignManageProps> = function( {data, loadCampa
     }
     const handleModalCancel = () => {
         setCancelClick(false);
+        setRestartClicked(false);
     }
 
     const onFinish = async (values: any) => {
@@ -67,7 +96,7 @@ const CampaignManage: React.FC<CampaignManageProps> = function( {data, loadCampa
         const token = localStorage.getItem("token");
         try {
             const result = await api.put(`http://10.0.0.47:3001/campaign/update/${data.campaign_id}`, {
-                video_link: values.updated_link,
+                video_link: values.updated_link ? values.updated_link : data.video_link,
                 plan_name: values.plan_name
             }, {
                 headers: {
@@ -96,8 +125,10 @@ const CampaignManage: React.FC<CampaignManageProps> = function( {data, loadCampa
         }
     }
     useEffect(() => {
-
-        form.setFieldsValue({ plan_name: data.plan_name });
+        setPlanSelect(data?.plan_name || "");
+        if(data) {
+            form.setFieldsValue({ plan_name: data.plan_name });
+        }
     }, [data]); // This will run every time `data` changes
 
     const onPlanChange = ({target: {value}}: RadioChangeEvent) => {
@@ -105,13 +136,25 @@ const CampaignManage: React.FC<CampaignManageProps> = function( {data, loadCampa
     }
 
     return (
-        <div>
-            <Alert 
-                message="Updates will apply immediately and be valid for the remainder of your current month. Updates will also apply for following months."
-                type="info"
-                showIcon
-                style={{ marginBottom: '16px' }}
-            />
+        <>
+        {data ? (
+
+        <div style={{width: "100%"}}>
+            {data.status === 'stopped' ? (
+                <Alert 
+                    message="Your campaign is not running. Click 'restart' below to start it again.                         "
+                    type="warning"
+                    showIcon
+                    style={{ marginBottom: '16px' }}
+                />
+            ) : (
+                <Alert 
+                    message="Updates will apply immediately and be valid for the remainder of your current month. Updates will also apply for following months."
+                    type="info"
+                    showIcon
+                    style={{ marginBottom: '16px' }}
+                />
+            )}
             <Modal
                 title="Confirm Cancellation"
                 open={cancelClicked}
@@ -122,6 +165,22 @@ const CampaignManage: React.FC<CampaignManageProps> = function( {data, loadCampa
             >
                 <p>Are you sure you want to cancel this campaign? You will not be charged again.</p>
                 <p>Your campaign will continue to run until the end of your billing period.</p>
+                {/* You can add more detailed text or even additional content here */}
+            </Modal>
+
+            <Modal
+                title="Confirm Restart Campaign"
+                open={restartClicked}
+                onOk={handleModalOk}
+                onCancel={handleModalCancel}
+                okText="Yes, Start Campaign"
+                cancelText="No"
+            >
+                <p>Are you sure you want to restart this campaign? You will be charged today for your selected plan: 
+                     <b>{' '+planSelect}</b> which is <b>${pricing[planSelect]}.00</b> / month
+                </p>
+                <p>You can change the plan by clicking 'No' on this confirm box, selecting the plan below and then clicking 'Restart Campaign' again.</p>
+                <p>You can expect to start seeing results within a few hours to one day.</p>
                 {/* You can add more detailed text or even additional content here */}
             </Modal>
             <Title level={5}>Campaign Information</Title>
@@ -154,12 +213,25 @@ const CampaignManage: React.FC<CampaignManageProps> = function( {data, loadCampa
                 </Form.Item>
                 <Form.Item>
                     <Space>
-                    <Button type="primary" htmlType="submit">
-                        Update
-                    </Button>
-                    <Button danger onClick={handleCancelClick} htmlType="button" >
-                        Cancel Campaign
-                    </Button>
+                    { (data.status === 'active' || data.status === 'setup') ? (
+                        <>
+                            <Button type="primary" htmlType="submit">
+                                Update
+                            </Button>
+                            <Button danger onClick={() => {handleUpdateStatusClick('cancel') }} htmlType="button" >
+                                Cancel Campaign
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            <Button disabled type="primary" htmlType="submit">
+                                Update
+                            </Button>
+                            <Button style={{backgroundColor: "#27ae60", color: "#fff"}} onClick={() => {handleUpdateStatusClick('restart') }} htmlType="button" >
+                                Restart Campaign
+                            </Button>
+                        </>
+                    )}
                     </Space>
                 </Form.Item>
             </Form>
@@ -167,6 +239,8 @@ const CampaignManage: React.FC<CampaignManageProps> = function( {data, loadCampa
                 <ManagePlanSelect/>
             </div> */}
         </div>
+        ) : (<Spin size="large"/>)}
+        </>
     )
 
 }
