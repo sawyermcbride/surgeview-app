@@ -54,7 +54,7 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
         const sortedCampaigns = displayCampaignData.sort( (a, b) => {
           return statusOrder[a.status] - statusOrder[b.status];
         })
-        
+        console.log(sortedCampaigns);
         setCampaigns(sortedCampaigns);
         updateCampaignData({loading: false});
       }
@@ -75,6 +75,9 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
     }, [resetCampaignsView, campaignData]);
 
     const handleCampaignClick = (id: number) => {
+      alert('Campaign edit click');
+      console.log(campaigns.find( c => c.campaign_id === id));
+      
       updateCampaignData({
         breadcrumbSecondaryTitle: "Edit",
         selectedVideoID: id,
@@ -144,13 +147,13 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
                   getCampaignsColumns(handleCampaignDetailsClick, handleCampaignClick)
                 }
                 pagination={false}
-                onRow={(record) => {
-                  return {
-                    onClick: () => {
-                      handleRowClick(record);
-                    }
-                  }
-                }}
+                // onRow={(record) => {
+                //   return {
+                //     onClick: () => {
+                //       handleRowClick(record);
+                //     }
+                //   }
+                // }}
               />
             </div>
           )

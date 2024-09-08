@@ -9,11 +9,11 @@ INSERT INTO CampaignStatistics (
     subscribers
 ) VALUES (
     39,
-    95,
-    10,
+    175,
+    9,
     0,
-    '2024-09-04T08:00:00Z', -- UTC time
     '2024-09-05T08:00:00Z', -- UTC time
+    '2024-09-06T08:00:00Z', -- UTC time
     'day',
-    4
+    8
 );

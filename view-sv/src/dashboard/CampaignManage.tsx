@@ -3,6 +3,7 @@ import {Form, Input, Button, Typography, notification, Space, Select,
      Breadcrumb, RadioChangeEvent, Radio, Alert, Descriptions, Popconfirm, message, Modal} from "antd";
 import api from "../utils/apiClient";
 import { CampaignsContext } from "../contexts/CampaignsContext";
+import ManagePlanSelect from "../components/dashboard/ManagePlanSelect";
 
 const {Option} = Select;
 const {Title, Link, Text} = Typography;
@@ -21,9 +22,9 @@ interface CampaignManageProps {
 }
 
 
-const CampaignManage: React.FC<CampaignManageProps> = ( {data, loadCampaignData} ) => {
+const CampaignManage: React.FC<CampaignManageProps> = function( {data, loadCampaignData} ) {
     const {campaignsStateData, updateCampaignData} = useContext(CampaignsContext);
-
+    console.log(data);
     const [form] = Form.useForm();
     const [planSelect, setPlanSelect] = useState(data.plan_name);
     const [cancelClicked, setCancelClick] = useState(false); 
@@ -162,6 +163,9 @@ const CampaignManage: React.FC<CampaignManageProps> = ( {data, loadCampaignData}
                     </Space>
                 </Form.Item>
             </Form>
+            {/* <div style={{display: "flex", justifyContent: "center", width: "100%"}}>
+                <ManagePlanSelect/>
+            </div> */}
         </div>
     )
 

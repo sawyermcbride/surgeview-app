@@ -44,13 +44,13 @@ const app = express();
 
 const port = 3001;
 
-console.log("JWT_SECRET: ", process.env.JWT_SECRET);
+// console.log("JWT_SECRET: ", process.env.JWT_SECRET);
 
 const optionalJwtMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers.authorization?.split(' ')[1];
   if(token) {
     try {
-      console.log(`OptionalJWTmiddleware token value = ${token}`);
+      // console.log(`OptionalJWTmiddleware token value = ${token}`);
       const decryptedData = jwt.verify(token, process.env.JWT_SECRET);
       req.user = decryptedData;
     } catch(error) {

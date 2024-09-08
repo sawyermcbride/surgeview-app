@@ -21,6 +21,13 @@ router.post('/create', async (req: Request, res: Response,) => {
 
         const campaignExistsResult = await campaigns.checkExists(campaignId);
 
+        // const checkPaymentExists = await payments.checkPaymentExistsByCampaign(campaignId);
+        // console.log(`Checking if payment exists for ${campaignId} = ${checkPaymentExists.exists}`);
+        // console.log(checkPaymentExists.payments && checkPaymentExists.payments[0]);
+
+        // if(checkPaymentExists.exists) {
+        //     return res.status(409).json({message: "Payment record was already created for this campaign"});
+        // }
 
         if(campaignExistsResult.error) {
             console.error(campaignExistsResult.errorMessage);
@@ -40,13 +47,19 @@ router.post('/create', async (req: Request, res: Response,) => {
 
         });
 
+
         const paymentRecordResult = await payments.createPaymentRecord(paymentIntent);
+
         if(paymentRecordResult.created && !paymentRecordResult.error) {
             return res.status(200).send({
                 clientSecret: paymentIntent.client_secret,
             })
         } else {
-            return res.status(500).json({error: paymentRecordResult.message});
+            if(paymentRecordResult.error && paymentRecordResult.message.includes('Duplicate')) {
+                return res.status(409).json({message: "Duplicate record. Please wait and try again"});
+            } else {
+                return res.status(500).json({error: paymentRecordResult.message});
+            }
         }
 
     } catch(err) {

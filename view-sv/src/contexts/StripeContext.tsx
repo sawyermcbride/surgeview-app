@@ -15,24 +15,8 @@ const StripeContext = createContext<StripeContextProps | undefined>(undefined);
 export const StripeProvider: React.FC = ({children}) => {
     const [clientSecret, setClientSecret] = useState<string | null>(null);
 
-    const fetchClientSecret = async(amount: number) => {
-        try {
-            const response = await api.post("http://10.0.0.47:3001/payment/create", {
-                amount
-              });
-            
-              const data = response.data;              
-              console.log(`Client secret response - ${data.clientSecret}`);
-              setClientSecret(data.clientSecret);
-              console.log(`Client secret response`);    
-
-        } catch(error) {
-            console.error("Error fetching client secret");
-        }
-    }
-
     return (
-        <StripeContext.Provider value={{clientSecret, fetchClientSecret}}>
+        <StripeContext.Provider value={{clientSecret}}>
             {children}
         </StripeContext.Provider>
     )

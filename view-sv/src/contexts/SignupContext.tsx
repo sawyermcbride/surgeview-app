@@ -3,7 +3,7 @@ import React, {createContext, useEffect, useState} from "react";
 export const SignupContext = createContext({
     signupData: {
         step: 1, paymentPlanError: "", videoLinkError: "",
-        contentColumnWidth: '75%', formLoading: false
+        contentColumnWidth: '75%', formLoading: false, clientSecretCreated: false
    }, 
    updateSignupData: (obj) => {},
    resetSignupData: () => {},
@@ -14,7 +14,7 @@ export const SignupContext = createContext({
 export const SignupProvider = ({ children }) => {
     const [signupData, setSignupData] = useState({
          step: 1, paymentPlanError: "", videoLinkError: "",
-         contentColumnWidth: '75%', formLoading: false
+         contentColumnWidth: '75%', formLoading: false, clientSecretCreated: false
     });
     useEffect(() => {
         // console.log(`New data in SignupProvider: `)

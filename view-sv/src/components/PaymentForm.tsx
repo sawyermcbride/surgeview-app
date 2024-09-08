@@ -84,18 +84,19 @@ const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess, clientSecret
           onPaymentSuccess();
           setMessage("Payment successful. Redirecting to dashboard...");
 
-          resetSignupData();
-          setTimeout( () => {
-            navigate('/dashboard');
-          }, 1000);
           
-
+          
           const result = await api.post('http://10.0.0.47:3001/payment/update-payment', {
             paymentIntentId: paymentIntent.id,
             amount: paymentIntent.amount,
             status: paymentIntent.status,
           })
-
+          
+          resetSignupData();
+          setTimeout( () => {
+            navigate('/dashboard');
+          }, 1000);
+          
           console.log(result);
       }
 

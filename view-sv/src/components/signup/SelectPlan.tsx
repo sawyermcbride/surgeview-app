@@ -5,20 +5,20 @@ import api from "../../utils/apiClient";
 
 const plans = [
     {
-      title: "Basic",
+      title: "Standard",
       price: "$99 / month",
       features: ["3,750 to 5,000 Average Monthly Views","5% to 10% of Viewers, on Average Become Subscribers", "100% Safe Strategy Using Official YouTube Ads Platform", "View Campaign Statistics in Dashboard", 
         "24/7 Email Support from US Based Team"
       ],
-      buttonText: "Start 7 Day Free Trial",
+      buttonText: "Select",
     },
     {
-      title: "Standard",
+      title: "Premium",
       price: "$199 / month",
       features: ["7,500 to 10,000 Average Monthly Views","5% to 10% of Viewers, on Average Become Subscribers", "100% Safe Strategy Using Official YouTube Ads Platform", "View Campaign Statistics in Dashboard", 
         "24/7 Email Support from US Based Team"
       ],
-      buttonText: "Start 7 Day Free Trial",
+      buttonText: "Select",
     },
     {
       title: "Pro",
@@ -26,7 +26,7 @@ const plans = [
       features: ["16,000 to 20,000 Average Monthly Views","5% to 10% of Viewers, on Average Become Subscribers", "100% Safe Strategy Using Official YouTube Ads Platform", "View Campaign Statistics in Dashboard", 
         "24/7 Email Support from US Based Team"
       ],
-      buttonText: "Start 7 Day Free Trial",
+      buttonText: "Select",
     },
 ];
 
@@ -83,29 +83,30 @@ const SelectPlan: React.FC = () => {
         <Alert message={paymentPlanError} showIcon type="error" style={{marginTop: "20px"}} />  }
 
         <div style={{ padding: '50px 10px', background: '#f0f2f5' }}>
-                <Row gutter={16} justify="center">
-                {plans.map((plan) => (
-                    <Col md={12} lg={8} sm={24}  xs={24} key={plan.title}>
-                    <Card
-                        title={plan.title}
-                        bordered={false}
-                        style={{ textAlign: 'center', marginBottom: '20px' }}
-                    >
-                        <h2>{plan.price}</h2>
-                        <h3 style={{color: "#3498db"}} >7 Days Free</h3>
-                        <ul>
-                        {plan.features.map((feature, index) => (
-                            <li style={{padding: "10px 0px"}}key={index}>{feature}</li>
-                        ))}
-                        </ul>
-                        <Button type="primary" onClick={ () => {onSubmit(plan.title)} } style={{ marginTop: '20px' }}>
-                        {plan.buttonText}
-                        </Button>
-                    </Card>
-                    </Col>
-                ))}
-                </Row>
-            </div>
+              <Row gutter={16} justify="center">
+              {plans.map((plan) => (
+                  <Col md={12} lg={8} sm={24}  xs={24} key={plan.title}>
+                  <Card
+                      title={plan.title}
+                      bordered={false}
+                      style={{ textAlign: 'center', marginBottom: '20px' }}
+                      onClick={() => onSubmit(plan.title)}
+                  >
+                      <h2>{plan.price}</h2>
+                      <h3 style={{color: "#3498db"}} >7 Days Free</h3>
+                      <ul>
+                      {plan.features.map((feature, index) => (
+                          <li style={{padding: "10px 0px"}}key={index}>{feature}</li>
+                      ))}
+                      </ul>
+                      <Button type="primary" size={"large"} onClick={ () => {onSubmit(plan.title)} } style={{ marginTop: '20px' }}>
+                      {plan.buttonText}
+                      </Button>
+                  </Card>
+                  </Col>
+              ))}
+              </Row>
+          </div>
         </>
     )
 }

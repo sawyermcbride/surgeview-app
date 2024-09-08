@@ -28,29 +28,70 @@ class Payments {
     }
   }
 
+  public async checkPaymentExistsByCampaign(campaignId: number) {
+    if(!campaignId) {
+      throw new Error("Missing campaign ID, cannot lookup payment record");
+    }
+
+    await query('BEGIN');
+
+    const result = await query(`SELECT * FROM stripe_payments WHERE campaign_id = $1 AND 
+                                created_at > NOW() - INTERVAL '1 minute' FOR UPDATE`, [campaignId]);
+
+    console.log(`Reaslt from query, number of rows = ${result.rows.length}`);
+
+    if(result.rows.length > 0) {
+
+      await query('ROLLBACK');
+
+      return {
+        exists: true, 
+        payments: result.rows
+      }
+    } else {
+      await query('COMMIT');
+      return {
+        exists: false
+      }
+    }
+
+  }
+
   public async createPaymentRecord(paymentIntent) {
     let checkExists;
     try {
-      checkExists = await this.checkPaymentExists(paymentIntent.id);
+      await query('BEGIN');
 
-      if(!checkExists.exists) {
-        const result = query(`INSERT INTO stripe_payments (payment_intent_id, client_secret, subscription_id, campaign_id, amount,
-          currency, status) VALUES($1, $2, $3, $4, $5, $6, $7);
-          `, [paymentIntent.id, paymentIntent.client_secret, null, paymentIntent.metadata.campaignId, paymentIntent.amount,
-              paymentIntent.currency, paymentIntent.status]);
-      } else {
-        return {
-          created: false, 
-          error: "Payment record already exists"
-        }
-      }
+      /**
+       * Duplicate payment_intent_id and duplicate campaign_id entries (within same minute) are 
+       * handled with unique constraints on table
+       */
 
+      const result = await query(`INSERT INTO stripe_payments (payment_intent_id, client_secret, subscription_id, campaign_id, amount,
+        currency, status, truncated_created_at) VALUES($1, $2, $3, $4, $5, $6, $7, DATE_TRUNC('minute', NOW()));
+        `, [paymentIntent.id, paymentIntent.client_secret, null, paymentIntent.metadata.campaignId, paymentIntent.amount,
+            paymentIntent.currency, paymentIntent.status]);
+
+      await query('COMMIT');
+              
       return {
         error: false,
-        created: true
+        created: true,
+        message: result
       }
 
     } catch(err) {
+      console.log('Error in creating payment record');
+      await query('ROLLBACK');
+      
+      if (err.code === '23505') { // PostgreSQL unique violation error code
+        return {
+            error: true,
+            created: false,
+            message: "Duplicate payment record"
+        };
+      }
+      console.log(err);
       return {error: true, created: false, message: err || "Unknown error"};
     }
 
@@ -58,21 +99,17 @@ class Payments {
   }
 
   public async updateRecord(paymentIntent) {
-    let checkExists;
 
-    try {
-      checkExists = this.checkPaymentExists(paymentIntent.id);
+    console.log(paymentIntent);
 
-      if(checkExists.exists) {
-        const result = await query('UPDATE stripe_payments SET status = $1 WHERE payment_intent_id = $2', 
-          [paymentIntent.status, paymentIntent.id]
-        )
-      } else {
-        return {
-          updated: false,
-          error: true, 
-        }
-      }
+    try {    
+      console.log('Updating record');
+      await query('BEGIN');
+      const result = await query('UPDATE stripe_payments SET status = $1 WHERE payment_intent_id = $2', 
+        [paymentIntent.status, paymentIntent.id]
+      )
+      
+      await query('COMMIT');
 
       return {
         updated: true,
@@ -80,6 +117,7 @@ class Payments {
       }
 
     } catch(error) {
+      await query('ROLLBACK');
       return {
         error: true,
         message: error || "Unknown error"

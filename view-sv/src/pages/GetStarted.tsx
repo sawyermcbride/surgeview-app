@@ -56,11 +56,6 @@ const GetStarted: React.FC = () => {
     checkStepAndLoadSecret();
   },[signupData]);
 
-  useEffect( () => {
-    console.log("New data in GetStarted");
-    console.log(signupData);
-
-  }, [signupData])
 
 
 
