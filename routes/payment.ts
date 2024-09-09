@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import {query} from '../db';
 import Payments from "../services/Payments";
 import Campaigns from "../services/Campaigns";
+import Customers from "../services/Customers";
 const stripe = new Stripe('sk_test_51PmqG6KG6RDK9K4gSDxcza88uYRyVuFV0LJUQLQyPopCIBxR0rPHbnNu2LHHzf9DO4eqv0kvpNgczOaOOyB7HcKO00qg3j3lTw');
 
 const router = express.Router();
@@ -14,41 +15,53 @@ const router = express.Router();
 
 const payments = new Payments();
 const campaigns = new Campaigns();
+const customers = new Customers();
 
 router.post('/create', async (req: Request, res: Response,) => {
     try {
         const {amount, paymentMethodId, campaignId} = req.body;
 
         const campaignExistsResult = await campaigns.checkExists(campaignId);
-
-        // const checkPaymentExists = await payments.checkPaymentExistsByCampaign(campaignId);
-        // console.log(`Checking if payment exists for ${campaignId} = ${checkPaymentExists.exists}`);
-        // console.log(checkPaymentExists.payments && checkPaymentExists.payments[0]);
-
-        // if(checkPaymentExists.exists) {
-        //     return res.status(409).json({message: "Payment record was already created for this campaign"});
-        // }
-
+        
+        
+        if(!req.user.email) {
+            return res.status(401);
+        }
+        
+        
         if(campaignExistsResult.error) {
             console.error(campaignExistsResult.errorMessage);
             return res.status(500).json({ message: "Internal server error. Please try again later." });
         }
-
+        
         if(!campaignExistsResult.exists) {
             return res.status(400).json({messsage: "Campaign not found, unable to create payment."});
         }
+        
+        const customerHasAccess = await customers.checkCampaignBelongs(req.user.email, campaignId);
 
-        const paymentIntent = await stripe.paymentIntents.create({
-            amount,
-            currency: 'usd',
+        if(!customerHasAccess) {
+            return res.status(400).json({message: "Cannot create payment, user unable access the requested campaign"});
+        }
+
+        const customer = await stripe.customers.create({
+            email: req.user.email
+        });
+
+        const subscription = await stripe.subscriptions.create({
+            customer: customer.id,
+            items:[{price: 'price_1PmqJAKG6RDK9K4gJuajZUyz'}],
+            payment_behavior: 'default_incomplete',
+            expand: ['latest_invoice.payment_intent'],
             metadata: {
                 campaignId
             }
+        })
 
-        });
+        const paymentIntent = subscription.latest_invoice.payment_intent; 
 
 
-        const paymentRecordResult = await payments.createPaymentRecord(paymentIntent);
+        const paymentRecordResult = await payments.createPaymentRecord(paymentIntent, subscription);
 
         if(paymentRecordResult.created && !paymentRecordResult.error) {
             return res.status(200).send({

@@ -27,12 +27,9 @@ interface CampaignsViewProps {
 
 const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaignData, campaignStatistics,
   resetCampaignsView, setResetCampaignsView, isMobile, loading}) => {
-    
   const [campaigns, setCampaigns] = useState();
-
   const {campaignsStateData, updateCampaignData} = useContext(CampaignsContext);
 
-  
   
     useEffect(() => {
       updateCampaignData({loading: true});

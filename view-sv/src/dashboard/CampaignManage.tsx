@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useContext} from "react";
 import {Form, Input, Button, Typography, notification, Space, Select,
-     Breadcrumb, RadioChangeEvent, Radio, Alert, Descriptions, Popconfirm, message, Modal, Spin} from "antd";
+     Breadcrumb, RadioChangeEvent, Radio, Alert, Descriptions, Popconfirm, message, Modal, Spin,
+     Badge} from "antd";
 import api from "../utils/apiClient";
 import { CampaignsContext } from "../contexts/CampaignsContext";
 import ManagePlanSelect from "../components/dashboard/ManagePlanSelect";
@@ -62,7 +63,7 @@ const CampaignManage: React.FC<CampaignManageProps> = function( {data, loadCampa
             })
         } else {
             result = await api.put(`http://10.0.0.47:3001/campaign/update/${data.campaign_id}`,{
-                status: 'active',
+                status: 'setup',
                 plan_name: planSelect
             }, {
                 headers: {
@@ -134,12 +135,15 @@ const CampaignManage: React.FC<CampaignManageProps> = function( {data, loadCampa
     const onPlanChange = ({target: {value}}: RadioChangeEvent) => {
         setPlanSelect(value);
     }
+    const onPlanSelect = function(name: string) {
+
+    }
 
     return (
         <>
         {data ? (
 
-        <div style={{width: "100%"}}>
+        <div style={{width: "95%"}}>
             {data.status === 'stopped' ? (
                 <Alert 
                     message="Your campaign is not running. Click 'restart' below to start it again.                         "
@@ -186,10 +190,15 @@ const CampaignManage: React.FC<CampaignManageProps> = function( {data, loadCampa
             <Title level={5}>Campaign Information</Title>
             <Descriptions column={1} bordered size="small" items={
                 [
-                    {label: "Current Link", children: <Text>{data.video_link}</Text>},
-                    {label: "Current Title", children: <Text>{data.video_title}</Text>},
-                    {label: "Current Channel", children: <Text>{data.channel_title}</Text>},
-                    {label: "Current Plan", children: <Text>{data.plan_name} @ ${data.price} / Month</Text>},
+                    {label: "Status", children:
+                     <Text style={{color: data.status == 'active' ? "#27ae60" : "#e67e22", fontWeight: "bold"}}>
+                        {data.status == 'setup' ? 'In-': ''}
+                        {data.status.charAt(0).toUpperCase() + data.status.slice(1)}
+                    </Text>},
+                    {label: "Video Link", children: <Link href={data.video_link} target="_blank">{data.video_link}</Link>},
+                    {label: "Video Title", children: <Text>{data.video_title}</Text>},
+                    {label: "Channel Name", children: <Text>{data.channel_title}</Text>},
+                    {label: "Selected Plan", children: <Text>{data.plan_name} @ ${data.price} / Month</Text>},
                 ]
             }
             />

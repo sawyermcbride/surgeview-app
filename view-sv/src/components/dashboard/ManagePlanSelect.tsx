@@ -1,22 +1,22 @@
 import React, {useState} from 'react';
 
-import { Card, Row, Col } from 'antd';
+import { Card, Row, Col, Button } from 'antd';
 
 const plans = [
   {
     title: 'Standard',
-    price: '$29/month',
-    features: ['Feature 1', 'Feature 2', 'Feature 3']
+    price: '$99 / month',
+    features: ['100% Real Views', '3,000+ Views a Month']
   },
   {
     title: 'Premium',
-    price: '$49/month',
-    features: ['Feature 1', 'Feature 2', 'Feature 3', 'Feature 4']
+    price: '$199 / month',
+    features: ['100% Real Views', '7,000+ Views a Month', '2x Results of Standard']
   },
   {
     title: 'Pro',
-    price: '$99/month',
-    features: ['Feature 1', 'Feature 2', 'Feature 3', 'Feature 4', 'Feature 5']
+    price: '$399 / month',
+    features: ['100% Real Views', '12,000+ Views / Month', '4x Results of Standard']
   }
 ];
 
@@ -26,13 +26,23 @@ const ManagePlanSelect: React.FC = function(props) {
     <Row gutter={16} justify="center">
     {plans.map((plan, index) => (
       <Col key={index} xs={24} sm={12} md={8}>
-        <Card title={plan.title} bordered={false} style={{ border: "2px solid", borderColor: "#e74c3c", background: "#ecf0f1", textAlign: 'center' }}>
-          <p style={{ fontSize: '24px', fontWeight: 'bold' }}>{plan.price}</p>
-          <ul>
-            {plan.features.map((feature, idx) => (
-              <li key={idx}>{feature}</li>
-            ))}
-          </ul>
+        <Card title={plan.title} bordered={false} style={{
+           minWidth: "250px", border: "0px solid", borderColor: "#e74c3c", background: "#fff", textAlign: 'center', height: "275px"}}>
+            <div>
+              <p style={{ fontSize: '18px', fontWeight: 'bold'}}>{plan.price}</p>
+                {/* 
+                {plan.features.map((feature, idx) => (
+                  <p key={idx}>{feature}</p>
+                ))} */}
+              <ul>
+                {plan.features.map((feature, idx) => (
+                  <li key={idx}>{feature}</li>
+                ))}
+              </ul>
+            </div>
+          <Button style={{position: "absolute", marginBottom: "0px", bottom: "20px", transform: 'translateX(-50%)'}}>
+            Select
+          </Button>
         </Card>
       </Col>
     ))}

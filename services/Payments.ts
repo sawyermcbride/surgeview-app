@@ -57,7 +57,7 @@ class Payments {
 
   }
 
-  public async createPaymentRecord(paymentIntent) {
+  public async createPaymentRecord(paymentIntent, subscription) {
     let checkExists;
     try {
       await query('BEGIN');

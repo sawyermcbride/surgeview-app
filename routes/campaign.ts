@@ -49,9 +49,12 @@ router.put("/update/:id", updateCampaign);
 
 
 router.get("/statistics", async(req: Request, res: Response) => {
+  console.log('statistics');
   const statisticsJson = await statisticsService.getBaseStatisics(req.user.email);
+  console.log(statisticsJson);
 
   return res.status(200).json(statisticsJson );
+  // return res.status(200).json({} );
 });
 
 
