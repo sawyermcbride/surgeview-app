@@ -2,6 +2,11 @@ import { Router, Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { query } from "../db";
 import jwt from "jsonwebtoken";
+import generateToken from "../utils/jwtHelper";
+import Customers from "../models/Customers";
+
+
+const customers = new Customers();
 
 const router = Router();
 const saltrounds = 10;
@@ -9,12 +14,11 @@ const saltrounds = 10;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const validatePassword = (password: string): boolean => {
-  return password.length >= 6 && password.length < 50;
+  return password.length >= 8 && password.length < 50;
 };
 
 router.post("/", async (req: Request, res: Response) => {
   let { email, password } = req.body;
-  console.log(req.body);
 
   //validate email
   if (!email || !emailRegex.test(email)) {
@@ -34,31 +38,17 @@ router.post("/", async (req: Request, res: Response) => {
   email = email.toLowerCase()
 
   try {
-    const hashedPassword = await bcrypt.hash(password, saltrounds);
-
-    const checkUserResult = await query(
-      "SELECT id FROM customers WHERE email = $1",
-      [email],
-    );
-    if (checkUserResult.rows.length > 0) {
-      return res.status(409).json({ error: "User already exists" });
+    
+    const newCustomer = await customers.createCustomer(email, password);
+    if(!newCustomer?.created) {
+      if(newCustomer?.type === 'duplicate') {
+        return res.status(409).json({message: newCustomer.message});
+      } else {
+        throw new Error();
+      }
     }
 
-    const result = await query(
-      "INSERT INTO customers (email, password) VALUES($1, $2) RETURNING id, email, created_at",
-      [email, hashedPassword],
-    );
-
-    const token = jwt.sign(
-      {email: result.rows[0].email},
-      process.env.JWT_SECRET as string, 
-      {expiresIn: "30m"}
-    )
-    const refreshToken = jwt.sign(
-      {email: result.rows[0].email},
-      process.env.JWT_SECRET as string, 
-      {expiresIn: "14d"}
-    )
+    const {token, refreshToken} = generateToken({email: newCustomer.email}, true);
 
     res.status(201).json({ message: "User registered succesfully", token, refreshToken});
   } catch (error) {
@@ -67,8 +57,5 @@ router.post("/", async (req: Request, res: Response) => {
   }
 });
 
-router.get("/", (req: Request, res: Response) => {
-  res.send("GET /Signup Recieved");
-});
 
 export default router;

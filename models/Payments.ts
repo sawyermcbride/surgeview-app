@@ -69,7 +69,7 @@ class Payments {
 
       const result = await query(`INSERT INTO stripe_payments (payment_intent_id, client_secret, subscription_id, campaign_id, amount,
         currency, status, truncated_created_at) VALUES($1, $2, $3, $4, $5, $6, $7, DATE_TRUNC('minute', NOW()));
-        `, [paymentIntent.id, paymentIntent.client_secret, null, paymentIntent.metadata.campaignId, paymentIntent.amount,
+        `, [paymentIntent.id, paymentIntent.client_secret, null, subscription.metadata.campaignId, paymentIntent.amount,
             paymentIntent.currency, paymentIntent.status]);
 
       await query('COMMIT');

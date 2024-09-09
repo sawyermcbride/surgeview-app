@@ -57,7 +57,7 @@ export const updateCampaign = async (req: Request, res: Response) => {
               // console.log(`updating price, current price = ${pricingTable[result.rows[0]['plan_name']]} and new price = ${pricingTable[updateData.plan_name]} `);
               await query('UPDATE campaigns SET price = $1 WHERE campaign_id = $2', [pricingTable[updateData.plan_name], videoId]);
             } else if(elem === 'video_link') {
-              console.log(`Updating video link with title = ${videoDetails.title} and channel = ${videoDetails.channelTitle}`);
+              // console.log(`Updating video link with title = ${videoDetails.title} and channel = ${videoDetails.channelTitle}`);
               await query('UPDATE campaigns SET video_title = $1, channel_title = $2 WHERE campaign_id = $3',
                  [videoDetails.title, videoDetails.channelTitle, result.rows[0].campaign_id]);
             }
