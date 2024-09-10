@@ -1,8 +1,11 @@
 import express, {Request, Response} from "express";
 import YouTubeService from "../../services/YouTubeService";
-import {query} from '../../db';
+
+import Campaigns from "../../models/Campaigns";
 
 const youtubeService = new YouTubeService();
+const campaigns = new Campaigns();
+
 
 const pricingTable = {
   'Standard': 99.0,
@@ -34,28 +37,29 @@ export const addCampaign = async (req: Request, res: Response) => {
 
 
   try {
-    const userEmail = req.user.email;
-    const customerID = await query(
-      "SELECT ID FROM customers WHERE email = $1",
-      [userEmail],
-    );
-    
-    console.log(videoDetails);
-    await query("BEGIN");
-    const result = await query(
-      `INSERT INTO campaigns (customer_id, video_link, price, plan_name,
-       video_title, channel_title, status, payment_status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING campaign_id`,
-      [customerID.rows[0].id, videoLink, pricingTable[plan], plan, videoDetails.title,
-       videoDetails.channelTitle, 'setup', 'not_attempted'],
+    const userEmail = req.user?.email;
+
+    const result = await campaigns.addCampaign(
+      {
+        video_link: videoLink, 
+        price: pricingTable[plan],
+        plan_name: plan,
+        channel_title: videoDetails.channelTitle,
+        video_title: videoDetails.title
+
+      },
+      userEmail
     );
 
-    await query("COMMIT");
+    if(result.campaign_id > -1 && !result.error) {
+      return res.status(201).json({campaignId: result.campaign_id, message: "Campaign added" });
+    } else {
+      throw new Error(result.error);
+    }
 
-    return res.status(201).json({campaignId: result.rows[0].campaign_id, message: "Campaign added" });
+
   
   } catch (err) {
-    await query("ROLLBACK");
   
     return res.status(500).json({ message: "Error adding campaign", err });
   }

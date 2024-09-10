@@ -13,7 +13,11 @@ class YouTubeService {
     constructor() {
         this.apiKey = process.env.YOUTUBE_API_KEY || "AIzaSyCu8EM2Bo6REdjvZ81NZ-S5K7vf6FWr7Bw";
     }
-
+    /**
+     * Gets video details and valdiates video link
+     * @param videoId extracted from extractVideoId private function
+     * @returns VideoDetails object with valid, title, channelTitle
+     */
     private async getVideoDetails(videoId: string): Promise<VideoDetails> {
         const url = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${this.apiKey}&part=snippet`;
         
@@ -38,6 +42,11 @@ class YouTubeService {
         const match = videoLink.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
         return match ? match[1] : null;
     }
+    /**
+     * 
+     * @param videoLink link to get title and channel of, if invalid the return property in the object (valid) will be false
+     * @returns object with {valid, videoTitle, channelTitle}
+     */
 
     public async validateVideoLink(videoLink: string): Promise<VideoDetails> {
         const videoId = this.extractVideoId(videoLink);

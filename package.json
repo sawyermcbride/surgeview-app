@@ -13,7 +13,7 @@
     "client": "cd view-sv && npm run dev -- --host",
     "server": "npm run dev",
     "test": "jest",
-    "dev": "tsx index.ts"
+    "dev": "tsx watch index.ts"
   },
   "author": "",
   "license": "ISC",

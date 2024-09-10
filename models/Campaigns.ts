@@ -2,6 +2,14 @@
 
 import {query} from "../db";
 
+interface AddCampaignObject {
+  video_link: string,
+  price: number, 
+  plan_name: string, 
+  video_title: string,
+  channel_title: string
+}
+
 class Campaigns {
 
   public validColumns: string[] = ['plan_name', 'price', 'plan_name', 'video_link', 'google_campaign_id',
@@ -31,7 +39,9 @@ class Campaigns {
       }
     }
   }
-  public async updatePaymentStatus(id: number, newStatus: string, email: string) {
+  public async updatePaymentStatus(id: number, newStatus: string, email: string): Promise<{
+    updated: boolean, error: string
+  }> {
     try {
       await query('BEGIN');
 
@@ -52,6 +62,7 @@ class Campaigns {
 
       return {
         updated: true, 
+        error: ""
       }
 
     } catch(error) {
@@ -82,11 +93,61 @@ class Campaigns {
       }
     }
   }
+  /**
+   * 
+   * @param addData Object including (video_link, price, plan_name,
+         video_title, channel_title) to insert to the database
+   * @param email from the req.user object to ensure access
+   * @returns object with campaign_id and error (string)
+   */
+  
+  public async addCampaign(addData: AddCampaignObject, email: string ): Promise<{campaign_id: number, error: string}> {
+    const columns = Object.keys(addData);
+    console.log(addData);
+    for(const column of columns) {
+      if(! (this.validColumns.includes(column))) {
+        throw new Error(`Invalid column ${column}`);
+      }
+    }
 
-  public async updateColumns(campaignId: number, updateData: Record<string, any> , email: string) {
+    try {
+      await query('BEGIN');
+      
+      const customerId = await query(
+        "SELECT ID FROM customers WHERE email = $1",
+        [email],
+      );
+
+      const result = await query(
+        `INSERT INTO campaigns (customer_id, video_link, price, plan_name,
+         video_title, channel_title, status, payment_status)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING campaign_id`,
+        [customerId.rows[0].id, addData.video_link, addData.price, addData.plan_name, addData.video_title,
+         addData.channel_title, 'setup', 'not_attempted'],
+      );
+
+      await query('COMMIT');
+
+      return {
+        campaign_id: result.rows[0].campaign_id,
+        error: ""
+      }
+
+    } catch(error) {
+      await query('ROLLBACK');
+      return {
+        campaign_id: -1,
+        error: error.message
+      }
+    };
+
+  }
+
+  public async updateColumns(campaignId: number, updateData: Record<string, any> , email: string): 
+    Promise<{updated: boolean, error: string }> {
 
     const checkCampaign = await this.checkExists(campaignId);
-
+    
     if(!checkCampaign.exists || checkCampaign.error) {
       throw new Error(`Requested campaign to update doesn't exist or an error occured: 
         ${checkCampaign.errorMessage || ''}`);
@@ -113,13 +174,23 @@ class Campaigns {
       const queryText = `UPDATE campaigns SET ${setClauses} WHERE campaign_id = $${columns.length + 1}
         AND customer_id = (SELECT id FROM customers WHERE email = $${columns.length + 2})`;
 
-      await query(queryText, [...values, campaignId, email]);
+      const result = await query(queryText, [...values, campaignId, email]);
 
       await query('COMMIT');
+      
 
-      return {
-        updated: true
+        if((result?.rowCount ?? 0)> 0) {
+          return {
+            updated: true, 
+            error: ""
+          }
+        } else {
+        return {
+          updated: false, 
+          error: "Unable to update campaign, user does not own the campaign or the campaign does not exist"
+        }
       }
+
 
     } catch(error) {
 

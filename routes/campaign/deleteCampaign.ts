@@ -2,6 +2,9 @@
 
 import express, {Request, Response} from "express";
 import {query} from '../../db';
+import Campaigns from "../../models/Campaigns";
+
+const campaigns = new Campaigns();
 
 export const deleteCampaign = async(req: Request, res: Response) => {
     const campaignId = req.params.campaignId;
@@ -14,12 +17,14 @@ export const deleteCampaign = async(req: Request, res: Response) => {
     }
 
     try {
-      await query(`UPDATE campaigns SET status='stopped' FROM
-                customers WHERE campaigns.customer_id = campaigns.customer_id AND 
-                campaigns.campaign_id = $1 AND customers.email = $2;`,
-                 [campaignId, req.user.email]);
-
-      return res.status(200).json({message: "Campaign set to stopped"});
+    
+      const result = await campaigns.updateColumns(parseInt(campaignId), {status: 'stopped'}, req.user?.email);
+      console.log(result);
+      if(result.updated && !result.error) {
+        return res.status(200).json({message: "Campaign set to stopped"});
+      } else {
+        return res.status(400).json({message: `Unable to update, error: ${result.error || "unknown error"}`}) ;
+      }
                  
     } catch(err) {
         return res.status(500).json({message: err});
