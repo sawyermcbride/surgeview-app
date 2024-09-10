@@ -48,9 +48,9 @@ router.post("/", async (req: Request, res: Response) => {
       }
     }
 
-    const {token, refreshToken} = generateToken({email: newCustomer.email}, true);
+    const {accessToken, refreshToken} = generateToken({email: newCustomer.email}, true);
 
-    res.status(201).json({ message: "User registered succesfully", token, refreshToken});
+    res.status(201).json({ message: "User registered succesfully", token: accessToken, refreshToken});
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Error registering user" });

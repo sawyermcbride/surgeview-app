@@ -16,7 +16,7 @@ SurgeView helps YouTube creators and marketers promote their videos through auto
 
 1. **Clone the repository**
 ```bash
-git pull https://github.com/sawyermcbride/surgeview-app.git`
+git pull https://github.com/sawyermcbride/surgeview-app.git
 ```
 2. **Navigate to the project**
 ```bash
@@ -29,7 +29,9 @@ npm start
 
 ## Overview 
 This is the main application that involves the primary backend and client application. There is essentially two applications within this, each with a seperate package.json
-the root directory holds everything for the server. Inside the `./view-sv` folder is the client application built in React and using the Vite build system. 
+the root directory holds everything for the server. 
+---
+Inside the `./view-sv` folder is the client application built in React and using the Vite build system. 
 We have an additional application in Java/Spring boot that holds our core ads service.
 
 ##Server 
