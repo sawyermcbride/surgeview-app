@@ -1,46 +1,34 @@
 import express, { Request, Response } from "express";
-import bcrypt from "bcrypt";
-import { query } from "../db";
-import jwt from "jsonwebtoken";
 import generateToken from "../utils/jwtHelper";
+
+import Customers from "../models/Customers";
 
 const router = express.Router();
 
+const customers = new Customers();
+
 router.post("/", async (req: Request, res: Response) => {
-  console.log("login request /login");
+
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({ error: "Missing email or password" });
   }
 
-  try {
-    const result = await query("SELECT * FROM customers WHERE email = $1", [
-      email,
-    ]);
+  const result = await customers.login(email, password);
 
-    if (result.rows.length === 0) {
-      return res.status(401).json({ error: "Invalid username or password" });
-    }
+  if(result.login) {
+    const {accessToken, refreshToken} = generateToken({email: result.email}, true)
+    console.log(accessToken);
 
-    const hashedPassword = result.rows[0].password;
-
-    const isMatch = await bcrypt.compare(password, hashedPassword);
-    console.log("Email result in login: ");
-    console.log(result.rows[0]);
-    if (isMatch) {
-      const {token, refreshToken} = generateToken({
-        email: result.rows[0].email,
-      }, true);
-
-      console.log(`Successful login by ${email}`, email);
-      return res.status(200).json({ message: "Login successful", token, refreshToken});
-    } else {
-      return res.status(401).json({ error: "Invalid username or password" });
-    }
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "Error during login" });
+    res.status(200).json({token: accessToken, refreshToken});
+  } else if(result.errorType === 'user') {
+    res.status(400).json({message: "No user exists with that email", type: result.errorType});
+  } else if(result.errorType === 'password') {
+    res.status(401).json({message: "Password invalid", type: result.errorType});
+  } else {
+    res.status(500).json({message: "Error occured during login"});
   }
+
 });
 
 export default router;

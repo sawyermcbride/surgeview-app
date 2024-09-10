@@ -14,7 +14,11 @@ class Campaigns {
 
   public validColumns: string[] = ['plan_name', 'price', 'plan_name', 'video_link', 'google_campaign_id',
     'google_ad_group_id', 'google_ad_id', 'status', 'channel_title', 'video_title', 'payment_status'];
-
+  /**
+   * Checks if a campaign exists by id 
+   * @param id  campaign id
+   * @returns 
+   */
   public async checkExists(id: number) {
     try {
       const result = await query(`SELECT * FROM campaigns WHERE campaign_id = $1`, [id]);
@@ -26,7 +30,7 @@ class Campaigns {
         }
       } else {
         return {
-          error: false,
+          error: "",
           exists: true,
           campaigns: result.rows
         }
@@ -34,8 +38,9 @@ class Campaigns {
 
     } catch(error) {
       return {
-        error: true,
-        errorMessage: error
+        exists: false,
+        campaigns: [], 
+        error: error
       }
     }
   }
@@ -75,21 +80,27 @@ class Campaigns {
     }
 
   }
+  /**
+   * Gets all the campaigns associated with a user 
+   * @param email email used to access campaigns so ensure it is from req.user for authentication 
+   * @returns object with error property (empty string if none) and campaigns property an array of campaign rows
+   */
 
-  public async getColumns(campaignId: number, email: string) {
+  public async getCampaigns(email: string) {
     try {
-      const result = await query(`SELECT * FROM campaigns AS ca JOIN customers AS cus
-      ON ca.customer_id = cus.id WHERE email = $1 AND ca.campaign_id = $2`, [email, campaignId]);
+      const result = await query(`SELECT ca.campaign_id, ca.video_link, ca.price, ca.plan_name, ca.status, ca.video_title, 
+      ca.channel_title, ca.payment_status FROM campaigns AS ca 
+      JOIN customers AS cus ON ca.customer_id = cus.id WHERE email = $1`, [email]);
 
-        return {
-          error: false,
-          result
-        }
+      return {
+        error:"",
+        campaigns: result.rows
+      }
 
     } catch(error) {
       return {
-        error: true,
-        message: error.message,
+        result: [],
+        error: error.message,
       }
     }
   }

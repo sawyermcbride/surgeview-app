@@ -7,9 +7,11 @@ import { deleteCampaign } from "./campaign/deleteCampaign";
 import { addCampaign } from "./campaign/addCampaign";
 import { updateCampaign } from "./campaign/updateCampaign";
 
+import Campaigns from "../models/Campaigns";
 
 const router = express.Router();
 const statisticsService = new StatisticsService();
+const campaigns = new Campaigns();
 
 
 router.use( (req: Request, res: Response, next: NextFunction) => {
@@ -25,20 +27,18 @@ router.post("/add", addCampaign);
 
 router.get("/request", async (req: Request, res: Response) => {
 
-  try{
-    if(!req.user) {
-      return res.status(401).json({message: "User not authorized"});
-    } else {
-      const userEmail = req.user.email;
-      const result = await query("SELECT id FROM customers WHERE email= $1", [userEmail]);
+  if(!req.user) {
+    return res.status(401).json({message: "User not authorized"});
+  }
 
-      const customer_id = result.rows[0].id;
-
-      const campaigns_result = await query("SELECT * FROM campaigns WHERE customer_id = $1", [customer_id]);
-      return res.status(200).json(campaigns_result.rows);
-    }
-
-
+  const userEmail = req.user.email;
+  try {
+      const result = await campaigns.getCampaigns(userEmail);
+      if(!result.error) {
+        return res.status(200).json(result.campaigns);
+      } else {
+        throw new Error(result.error);
+      }
 
   } catch(err) {
     return res.status(500).json({message: "Error loading campaigns"});

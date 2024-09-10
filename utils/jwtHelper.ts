@@ -3,18 +3,28 @@ import jwt from "jsonwebtoken";
 interface User {
   email: string;
 }
-let i = 1;
 
-const generateToken = (user: User, generateRefreshToken: boolean) => {
-  console.log("Generating token for user");
-  console.log(`pass #${i++}`)
-  console.log(user.email);
+interface GenerateTokenResponse {
+  refreshToken: string | null,
+  accessToken: string
+}
+
+/**
+ * 
+ * @param user object containing email like {email: name@site.com}
+ * @param generateRefreshToken boolean to generate refresh token or not
+ * @returns GenerateResponseToken containing object with 
+ *  - accessToken: string
+ *  - refreshToken: string or null (if not requested in parameter)
+ */
+
+const generateToken = (user: User, generateRefreshToken: boolean): GenerateTokenResponse => {
+
   const payload = {
     email: user.email,
   };
 
   
-
   const accessToken = jwt.sign(payload, `${process.env.JWT_SECRET}` as string, {
     expiresIn: "6h"
   });
@@ -28,7 +38,7 @@ const generateToken = (user: User, generateRefreshToken: boolean) => {
 
   }
   
-  return {token: accessToken, refreshToken};
+  return {accessToken, refreshToken};
 };
 
 export default generateToken;
