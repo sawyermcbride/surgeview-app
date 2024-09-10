@@ -3,6 +3,10 @@
 import {query} from "../db";
 
 class Campaigns {
+
+  public validColumns: string[] = ['plan_name', 'price', 'plan_name', 'video_link', 'google_campaign_id',
+    'google_ad_group_id', 'google_ad_id', 'status', 'channel_title', 'video_title', 'payment_status'];
+
   public async checkExists(id: number) {
     try {
       const result = await query(`SELECT * FROM campaigns WHERE campaign_id = $1`, [id]);
@@ -79,20 +83,46 @@ class Campaigns {
     }
   }
 
-  public async updateColumns(updateData: object, email: string) {
-    const validColumns = []
+  public async updateColumns(campaignId: number, updateData: Record<string, any> , email: string) {
+
+    const checkCampaign = await this.checkExists(campaignId);
+
+    if(!checkCampaign.exists || checkCampaign.error) {
+      throw new Error(`Requested campaign to update doesn't exist or an error occured: 
+        ${checkCampaign.errorMessage || ''}`);
+    }
+
+    const columns = Object.keys(updateData);
+
+    for(const column of columns) {
+      if(! (this.validColumns.includes(column))) {
+        throw new Error(`Invalid column ${column}`);
+      }
+    }
 
     try {
-      for(let key in updateData) {
-        let result = await query(`UPDATE campaigns SET ${key} = $1 WHERE 
-        customer_id = (SELECT id FROM customers WHERE email = $2)`, [updateData[key], email]);
-      }
+      await query('BEGIN');
+
+      //create set clauses, will look like this: 'plan_name = $1, price = $2' etc
+      const setClauses = columns.map((col, idx) => `${col} = $${idx + 1}`).join(', ');
+
+
+      //create values will look like this: ['Premium', 99.0] etc
+      const values = columns.map((col) => updateData[col]);
+
+      const queryText = `UPDATE campaigns SET ${setClauses} WHERE campaign_id = $${columns.length + 1}
+        AND customer_id = (SELECT id FROM customers WHERE email = $${columns.length + 2})`;
+
+      await query(queryText, [...values, campaignId, email]);
+
+      await query('COMMIT');
 
       return {
         updated: true
       }
 
     } catch(error) {
+
       return {
         updated: false, 
         error: error.message
@@ -101,5 +131,4 @@ class Campaigns {
   }
 
 }
-
 export default Campaigns;
