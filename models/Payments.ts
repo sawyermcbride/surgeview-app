@@ -56,8 +56,14 @@ class Payments {
     }
 
   }
+  /**
+   * 
+   * @param {PaymentIntent} paymentIntent the payment intent for the associated subscription
+   * @param subscription 
+   * @returns 
+   */
 
-  public async createPaymentRecord(paymentIntent, subscription) {
+  public async createPaymentRecord(paymentIntent: PaymentIntent, subscription: Stripe.Subscription) {
     let checkExists;
     try {
       await query('BEGIN');
@@ -68,9 +74,9 @@ class Payments {
        */
 
       const result = await query(`INSERT INTO stripe_payments (payment_intent_id, client_secret, subscription_id, campaign_id, amount,
-        currency, status, truncated_created_at) VALUES($1, $2, $3, $4, $5, $6, $7, DATE_TRUNC('minute', NOW()));
-        `, [paymentIntent.id, paymentIntent.client_secret, null, subscription.metadata.campaignId, paymentIntent.amount,
-            paymentIntent.currency, paymentIntent.status]);
+        currency, status, stripe_customer_id, truncated_created_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8, DATE_TRUNC('minute', NOW()));
+        `, [paymentIntent.id, paymentIntent.client_secret, subscription.id, subscription.metadata.campaignId, paymentIntent.amount,
+            paymentIntent.currency, paymentIntent.status, subscription.customer]);
 
       await query('COMMIT');
               

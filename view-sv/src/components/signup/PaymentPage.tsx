@@ -34,6 +34,7 @@ const PaymentPage: React.FC = () => {
 
 
         const response = await api.post("http://10.0.0.47:3001/payment/create", {
+          plan_name: localStorage.getItem("pricing"),
           amount: price,
           currency: 'usd',
           campaignId

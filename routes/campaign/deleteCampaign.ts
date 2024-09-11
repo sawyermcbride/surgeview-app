@@ -19,7 +19,8 @@ export const deleteCampaign = async(req: Request, res: Response) => {
     try {
     
       const result = await campaigns.updateColumns(parseInt(campaignId), {status: 'stopped'}, req.user?.email);
-      console.log(result);
+      console.log(campaigns.updateColumns);
+      
       if(result.updated && !result.error) {
         return res.status(200).json({message: "Campaign set to stopped"});
       } else {

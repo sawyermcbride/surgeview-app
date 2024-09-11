@@ -82,7 +82,7 @@ class Campaigns {
   }
   /**
    * Gets all the campaigns associated with a user 
-   * @param email email used to access campaigns so ensure it is from req.user for authentication 
+   * @param {string} email email used to access campaigns so ensure it is from req.user for authentication 
    * @returns object with error property (empty string if none) and campaigns property an array of campaign rows
    */
 
@@ -106,10 +106,10 @@ class Campaigns {
   }
   /**
    * 
-   * @param addData Object including (video_link, price, plan_name,
+   * @param {object} addData Object including (video_link, price, plan_name,
          video_title, channel_title) to insert to the database
-   * @param email from the req.user object to ensure access
-   * @returns object with campaign_id and error (string)
+   * @param {string} email from the req.user object to ensure access
+   * @returns {Promise<{campaign_id: number, error: string}>}  - campaign_id of created campaign, is -1 if not created, error is empty string if no error
    */
   
   public async addCampaign(addData: AddCampaignObject, email: string ): Promise<{campaign_id: number, error: string}> {
@@ -153,10 +153,18 @@ class Campaigns {
     };
 
   }
+  /**
+   * 
+   * @param {number} campaignId 
+   * @param {Record<string, any>} updateData  data to update in the campaigns table
+   * @param {string} email - ensure email is from authenticated token 
+   * @returns {Promise<{updated: boolean, error: string}>} - A promise resolving to a boolean and error (is empty string if none)
+   */
 
   public async updateColumns(campaignId: number, updateData: Record<string, any> , email: string): 
     Promise<{updated: boolean, error: string }> {
 
+    console.log('Real updateColumns method called');
     const checkCampaign = await this.checkExists(campaignId);
     
     if(!checkCampaign.exists || checkCampaign.error) {

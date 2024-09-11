@@ -3,27 +3,25 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 
-import express, {
-  NextFunction,
-  Request,
-  Response,
-  ErrorRequestHandler,
+import express, { NextFunction, Request, Response, ErrorRequestHandler,
 } from "express";
+
+
+import path, { dirname } from "path";
+import { testConnection } from "./db";
+import cors from "cors";
+import { expressjwt} from "express-jwt";
+import jwt from "jsonwebtoken";
+import morgan from "morgan";
+
 import signupRouter from "./routes/signup";
 import loginRouter from "./routes/login";
 import campaignRouter from "./routes/campaign";
 import authRouter from "./routes/auth";
 import youtubeRouter from "./routes/youtube";
 import paymentRouter from "./routes/payment"
+import stripeRouter from "./routes/StripeController";
 
-import { fileURLToPath } from "url";
-import path, { dirname } from "path";
-import { testConnection } from "./db";
-import cors from "cors";
-import { expressjwt} from "express-jwt";
-import jwt from "jsonwebtoken";
-
-import request from 'supertest';
 
 if (!process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET is not defined");
@@ -33,6 +31,9 @@ if(!process.env.YOUTUBE_API_KEY) {
 }
 
 const app = express();
+
+app.use(morgan('dev'));
+
 
 /**
  * Removed for testing
@@ -58,27 +59,25 @@ const optionalJwtMiddleware = (req: Request, res: Response, next: NextFunction) 
   }
 
   next();
-
 }
+
+app.use("/webhook", stripeRouter);
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "view/public")));
 
 app.use(
   cors({
     origin:
-      "http://10.0.0.47:5173",
+    "http://10.0.0.47:5173",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
   }),
 );
 
-// app.use( (req: Request, res: Response, next) => {
-//   console.log(req.url);
-//   next();
-// })
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-app.use(express.static(path.join(__dirname, "view/public")));
 
 testConnection();
 // app.get("*", (req: Request, res: Response) => {

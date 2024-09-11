@@ -112,6 +112,55 @@ class Customers {
       }
     }
   }
+  /**
+   * Gets the customer stripe id, returns "" if none 
+   * @params {string} Email
+   * @returns {{customer_id: string, error: string}}
+   */
+  public async getStripeId(email: string ): Promise<{customer_id: string, error: string}> {
+    try {
+      const result = await query('SELECT stripe_customer_id FROM customers WHERE email = $1', [email]);
+
+      return {
+        customer_id: result.rows[0].stripe_customer_id || "",
+        error: ""
+      }
+
+    } catch(error) {
+      return {
+        customer_id: "",
+        error: error.message
+      }
+    }
+  }
+
+  public async setStripeId(email: string, customer_id: string): Promise<{updated: boolean, error: string}> {
+    try {
+      const result = await query('UPDATE customers SET stripe_customer_id = $1 WHERE email = $2', 
+        [customer_id, email]);
+
+        console.log(result);
+
+        if((result.rowCount ?? 0) > 0) {
+          return {
+            updated: true, 
+            error: ""
+          }
+        }
+
+        return {
+          updated: false,
+          error: "Customer not found"
+        }
+      
+    } catch(error) {
+      return {
+        updated: false, 
+        error: error.message
+      }
+    }
+  }
+
 }
 
 export default Customers;

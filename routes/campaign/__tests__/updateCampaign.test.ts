@@ -10,11 +10,6 @@ import generateToken from '../../../utils/jwtHelper';
 const createToken = generateToken({email: 'samcbride11@gmail.com'}, false);
 
 
-YouTubeService.prototype.validateVideoLink = jest.fn().mockResolvedValue({
-  valid: true, title: 'Test', channelTitle: 'Test Channel'
-});
-
-
 
 jest.mock('../../../db', () => ({
   query: jest.fn(),
@@ -22,15 +17,7 @@ jest.mock('../../../db', () => ({
 }));
 
 beforeEach(() => {
-  jest.spyOn(require('../../../db'), 'query').mockImplementation((text: string, params?: any[]) => {
-    if (text.includes('SELECT')) {
-      return Promise.resolve({ rows: [{ campaign_id: 5, video_link: 'test', plan_name: 'test', status: 'test' }] });
-    } else if (text.includes('UPDATE')) {
-      return Promise.resolve({ rows: [{ campaign_id: 5, updated: true }] });
-    } else {
-      return Promise.reject(new Error('Unknown query'));
-    }
-  });
+
   jest.clearAllMocks();
 })
 
