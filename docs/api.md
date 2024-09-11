@@ -71,9 +71,9 @@ These include Campaigns, Customers, Statistics, and YouTube service.
   }
   ```
   ---
-  ## Dealing with Tokens
+## Dealing with Tokens
 
-  ### POST /auth/validate-token
+### POST /auth/validate-token
 - **Description**: Validates a token and returns the associated email 
 - **Request**: 
   - **Body**  
@@ -92,7 +92,7 @@ These include Campaigns, Customers, Statistics, and YouTube service.
       "email": "samcbride11@gmail.com"
   }
   ```
-   ### POST /auth/refresh-token
+### POST /auth/refresh-token
 - **Description**: Accepts a refresh token and returns a new access token
 - **Request**: 
   - **Body**  
@@ -117,8 +117,8 @@ These include Campaigns, Customers, Statistics, and YouTube service.
   ```
   ---
 
-  ##Interacting with Campaigns 
-   ### GET /campaign/request
+##Interacting with Campaigns 
+### GET /campaign/request
 - **Description**: Gets all the campaigns associated with the user through the provided access token
 - **Request**: 
   - **Body**  
@@ -194,7 +194,7 @@ These include Campaigns, Customers, Statistics, and YouTube service.
   }
   ```
   ---
-   ### POST /campaign/add
+### POST /campaign/add
 - **Description**: Creates a campaign with a provided link and selected plan
 - **Request**: 
   - **Body**  
@@ -246,7 +246,7 @@ These include Campaigns, Customers, Statistics, and YouTube service.
   ```
   ---
 
-     ### PUT /campaign/update/:id
+### PUT /campaign/update/:id
 - **Description**: Updates a campaign
 - **Request**: 
   - **Body**  
@@ -305,7 +305,7 @@ These include Campaigns, Customers, Statistics, and YouTube service.
   ```
   ---
 
-  ### DELETE /campaign/delete/:id
+### DELETE /campaign/delete/:id
 - **Description**: Sets campaign to stopped
 - **Request**: 
   - **Body**  
