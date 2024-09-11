@@ -1,5 +1,5 @@
 # Introduction
-This api involves includes many different resources for our client application to interact with. 
+This api includes many different resources for our client application to interact with. 
 ---
 These include Campaigns, Customers, Statistics, and YouTube service. 
 
@@ -305,7 +305,7 @@ These include Campaigns, Customers, Statistics, and YouTube service.
   ```
   ---
 
-       ### DELETE /campaign/delete/:id
+  ### DELETE /campaign/delete/:id
 - **Description**: Sets campaign to stopped
 - **Request**: 
   - **Body**  
