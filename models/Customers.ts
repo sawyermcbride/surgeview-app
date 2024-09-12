@@ -10,7 +10,7 @@ interface LoginResponse {
 }
 
 class Customers {
-  public async checkCampaignBelongs(email: string, campaignId: number) {
+  public async checkCampaignBelongs(email: string, campaignId: number): Promise<boolean> {
     try {
       const result = await query(`SELECT email, campaign_id, customer_id FROM campaigns JOIN customers ON 
                                   customers.id = campaigns.customer_id WHERE campaign_id = $1 AND email = $2`, 
@@ -32,12 +32,14 @@ class Customers {
     const saltrounds = 10;
 
     try {
+      await query('BEGIN');
       const hashedPassword = await bcrypt.hash(password, saltrounds);
   
       const checkUserResult = await query(
         "SELECT id FROM customers WHERE email = $1",
         [email],
       );
+      console.log('checkUserResult', checkUserResult);
       if (checkUserResult.rows.length > 0) {
         return {created: false, type: 'duplicate',  message: 'Email already in use.'}
       }
@@ -47,8 +49,11 @@ class Customers {
         [email, hashedPassword],
       );
 
-      return {created: true, email: result.rows[0].email}
+      await query('COMMIT');
+      console.log('Result in Customers', result);
+      return {created: true, error: false, email: result.rows[0].email}
     } catch(error) {
+      await query('ROLLBACK');
       return {created: false, error: true, type: 'unknown', message: error.message}
     }
   }

@@ -16,7 +16,7 @@ describe('/auth/ testing', () => {
     const response = await request(app)
     .post('/auth/validate-token')
     .type('form')
-    .send(`accessToken=${createdToken.token}a`); // 'a' added to end of token to cause error
+    .send(`accessToken=${createdToken.accessToken}a`); // 'a' added to end of token to cause error
 
     expect(response.status).toBe(401);
     expect(response.body).toEqual({valid: false, message: "Invalid token" });
@@ -27,7 +27,7 @@ describe('/auth/ testing', () => {
     const response = await request(app)
     .post('/auth/validate-token')
     .type('form')
-    .send(`accessToken=${createdToken.token}`);
+    .send(`accessToken=${createdToken.accessToken}`);
   
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('valid', true);

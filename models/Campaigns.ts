@@ -17,7 +17,7 @@ class Campaigns {
   /**
    * Checks if a campaign exists by id 
    * @param id  campaign id
-   * @returns 
+   * @returns {Promise<{error: string, exists: boolean, campaigns: Array<Record<string, any>>}>}
    */
   public async checkExists(id: number) {
     try {
@@ -26,7 +26,8 @@ class Campaigns {
       if(result.rows.length === 0) {
         return {
           error: false,
-          exists: false
+          exists: false,
+          campaigns: []
         }
       } else {
         return {
@@ -99,7 +100,7 @@ class Campaigns {
 
     } catch(error) {
       return {
-        result: [],
+        campaigns: [],
         error: error.message,
       }
     }
@@ -110,15 +111,24 @@ class Campaigns {
          video_title, channel_title) to insert to the database
    * @param {string} email from the req.user object to ensure access
    * @returns {Promise<{campaign_id: number, error: string}>}  - campaign_id of created campaign, is -1 if not created, error is empty string if no error
+   * @throws {Error} for invalid or missing columns
    */
   
   public async addCampaign(addData: AddCampaignObject, email: string ): Promise<{campaign_id: number, error: string}> {
     const columns = Object.keys(addData);
     console.log(addData);
+    let validColumnsCount = 0;
+
     for(const column of columns) {
       if(! (this.validColumns.includes(column))) {
         throw new Error(`Invalid column ${column}`);
+      } else if(this.validColumns.includes(column)) {
+        ++validColumnsCount;
       }
+    }
+
+    if(validColumnsCount !== 5) {
+      throw new Error('All necessary columns not provided');
     }
 
     try {
@@ -136,9 +146,10 @@ class Campaigns {
         [customerId.rows[0].id, addData.video_link, addData.price, addData.plan_name, addData.video_title,
          addData.channel_title, 'setup', 'not_attempted'],
       );
-
+      
       await query('COMMIT');
-
+      console.log('query commited');
+      console.log(result);
       return {
         campaign_id: result.rows[0].campaign_id,
         error: ""
@@ -153,18 +164,20 @@ class Campaigns {
     };
 
   }
-  /**
-   * 
-   * @param {number} campaignId 
-   * @param {Record<string, any>} updateData  data to update in the campaigns table
-   * @param {string} email - ensure email is from authenticated token 
-   * @returns {Promise<{updated: boolean, error: string}>} - A promise resolving to a boolean and error (is empty string if none)
-   */
+/**
+ * Updates an existing campaign in the campaigns table.
+ * 
+ * @param {number} campaignId - The ID of the campaign to update.
+ * @param {Record<string, any>} updateData - An object containing key-value pairs for the campaign fields to update.
+ * @param {string} email - The email of the authenticated user (used to ensure ownership).
+ * @throws {Error} If the campaign does not exist or the user does not own it.
+ * @returns {Promise<{updated: boolean, error: string}>} A promise resolving to an object with an `updated` boolean and an `error` string (empty string if no error).
+ */
 
   public async updateColumns(campaignId: number, updateData: Record<string, any> , email: string): 
     Promise<{updated: boolean, error: string }> {
 
-    console.log('Real updateColumns method called');
+  
     const checkCampaign = await this.checkExists(campaignId);
     
     if(!checkCampaign.exists || checkCampaign.error) {
@@ -173,6 +186,8 @@ class Campaigns {
     }
 
     const columns = Object.keys(updateData);
+
+    //consider using Set for faster operation 
 
     for(const column of columns) {
       if(! (this.validColumns.includes(column))) {
@@ -212,7 +227,7 @@ class Campaigns {
 
 
     } catch(error) {
-
+      await query('ROLLBACK');
       return {
         updated: false, 
         error: error.message
