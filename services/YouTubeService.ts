@@ -49,6 +49,7 @@ class YouTubeService {
      */
 
     public async validateVideoLink(videoLink: string): Promise<VideoDetails> {
+        console.log("validateVideoLink called with:", videoLink); 
         const videoId = this.extractVideoId(videoLink);
 
         console.log(`VideoID = ${videoId}`);

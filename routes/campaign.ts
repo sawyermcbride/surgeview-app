@@ -23,8 +23,6 @@ router.delete('/delete/:campaignId', deleteCampaign);
 
 router.post("/add", addCampaign);
 
-
-
 router.get("/request", async (req: Request, res: Response) => {
 
   if(!req.user) {
@@ -33,8 +31,11 @@ router.get("/request", async (req: Request, res: Response) => {
 
   const userEmail = req.user.email;
   try {
+      console.log("Getting campaigns");
       const result = await campaigns.getCampaigns(userEmail);
+      console.log(result);
       if(!result.error) {
+        console.log("No error, returning 200 status");
         return res.status(200).json(result.campaigns);
       } else {
         throw new Error(result.error);
@@ -49,12 +50,17 @@ router.put("/update/:id", updateCampaign);
 
 
 router.get("/statistics", async(req: Request, res: Response) => {
-  console.log('statistics');
+  
   const statisticsJson = await statisticsService.getBaseStatisics(req.user.email);
+  console.log("statistics json result");
   console.log(statisticsJson);
 
-  return res.status(200).json(statisticsJson );
-  // return res.status(200).json({} );
+  if(!statisticsJson.error && statisticsJson.statistics && statisticsJson.status) {
+    return res.status(200).json(statisticsJson );
+  } else {
+    return res.status(500).json({message: statisticsJson.error});
+  }
+
 });
 
 

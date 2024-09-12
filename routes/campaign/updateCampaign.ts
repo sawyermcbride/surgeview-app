@@ -44,21 +44,24 @@ export const updateCampaign = async (req: Request, res: Response) => {
       return res.status(401).json({message: "User not authorized"});
     } 
     
-      try {
-        let dataToUpdate = {};
-        if(Object.keys(videoDetails).length > 0) {
-          dataToUpdate = {
-            ...updateData,
-            video_title: videoDetails.title,
-            channel_title: videoDetails.channelTitle
-          };
-
-        } else {
+    try {
+      
+      let dataToUpdate = {};
+      if(Object.keys(videoDetails).length > 0) {
+        dataToUpdate = {
+          ...updateData,
+          video_title: videoDetails.title,
+          channel_title: videoDetails.channelTitle
+        };
+        
+      } else {
+          
           dataToUpdate = updateData;
         }
+        console.log("callign update campaigns");
         
         const result = await campaigns.updateColumns(parseInt(campaignId), dataToUpdate, req.user.email);
-
+        console.log(result);
         if(result.updated && !result?.error) {
           return res.status(200).json({complete: true, message: "Campaign updated"});
         } else {

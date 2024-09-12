@@ -10,14 +10,27 @@ class StatisticsService {
     
     public getBaseStatisics = async(email: string) => {
         const userEmail = email;
-
-        return {
-            status: await this.getCampaignStatusDetails(email),
-            statistics: await this.getCampaignStatistics(email)
+        let status;
+        let statistics;
+        let error = "";
+        try {
+            const status = await this.getCampaignStatusDetails(email);
+            const statistics = await this.getCampaignStatistics(email);
+        } catch(err) {
+            error = err.message;
+            status = {};
+            statistics = {};
+        } finally {
+            return {
+                error,
+                status,
+                statistics
+            }
         }
     }
 
     private getCampaignStatistics = async(email: string) => {
+
         const result = await this.db(`
         SELECT cs.campaign_id, cs.views, cs.likes, cs.comments, cs.start_timestamp,
         cs.subscribers, cs.end_timestamp, cs.time_period

@@ -51,6 +51,8 @@ export const addCampaign = async (req: Request, res: Response) => {
       userEmail
     );
 
+    console.log("campaign added", result);
+
     if(result.campaign_id > -1 && !result.error) {
       return res.status(201).json({campaignId: result.campaign_id, message: "Campaign added" });
     } else {

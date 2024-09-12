@@ -4,23 +4,18 @@ import {jest, describe, expect, test, beforeEach, afterAll} from '@jest/globals'
 import app from '../../../index';
 import request from 'supertest';
 import axios from 'axios';
-
+import Campaigns from '../../../models/Campaigns';
 
 
 import generateToken from '../../../utils/jwtHelper';
 const createToken = generateToken({email: 'samcbride11@gmail.com'}, false);
 
 jest.mock('axios');
+jest.mock('../../../models/Campaigns');
 
-jest.spyOn(require('../../../db'), 'query').mockImplementation((text: string, params?: any[]) => {
-  if (text.includes('SELECT')) {
-    return Promise.resolve({ rows: [{ email: 'samcbride11@gmail.com'}] });
-  } else if (text.includes('INSERT')) {
-    return Promise.resolve({ rows: [{ campaign_id: 5 }] });
-  } else {
-    return Promise.resolve();
-  }
-});
+const mockedCampaigns = new Campaigns() as jest.Mocked<Campaigns>;
+
+
 
 
 jest.mock('../../../db', () => ({
@@ -46,6 +41,17 @@ describe('/campaign/add/ routes', () => {
     .send('videoLink=youtube.com/test&plan=');
 
     expect(response.status).toBe(400);
+  })
+  test('Return 400 for invalid youtube link', async() => {
+    const response = await request(app)
+    .post('/campaign/add/')
+    .type('form')
+    .set('Authorization', `Bearer ${createToken.accessToken}`)
+    .send('videoLink=youtube.com/test&plan=');
+    
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({error: "Invalid YouTube URL"});
+
   })
 
   test('Return 400 error for plan name not part of plans', async () => {
@@ -73,15 +79,18 @@ describe('/campaign/add/ routes', () => {
     };
 
     axios.get.mockResolvedValue(mockResponse);
-
-
+    mockedCampaigns.updateColumns.mockResolvedValue({ updated: true, error: null });
+    mockedCampaigns.addCampaign.mockResolvedValue({campaign_id: 5, error: ""});
     const response = await request(app)
     .post('/campaign/add/')
     .type('form')
     .set('Authorization', `Bearer ${createToken.accessToken}`)
     .send('videoLink=https://www.youtube.com/watch?v=p9zbWiBhsTc&plan=Premium');
 
+    expect(mockedCampaigns.addCampaign).toHaveBeenCalled();
+
     expect(response.status).toBe(201);
+    expect(response.body).toEqual({campaignId: 5, message: "Campaign added" })
   });
 
 })
