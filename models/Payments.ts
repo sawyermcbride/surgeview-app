@@ -90,7 +90,7 @@ class Payments {
       console.log('Error in creating payment record');
       await query('ROLLBACK');
       
-      if (err.code === '23505') { // PostgreSQL unique violation error code
+      if (err?.code === '23505') { // PostgreSQL unique violation error code
         return {
             error: true,
             created: false,

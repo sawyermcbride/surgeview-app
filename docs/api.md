@@ -117,7 +117,7 @@ These include Campaigns, Customers, Statistics, and YouTube service.
   ```
   ---
 
-##Interacting with Campaigns 
+#Interacting with Campaigns 
 ### GET /campaign/request
 - **Description**: Gets all the campaigns associated with the user through the provided access token
 - **Request**: 
@@ -338,4 +338,103 @@ These include Campaigns, Customers, Statistics, and YouTube service.
   }
   ```
   ---
-  
+
+  #Interacting with statistics data: 
+
+  ### GET /campaign/request
+- **Description**: Gets statistical data associated with the users campaigns
+- **Request**: 
+  - **Body**  
+  - application/x-www-form-urlencoded
+  - Header: 
+  ```json
+  {
+    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNhbWNicmlkZTExQGdtYWlsLmNvbSIsImlhdCI6MTcyNjAxODMxOSwiZXhwIjoxNzI2MDM5OTE5fQ.HiRFm_yyUYuNYmpwRDsG-kLAqmrjkKyKMoPTMLq8iYE",
+  }
+  ```
+- **Response**
+  - **Success (200 OK)**:
+Examine the following json for relevant information about the results of the users campaigns, in the `campaigns` object, the property `39` refers to the campaign_id, with an array holding individual per day statistics of that campaign. If the user has multiple campaigns the `campaigns` object will hold multiple properties with each property refering to a campaign_id and each property holding a value equaling an array of associated statistics for that campaign. 
+
+```json
+{
+  "status": {
+      "error": "",
+      "numberofActive": 1,
+      "numberofSetup": 13
+  },
+  "statistics": {
+      "error": "",
+      "views": {
+          "lastDay": 175,
+          "lastWeek": 525
+      },
+      "subscribers": {
+          "lastDay": 8,
+          "lastWeek": 24
+      },
+      "campaigns": {
+          "39": [
+              {
+                  "campaign_id": 39,
+                  "views": 175,
+                  "likes": 9,
+                  "comments": 0,
+                  "start_timestamp": "2024-09-07T15:00:00.000Z",
+                  "subscribers": 8,
+                  "end_timestamp": "2024-09-08T15:00:00.000Z",
+                  "time_period": "day"
+              },
+              {
+                  "campaign_id": 39,
+                  "views": 175,
+                  "likes": 9,
+                  "comments": 0,
+                  "start_timestamp": "2024-09-05T15:00:00.000Z",
+                  "subscribers": 8,
+                  "end_timestamp": "2024-09-06T15:00:00.000Z",
+                  "time_period": "day"
+              },
+              {
+                  "campaign_id": 39,
+                  "views": 175,
+                  "likes": 9,
+                  "comments": 0,
+                  "start_timestamp": "2024-09-05T15:00:00.000Z",
+                  "subscribers": 8,
+                  "end_timestamp": "2024-09-06T15:00:00.000Z",
+                  "time_period": "day"
+              },
+          ]
+      }
+  },
+  "errors": []
+}
+```
+---
+- **Response**
+  - **Success (200 OK)**:
+Empty response example
+
+```json
+{
+    "status": {
+        "error": "",
+        "numberofActive": 0,
+        "numberofSetup": 0
+    },
+    "statistics": {
+        "error": "",
+        "views": {
+            "lastDay": 0,
+            "lastWeek": 0
+        },
+        "subscribers": {
+            "lastDay": 0,
+            "lastWeek": 0
+        },
+        "campaigns": {}
+    },
+    "errors": []
+}
+```

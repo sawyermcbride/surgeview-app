@@ -1,4 +1,4 @@
-import {jest, describe, test, beforeEach} from '@jest/globals';
+import {jest, describe, test, beforeEach, expect} from '@jest/globals';
 import {query} from '../../db';
 import Customers from '../Customers';
 import { customConversionGoal } from 'google-ads-api/build/src/protos/autogen/resourceNames';
@@ -78,7 +78,7 @@ describe('Campaigns model tests: ', () => {
     expect(queryMock).toHaveBeenNthCalledWith(4, 'COMMIT');
     
     expect(result.created).toEqual(true);
-    expect(result.error).toEqual(false);
+    expect(result.error).toEqual('');
     expect(result.email).toEqual('test@example.com');
   });
 
@@ -92,7 +92,7 @@ describe('Campaigns model tests: ', () => {
     expect(queryMock).toHaveBeenNthCalledWith(1, 'BEGIN');
     expect(queryMock).toHaveBeenNthCalledWith(2, expect.stringContaining('SELECT id'), ['test@example.com']);
 
-    expect(result).toEqual({created: false, type: 'duplicate',  message: 'Email already in use.'});
+    expect(result).toEqual({created: false, error: 'duplicate',  email: '', message: 'Email already in use.'});
   })
 
   test('createCustomer: handles error during query and returns expected values', async() => {
@@ -103,7 +103,7 @@ describe('Campaigns model tests: ', () => {
     
     expect(queryMock).toHaveBeenCalledTimes(3);
     
-    expect(result).toEqual({created: false, error: true, type: 'unknown', message: 'error message'});
+    expect(result).toEqual({created: false, error: 'other', email: '', message: 'error message'});
 
   });
 
@@ -116,7 +116,7 @@ describe('Campaigns model tests: ', () => {
     expect(queryMock).toHaveBeenCalledTimes(2)
     expect(mockedHash).toHaveBeenCalled();
     
-    expect(result).toEqual({created: false, error: true, type: 'unknown', message: 'invalid password'});
+    expect(result).toEqual({created: false, error: 'other', email: '', message: 'invalid password'});
   
   })
 

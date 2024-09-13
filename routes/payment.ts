@@ -38,6 +38,9 @@ async function getOrCreateStripeCustomer(email: string): Promise<string> {
     const checkCustomerId = await customers.getStripeId(email);
     if(checkCustomerId?.customer_id) {
         try {
+            if(!(checkCustomerId.customer_id)) {
+                throw new Error('NoRecord');
+            }
             //verify the customer exists in stripe
             const customerId = checkCustomerId.customer_id;
             await stripe.customers.retrieve(customerId);
@@ -45,7 +48,7 @@ async function getOrCreateStripeCustomer(email: string): Promise<string> {
             return customerId; // if stripe has the customer then return id
 
         } catch(error) {
-            if(error.type = 'StripeInvalidResponseError') {
+            if(error.type === 'StripeInvalidResponseError' || error.message === 'NoRecord' ) {
                 return await createAndSaveCustomer(email);
             } else {
                 throw error;

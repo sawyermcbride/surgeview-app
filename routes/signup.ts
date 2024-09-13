@@ -14,7 +14,22 @@ const saltrounds = 10;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const validatePassword = (password: string): boolean => {
-  return password.length >= 8 && password.length < 50;
+
+  const minLength = 8;
+  const maxLength = 50;
+
+  // Check length
+  if (password.length < minLength || password.length > maxLength) {
+    return false;
+  }
+
+  // Check for at least one uppercase letter
+  const hasUppercase = /[A-Z]/.test(password);
+  
+  // Check for at least one lowercase letter
+  const hasLowercase = /[a-z]/.test(password);
+  
+  return hasUppercase && hasLowercase;
 };
 
 router.post("/", async (req: Request, res: Response) => {
@@ -30,7 +45,7 @@ router.post("/", async (req: Request, res: Response) => {
   //validate password
   if (!password || !validatePassword(password)) {
     return res.status(400).json({
-      error: "Password invalid",
+      error: "Password format invalid",
       password,
     });
   }
@@ -40,8 +55,9 @@ router.post("/", async (req: Request, res: Response) => {
   try {
     
     const newCustomer = await customers.createCustomer(email, password);
+    
     if(!newCustomer?.created) {
-      if(newCustomer?.type === 'duplicate') {
+      if(newCustomer?.error === 'duplicate') {
         return res.status(409).json({message: newCustomer.message});
       } else {
         throw new Error();

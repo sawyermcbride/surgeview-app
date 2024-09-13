@@ -28,7 +28,8 @@ class Customers {
     } 
   }
 
-  public async createCustomer(email: string, password: string) {
+  public async createCustomer(email: string, password: string): Promise<{
+  created: boolean, email: string, error: string, message: string}> {
     const saltrounds = 10;
 
     try {
@@ -39,9 +40,9 @@ class Customers {
         "SELECT id FROM customers WHERE email = $1",
         [email],
       );
-      console.log('checkUserResult', checkUserResult);
+      
       if (checkUserResult.rows.length > 0) {
-        return {created: false, type: 'duplicate',  message: 'Email already in use.'}
+        return {created: false, email: "", error: 'duplicate',  message: 'Email already in use.'};
       }
   
       const result = await query(
@@ -50,11 +51,12 @@ class Customers {
       );
 
       await query('COMMIT');
-      console.log('Result in Customers', result);
-      return {created: true, error: false, email: result.rows[0].email}
+    
+
+      return {created: true, error: '', email: result.rows[0].email, message: ""}
     } catch(error) {
       await query('ROLLBACK');
-      return {created: false, error: true, type: 'unknown', message: error.message}
+      return {created: false, email: '', error: 'other', message: error.message};
     }
   }
 /**
