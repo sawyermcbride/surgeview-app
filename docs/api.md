@@ -339,9 +339,9 @@ These include Campaigns, Customers, Statistics, and YouTube service.
   ```
   ---
 
-  #Interacting with statistics data: 
+## Interacting with statistics data: 
 
-  ### GET /campaign/request
+  ### GET /campaign/statistics
 - **Description**: Gets statistical data associated with the users campaigns
 - **Request**: 
   - **Body**  
