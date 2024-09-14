@@ -51,14 +51,13 @@ router.put("/update/:id", updateCampaign);
 
 router.get("/statistics", async(req: Request, res: Response) => {
   
-  const statisticsJson = await statisticsService.getBaseStatisics(req.user.email);
-  console.log("statistics json result");
-  console.log(statisticsJson);
+  const statisticsInfo = await statisticsService.getBaseStatisics(req.user.email);
 
-  if(!statisticsJson.error && statisticsJson.statistics && statisticsJson.status) {
-    return res.status(200).json(statisticsJson );
+
+  if(statisticsInfo.errors.length === 0 && statisticsInfo.statistics && statisticsInfo.status) {
+    return res.status(200).json(statisticsInfo );
   } else {
-    return res.status(500).json({message: statisticsJson.error});
+    return res.status(500).json(statisticsInfo);
   }
 
 });

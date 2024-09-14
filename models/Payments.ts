@@ -60,7 +60,7 @@ class Payments {
    * 
    * @param {PaymentIntent} paymentIntent the payment intent for the associated subscription
    * @param subscription 
-   * @returns 
+   * @returns {Object} {error: boolean, created: boolean, message: empty string if no error };
    */
 
   public async createPaymentRecord(paymentIntent: PaymentIntent, subscription: Stripe.Subscription) {
@@ -83,7 +83,7 @@ class Payments {
       return {
         error: false,
         created: true,
-        message: result
+        message: ""
       }
 
     } catch(err) {

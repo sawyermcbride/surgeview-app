@@ -56,7 +56,10 @@ const optionalJwtMiddleware = (req: Request, res: Response, next: NextFunction) 
       req.user = decryptedData;
     } catch(error) {
     }
+  } else {
+    req.user = null;
   }
+
 
   next();
 }

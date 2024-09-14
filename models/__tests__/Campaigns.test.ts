@@ -1,4 +1,4 @@
-import { jest, describe, beforeEach, test } from "@jest/globals";
+import { jest, describe, beforeEach, test, expect } from "@jest/globals";
 import {query} from '../../db';
 import Campaigns from "../Campaigns";
 
@@ -205,6 +205,31 @@ describe('Campaigns model tests: ', () => {
 
     expect(result.updated).toBe(true);
     expect(result.error).toBeFalsy();
+  })
+
+  test('getCampaigns returns normal result from query', async() => {
+    queryMock.mockResolvedValueOnce({rows: [{campaign_id: 5}]});
+
+    const result = await campaigns.getCampaigns('test@example.com');
+
+    expect(queryMock).toHaveBeenCalledTimes(1);
+    expect(queryMock).toHaveBeenNthCalledWith(1, expect.stringContaining('SELECT ca.campaign_id'), ['test@example.com']);
+
+    expect(result.error).toBeFalsy();
+    expect(result.campaigns).toHaveLength(1);
+
+  })
+
+  test('getCampaigns handles error from query', async() => {
+    queryMock.mockRejectedValueOnce({message: 'Query error'});
+
+    const result = await campaigns.getCampaigns('test@example.com');
+
+    expect(queryMock).toHaveBeenCalledTimes(1);
+    expect(queryMock).toHaveBeenNthCalledWith(1, expect.stringContaining('SELECT ca.campaign_id'), ['test@example.com']);
+
+    expect(result.error).toBeTruthy();
+    expect(result.campaigns).toHaveLength(0);
 
   })
 

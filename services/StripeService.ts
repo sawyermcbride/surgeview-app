@@ -33,7 +33,7 @@ class StripeService {
     }
   }
 
-  public async createSubscription(customer_id:string, plan_name: string, campaignId: string): 
+  public async createSubscription(customer_id:string, plan_name: string, campaignId: string, sessionKey: string): 
   Promise<{subscription: Stripe.Subscription | null}> {
     try {
       const subscription = await stripe.subscriptions.create({
@@ -45,7 +45,10 @@ class StripeService {
             campaignId
         }
 
-      })
+      }, {
+        idempotencyKey: sessionKey
+      });
+      
       return {subscription};
       
     } catch(error) {

@@ -45,7 +45,7 @@ class YouTubeService {
     /**
      * 
      * @param videoLink link to get title and channel of, if invalid the return property in the object (valid) will be false
-     * @returns object with {valid, videoTitle, channelTitle}
+     * @returns object with {valid, title, channelTitle}
      */
 
     public async validateVideoLink(videoLink: string): Promise<VideoDetails> {

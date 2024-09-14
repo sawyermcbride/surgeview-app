@@ -18,17 +18,35 @@ jest.mock("../../db");
 const mockedCampaigns = new Campaigns() as jest.Mocked<Campaigns>;
 const mockedStatisticsService = new StatisticsService as jest.Mocked<StatisticsService>;
 
+const expectedResponse = {
+    status: {
+        error: "",
+        numberofActive: 0,
+        numberofSetup: 0
+    },
+    statistics: {
+        error: "" ,
+        views: {
+            lastDay: 0,
+            lastWeek: 0
+        },
+        subscribers: {
+            lastDay: 0,
+            lastWeek: 0
+        },
+        campaigns: {}
+    },
+    errors: []
+};
+
+
 beforeEach(() => {
   jest.clearAllMocks();
 })
 
 describe('/campaign routes', () => {
   test('Should check if StatisticsService and baseStatistics are mocked correctly', async () => {
-    mockedStatisticsService.getBaseStatisics.mockResolvedValue({
-      totalViews: 1000,
-      totalClicks: 100,
-      totalConversions: 10,
-    })
+    mockedStatisticsService.getBaseStatisics.mockResolvedValue(expectedResponse);
 
     // Call the baseStatistics function in your service
     const result = await mockedStatisticsService.getBaseStatisics("test");
@@ -38,11 +56,7 @@ describe('/campaign routes', () => {
     expect(mockedStatisticsService.getBaseStatisics).toHaveBeenCalledTimes(1);
 
     // Check if the result is correct
-    expect(result).toEqual({
-      totalViews: 1000,
-      totalClicks: 100,
-      totalConversions: 10,
-    });
+    expect(result).toEqual(expectedResponse);
   });
   
   test('campaign/request route handles invalid token', async () => {
@@ -75,25 +89,41 @@ describe('/campaign routes', () => {
   });
 
   test('/campaign/statistics handles error from getBaseStatistics correctly', async() => {
-    mockedStatisticsService.getBaseStatisics.mockResolvedValue({error: "error", statistics: {}, status: {}});;
-    const response = await request(app)
-    .get('/campaign/statistics/')
-    .set('Authorization', `Bearer ${createToken.accessToken}`);
-   
-    expect(response.status).toBe(500);
-    expect(response.body).toHaveProperty('message');
-    
-  })
 
-  test('campaign/statistics route returns 200 for standard request', async () => {
-    mockedStatisticsService.getBaseStatisics.mockResolvedValue({error: "", statistics: {}, status: {}});;
+    const updatedResponse = {
+      ...expectedResponse, errors: ['error']
+    };
+
+    mockedStatisticsService.getBaseStatisics.mockResolvedValue(updatedResponse);;
     const response = await request(app)
     .get('/campaign/statistics/')
     .set('Authorization', `Bearer ${createToken.accessToken}`);
 
     expect(mockedStatisticsService.getBaseStatisics).toHaveBeenCalled();
+   
+
+    expect(response.status).toBe(500);
+    expect(response.body).toHaveProperty('status', expect.any(Object));
+    expect(response.body).toHaveProperty('statistics', expect.any(Object));
+    expect(response.body).toHaveProperty('errors', expect.any(Array));
+    expect(response.body.errors).not.toHaveLength(0);
+    
+  })
+
+  test('campaign/statistics route returns 200 for standard request', async () => {
+    mockedStatisticsService.getBaseStatisics.mockResolvedValue(expectedResponse);
+    const response = await request(app)
+    .get('/campaign/statistics/')
+    .set('Authorization', `Bearer ${createToken.accessToken}`);
+
+    expect(mockedStatisticsService.getBaseStatisics).toHaveBeenCalled();
+    
     expect(response.status).toBe(200);
-    // expect(response.body).toBe(JSON);
+    expect(response.body).toHaveProperty('status', expect.any(Object));
+    expect(response.body).toHaveProperty('statistics', expect.any(Object));
+    expect(response.body).toHaveProperty('errors', expect.any(Array));
+    expect(response.body.errors).toHaveLength(0);
+
   });
 
 })

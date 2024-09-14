@@ -59,7 +59,7 @@ describe('StripeService', () => {
     (stripe.subscriptions.create as jest.Mock).mockResolvedValue(mockSubscription);
 
     // Act
-    const result = await service.createSubscription('cus_123', 'Standard', 'campaign_123');
+    const result = await service.createSubscription('cus_123', 'Standard', 'campaign_123', '12345');
 
     // Assert
     expect(result.subscription).toEqual(mockSubscription);
@@ -69,6 +69,8 @@ describe('StripeService', () => {
       payment_behavior: 'default_incomplete',
       expand: ['latest_invoice.payment_intent'],
       metadata: { campaignId: 'campaign_123' }
+    }, {
+      idempotencyKey: '12345'
     });
     expect(stripe.subscriptions.create).toHaveBeenCalledTimes(1);
   });
@@ -79,6 +81,6 @@ describe('StripeService', () => {
     (stripe.subscriptions.create as jest.Mock).mockRejectedValue(mockError);
 
     // Act & Assert
-    await expect(service.createSubscription('cus_123', 'basic_plan', 'campaign_123')).rejects.toThrow('Subscription creation failed');
+    await expect(service.createSubscription('cus_123', 'basic_plan', 'campaign_123', '12345')).rejects.toThrow('Subscription creation failed');
   });
 });

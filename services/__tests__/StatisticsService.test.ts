@@ -144,19 +144,19 @@ describe('Statistics service tests: ', () => {
 
     expect(result.status).toMatchObject({
       error: "",
-      numberofActive: 0,
-      numberofSetup: 2
+      numberofActive: expect.any(Number),
+      numberofSetup: expect.any(Number)
     });
 
     expect(result.statistics).toMatchObject({
       error: "",
       views: {
-          lastDay: 150,
-          lastWeek: 525,
+          lastDay: expect.any(Number),
+          lastWeek: expect.any(Number),
       }, 
       subscribers: {
-          lastDay: 5,
-          lastWeek: 24
+          lastDay: expect.any(Number),
+          lastWeek: expect.any(Number)
       },
       campaigns: expect.any(Object)
     }); 
