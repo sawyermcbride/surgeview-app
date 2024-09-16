@@ -24,7 +24,7 @@ const mockedCampaigns = new Campaigns() as jest.Mocked<Campaigns>;
 const mockedSessionsModel = new SessionsModel() as jest.Mocked<SessionsModel>;
 const mockedPayments = new Payments() as jest.Mocked<Payments>;
 const mockedCustomers = new Customers() as jest.Mocked<Customers>;
-const mockedStripeService = new StripeService as jest.Mocked<StripeService>;
+const mockedStripeService = new StripeService() as jest.Mocked<StripeService>;
 
 const createToken = generateToken({email: 'samcbride11@gmail.com'}, false);
   /**
@@ -42,7 +42,7 @@ const mockSubscription = {
 
 describe('createPayment route tests', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   })
 
   test('returns status 401 for missing token', async() => {
@@ -54,7 +54,7 @@ describe('createPayment route tests', () => {
     .type('form')
     .set('Authorization', `Bearer`)
     .set('SessionKey', '5000')
-    .send('campaignId=50');
+    .send('campaignId=50&plan_name=Premium');
 
     expect(mockedCampaigns.checkExists).toHaveBeenCalledTimes(1);
     
@@ -69,7 +69,7 @@ describe('createPayment route tests', () => {
     .post('/payment/create/')
     .type('form')
     .set('Authorization', `Bearer ${createToken.accessToken}`)
-    .send('campaignId=50');
+    .send('campaignId=50&plan_name=Premium');
 
     expect(mockedCampaigns.checkExists).toHaveBeenCalledTimes(1);
 
@@ -85,7 +85,7 @@ describe('createPayment route tests', () => {
     .type('form')
     .set('Authorization', `Bearer ${createToken.accessToken}`)
     .set('SessionKey', '5000')
-    .send('campaignId=50');
+    .send('campaignId=50&plan_name=Premium');
 
     expect(mockedCampaigns.checkExists).toHaveBeenCalledTimes(1);
 
@@ -102,7 +102,7 @@ describe('createPayment route tests', () => {
     .type('form')
     .set('Authorization', `Bearer ${createToken.accessToken}`)
     .set('SessionKey', '5000')
-    .send('campaignId=50');
+    .send('campaignId=50&plan_name=Premium');
 
     expect(mockedCampaigns.checkExists).toHaveBeenCalledTimes(1);
 
@@ -117,10 +117,10 @@ describe('createPayment route tests', () => {
     .type('form')
     .set('Authorization', `Bearer ${createToken.accessToken}`)
     .set('SessionKey', '5000')
-    .send('campaignId=CI');
+    .send('campaignId=CI&plan_name=Premium');
 
     expect(response.status).toEqual(400);
-    expect(response.body).toEqual({message: "Invalid campaign id"});
+    expect(response.body).toEqual({message: "Invalid parameters"});
 
   })
 
@@ -133,7 +133,7 @@ describe('createPayment route tests', () => {
     .type('form')
     .set('Authorization', `Bearer ${createToken.accessToken}`)
     .set('SessionKey', '5000')
-    .send('campaignId=50');
+    .send('campaignId=50&plan_name=Premium');
 
     expect(mockedCampaigns.checkExists).toHaveBeenCalledTimes(1);
     expect(mockedCustomers.checkCampaignBelongs).toHaveBeenCalledTimes(1);
@@ -147,13 +147,14 @@ describe('createPayment route tests', () => {
     mockedCampaigns.checkExists.mockResolvedValueOnce({error: "", exists: true, campaigns:[{campaign_id: 50}]});
     mockedCustomers.checkCampaignBelongs.mockResolvedValueOnce(true);
     mockedSessionsModel.getSession.mockResolvedValueOnce({session: {idempotency_key: '5000'}, error: ""});
+    mockedSessionsModel.addSession.mockResolvedValueOnce({created: false, identifier: null, error: "Duplicate"});
 
     const response = await request(app)
     .post('/payment/create/')
     .type('form')
     .set('Authorization', `Bearer ${createToken.accessToken}`)
     .set('SessionKey', '5000')
-    .send('campaignId=50');
+    .send('campaignId=50&plan_name=Premium');
 
     expect(mockedCampaigns.checkExists).toHaveBeenCalledTimes(1);
     expect(mockedCustomers.checkCampaignBelongs).toHaveBeenCalledTimes(1);
@@ -167,6 +168,7 @@ describe('createPayment route tests', () => {
     mockedCampaigns.checkExists.mockResolvedValueOnce({error: "", exists: true, campaigns:[{campaign_id: 50}]});
     mockedCustomers.checkCampaignBelongs.mockResolvedValueOnce(true);
     mockedSessionsModel.getSession.mockResolvedValueOnce({session: null, error: ""});
+    mockedSessionsModel.addSession.mockResolvedValueOnce({created: true, identifier: '5000', error: ""});
     mockedStripeService.createSubscription.mockRejectedValueOnce({message: 'Payment error'});
 
     const response = await request(app)
@@ -174,7 +176,7 @@ describe('createPayment route tests', () => {
     .type('form')
     .set('Authorization', `Bearer ${createToken.accessToken}`)
     .set('SessionKey', '5000')
-    .send('campaignId=50');
+    .send('campaignId=50&plan_name=Premium');
 
     expect(mockedCampaigns.checkExists).toHaveBeenCalledTimes(1);
     expect(mockedCustomers.checkCampaignBelongs).toHaveBeenCalledTimes(1);
@@ -189,21 +191,27 @@ describe('createPayment route tests', () => {
     mockedCampaigns.checkExists.mockResolvedValueOnce({error: "", exists: true, campaigns:[{campaign_id: 50}]});
     mockedCustomers.checkCampaignBelongs.mockResolvedValueOnce(true);
     mockedSessionsModel.getSession.mockResolvedValueOnce({session: null, error: ""});
-    mockedStripeService.createSubscription.mockResolvedValueOnce(mockSubscription as Stripe.Subscription);
+    mockedSessionsModel.addSession.mockResolvedValueOnce({created: true, identifier: '5000', error: ""});
+    mockedStripeService.createSubscription.mockResolvedValueOnce({subscription: mockSubscription, error: null});
     mockedPayments.createPaymentRecord.mockResolvedValue({created: true, error: false, message: ""});
+    mockedSessionsModel.updateSession.mockResolvedValueOnce({updated: true, error: null});
 
     const response = await request(app)
     .post('/payment/create/')
     .type('form')
     .set('Authorization', `Bearer ${createToken.accessToken}`)
     .set('SessionKey', '5000')
-    .send('campaignId=50');
+    .send('campaignId=50&plan_name=Premium');
+
+    console.log('Response code', response.status);
+    console.log('Response body', response.body);
 
     expect(mockedCampaigns.checkExists).toHaveBeenCalledTimes(1);
     expect(mockedCustomers.checkCampaignBelongs).toHaveBeenCalledTimes(1);
     expect(mockedSessionsModel.getSession).toHaveBeenCalledTimes(1);
     expect(mockedStripeService.createSubscription).toHaveBeenCalledTimes(1);
     expect(mockedPayments.createPaymentRecord).toHaveBeenCalledTimes(1);
+    expect(mockedSessionsModel.updateSession).toHaveBeenCalledTimes(1);
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({clientSecret: "123456789"});

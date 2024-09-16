@@ -44,7 +44,8 @@ const SelectPlan: React.FC = () => {
     try {
         const video_link = localStorage.getItem("youtubeUrl");
         const token = localStorage.getItem("token");
-  
+        const sessionKey = localStorage.getItem("sessionKey");
+
         const data = {
           "videoLink": video_link, 
           "plan": planName
@@ -55,6 +56,7 @@ const SelectPlan: React.FC = () => {
           
           headers: {
             Authorization: `Bearer ${token}`,
+            SessionKey: sessionKey
           },
         })
         .then(res => {
@@ -67,7 +69,7 @@ const SelectPlan: React.FC = () => {
             updateSignupData({step: 3, formLoading: false});
         })
         .catch(err => {
-          console.error("Error in submitting campaign data");
+          console.error("Error in submitting campaign data", err);
           setPaymentPlanError("An error occured. Please try again.");
         })
   

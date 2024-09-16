@@ -21,7 +21,8 @@ const PaymentPage: React.FC = () => {
       try {
 
         const campaignId = localStorage.getItem("campaignId");
-
+        const sessionKey = localStorage.getItem("sessionKey");
+        const token = localStorage.getItem("token");
   
         if(!price || !campaignId ) {
           updateSignupData({})
@@ -38,6 +39,11 @@ const PaymentPage: React.FC = () => {
           amount: price,
           currency: 'usd',
           campaignId
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            SessionKey: sessionKey
+          },
         });
         
         const data = response.data;              

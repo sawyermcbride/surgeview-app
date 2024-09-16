@@ -1,11 +1,12 @@
-import React, {useState, useContext, useRef} from "react";
+import React, {useState, useContext, useRef, useEffect} from "react";
 import { SignupContext } from "../../contexts/SignupContext";
 import {Form, Alert, Button, Input} from "antd";
 import api from "../../utils/apiClient";
 
 
 const VideoLinkPage: React.FC = () => {
-    const {signupData, updateSignupData} = useContext(SignupContext);
+    const {signupData, updateSignupData, createSessionKey} = useContext(SignupContext);
+    const [sessionKey, setSessionKey] = useState("");
 
     const onSubmit = async(values: any) => {
 
@@ -33,6 +34,13 @@ const VideoLinkPage: React.FC = () => {
             });
         }
     }
+
+    useEffect(() => {
+      console.log("Video link use effect");
+      const key = createSessionKey(false);
+      setSessionKey(key);
+
+    }, [])
     return (
         <>
         { signupData.videoLinkError && 

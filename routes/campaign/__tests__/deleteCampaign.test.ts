@@ -10,15 +10,6 @@ const createToken = generateToken({email: 'samcbride11@gmail.com'}, false);
 
 jest.mock('axios');
 jest.mock('../../../models/Campaigns');
-jest.spyOn(require('../../../db'), 'query').mockImplementation((text: string, params?: any[]) => {
-  if (text.includes('UPDATE')) {
-    return Promise.resolve({ rows: [{ campaign_id: 5, email: 'samcbride11@gmail.com'}] });
-  } else if (text.includes('INSERT')) {
-    return Promise.resolve({ rows: [{ campaign_id: 5 }] });
-  } else {
-    return Promise.resolve();
-  }
-});
 
 const mockedCampaigns = new Campaigns() as jest.Mocked<Campaigns>;
 

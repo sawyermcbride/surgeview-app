@@ -30,6 +30,7 @@ const GetStarted: React.FC = () => {
 
     const checkStepAndLoadSecret = async () => {
       const token = localStorage.getItem("token");
+      
       if(!token) {
         resetSignupData();     
 

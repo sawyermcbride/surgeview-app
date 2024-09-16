@@ -96,12 +96,10 @@ describe('Update campaign routes', () => {
     .set('Authorization', `Bearer ${createToken.accessToken}`)
     .send('video_link=https://www.youtube.com/watch?v=p9zbWiBhsTc&plan_name=Premium');
     
-    console.log(YouTubeService.prototype.validateVideoLink);
-
 
     expect(mockedCampaigns.updateColumns).toHaveBeenCalled();
     expect(mockedYouTube.validateVideoLink).toHaveBeenCalled();
     expect(response.status).toBe(200);
-  })
+  });
 
-})
+});

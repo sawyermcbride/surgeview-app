@@ -1,15 +1,10 @@
 import {jest, describe, expect, test, beforeEach} from '@jest/globals';
 
-import {query, testConnection} from '../../db';
 import app from '../../index';
-import generateToken from '../../utils/jwtHelper';
-
 import request from 'supertest';
-import StatisticsService from '../../services/StatisticsService';
+
 import Customers from '../../models/Customers';
 
-
-const createToken = generateToken({email: 'samcbride11@gmail.com'}, false);
 
 jest.mock('../../models/Customers');
 

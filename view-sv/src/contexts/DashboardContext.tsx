@@ -1,8 +1,13 @@
+/**
+ * Dashboard context 
+ */
 import React, {createContext, useEffect, useState} from "react";
+import {v4 as uuidv4} from 'uuid';
 
 const initialCampaignState = {
   dashboardState: {},
-  updateDashboardData: (pbj) => {}
+  updateDashboardData: (obj) => {},
+  createSessionKey: () => void
 }
 
 
@@ -17,9 +22,13 @@ export const DashboardProvider = function({children}) {
       ...newData
     }))
   }
+
+  const createSessionKey = function() {
+    return uuidv4();
+  }
   
   return (
-    <DashboardContext.Provider value={{dashboardState, updateDashboardData}}>
+    <DashboardContext.Provider value={{dashboardState, updateDashboardData, createSessionKey}}>
 
     </DashboardContext.Provider>
   )

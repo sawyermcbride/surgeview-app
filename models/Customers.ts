@@ -4,7 +4,7 @@ import generateToken from '../utils/jwtHelper';
 
 interface LoginResponse {
   login: boolean;
-  errorType: 'user' | 'password' | 'other';
+  errorType: 'user' | 'password' | 'other' | 'none';
   errorMessage: string;
   email: string;
 }
@@ -12,9 +12,11 @@ interface LoginResponse {
 class Customers {
   public async checkCampaignBelongs(email: string, campaignId: number): Promise<boolean> {
     try {
+
       const result = await query(`SELECT email, campaign_id, customer_id FROM campaigns JOIN customers ON 
-                                  customers.id = campaigns.customer_id WHERE campaign_id = $1 AND email = $2`, 
-                                  [campaignId, email]);
+      customers.id = campaigns.customer_id WHERE campaign_id = $1 AND email = $2`, [campaignId, email]);
+
+      console.log(result.rows[0]);
       
       if(result.rows.length > 0) {
         return true;
@@ -95,7 +97,7 @@ class Customers {
       if (isMatch) {
         return {
           login: true, 
-          errorType: "",
+          errorType: "none",
           errorMessage: "",
           email
         }

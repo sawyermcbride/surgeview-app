@@ -33,7 +33,24 @@ class SubscriptionsModel {
 
   }
 
-  // public async addSubscription(stripe_subscription: Stripe.Subscription, )
+  public async addSubscription(stripe_subscription: Stripe.Subscription, email: string) {
+    try {
+      await query('BEGIN');
+
+      const result = await query('SELECT id FROM customers WHERE email = $1', [email]);
+
+      if(result.rows.length > 0) {
+        
+      }
+      await query('INSERT INTO subscriptions (stripe_subscription_id, internal_customer_id, start_date, end_date, status_) ')
+
+
+
+    } catch(error) {
+      return{added: false, error: error.message};
+    } 
+
+  }
 }
 
 export default SubscriptionsModel;

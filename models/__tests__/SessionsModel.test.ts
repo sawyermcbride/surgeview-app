@@ -29,7 +29,7 @@ describe('Sessions Model tests: ', () => {
   });
 
   test('getSession returns session if it exists', async() => {
-    queryMock.mockResolvedValueOnce({rows: [ {idempotency_key: '5005'}]});
+    queryMock.mockResolvedValueOnce({rows: [ {idempotency_key: '5005', status: 'PENDING' }]});
 
     const result = await sessionsModel.getSession('5005', 'CREATE_PAYMENT');
 
@@ -37,7 +37,7 @@ describe('Sessions Model tests: ', () => {
     expect(queryMock).toHaveBeenNthCalledWith(1, expect.stringContaining('SELECT * FROM sessions'),
      ['CREATE_PAYMENT', '5005']);
 
-    expect(result.session).toEqual({idempotency_key: '5005'});
+    expect(result.session).toEqual({idempotency_key: '5005', status: 'PENDING'});
     expect(result.error).toBeFalsy();
 
   })
@@ -122,6 +122,43 @@ describe('Sessions Model tests: ', () => {
 
     expect(result).toEqual({created: false, identifier: null, error: "Unknown" });
 
-  })
+  });
+
+  test('updateSession handles error for invalid status type', async() => {
+    const result = await sessionsModel.updateSession('50005', 'STOPPED');
+
+    expect(result).toEqual({updated: false, error: 'Invalid_Status'});
+
+  });
+
+  test('updateSession calls expected query and returns object for valid update', async() => {
+    queryMock.mockResolvedValueOnce({})
+    .mockResolvedValueOnce({}).mockResolvedValueOnce({});
+
+    const result = await sessionsModel.updateSession('500005', 'COMPLETE');
+
+    expect(queryMock).toHaveBeenNthCalledWith(1, 'BEGIN');
+    expect(queryMock).toHaveBeenNthCalledWith(2, expect.stringContaining('UPDATE sessions SET status')
+    , ['COMPLETE', '500005']);
+    expect(queryMock).toHaveBeenNthCalledWith(3, 'COMMIT');
+
+    expect(result).toEqual({updated: true, error: null});
+
+  });
+
+  test('updateSession handles query error and returns expected value', async() => {
+    queryMock.mockResolvedValueOnce({})
+    .mockRejectedValueOnce({message: 'Query error'}).mockResolvedValueOnce({});
+
+    const result = await sessionsModel.updateSession('500005', 'COMPLETE');
+
+    expect(queryMock).toHaveBeenNthCalledWith(1, 'BEGIN');
+    expect(queryMock).toHaveBeenNthCalledWith(2, expect.stringContaining('UPDATE sessions SET status')
+    , ['COMPLETE', '500005']);
+    expect(queryMock).toHaveBeenNthCalledWith(3, 'ROLLBACK'); //expect function to rollback on errors during update
+
+    expect(result).toEqual({updated: false, error: 'Query error'});
+
+  });
 
 })

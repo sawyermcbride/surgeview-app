@@ -5,7 +5,7 @@ import DashboardView from "../dashboard/DashboardView";
 import { Layout, Menu, Button, Typography, Dropdown, Drawer } from "antd";
 import { HomeOutlined, BarsOutlined, SettingOutlined, LogoutOutlined, MenuOutlined } from "@ant-design/icons";
 import { useAuth } from "../components/AuthContext";
-
+import { DashboardProvider } from "../contexts/DashboardContext";
 
 
 const { Title, Text } = Typography;
@@ -20,6 +20,7 @@ const Dashboard: React.FC = () => {
     "2": "Campaigns",
     "3": "Settings"
   }
+  
   
 
   const [resetCampaignsView, setResetCampaignsView] = useState(false);
@@ -110,79 +111,80 @@ const Dashboard: React.FC = () => {
   }
 
 
-  return (
-    <Layout style={{ minHeight: "100vh", minWidth: "700px" }}>
-      {
-        isMobile ? (
-          <>
-            <Drawer
-                title="SurgeView"
-                placement="left"
-                onClose={handleDrawerClose}
-                open={drawerVisible}
-                style={{ padding: 0 }}
-            >
-                {renderMenu()}
-            </Drawer>
-            <Button
-                className="menu-toggle"
-                style={{ display: (isMobile ? 'inline-block': 'none'), position: 'fixed', top: 16, left: 16, zIndex: 1000 }}
-                type="primary"
-                icon={<MenuOutlined />}
-                onClick={handleDrawerOpen}
-            />
-          </>
-        ) : (
-          <Sider collapsible>
-            <div
-              className="logo"
-              style={{ padding: "16px", textAlign: "center", color: "#fff" }}
-            >
-              SurgeView Marketing
-            </div>
-            {renderMenu()}
-          </Sider>
-          
-        )
-      }
-      <Layout>
-        <Header style={{ background: "#fff", padding: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Title level={2} style={{ marginTop: "16px", marginRight: "16px", marginBottom: "16px", marginLeft: (isMobile ? "70px" : "16px") }}>
-            {title}
-          </Title>
-          <Dropdown 
-          dropdownRender={() => (
-            <Menu>
-              <Menu.Item key="1" onClick={handleLogout} icon={<LogoutOutlined />}>
-                Logout
-              </Menu.Item>
-            </Menu>
-          )}
-          trigger={['click']}
-        >
-          <span style={{ marginRight: '35px', marginLeft: 'auto', cursor: 'pointer' }}>
-            {email}
-          </span>
-        </Dropdown>
-        </Header>
-        <Content
-          style={{
-            margin: "24px 16px",
-            padding: 24,
-            background: "#fff",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "flext-start",
-            paddingTop: "50px",
-          }}
-        >
-          <DashboardView isMobile={isMobile} resetCampaignsView = {resetCampaignsView} setResetCampaignsView = {setResetCampaignsView}
-           selectedMenu={selectedKey} setResetDashboardView={setResetDashboardView} resetDashboardView={resetDashboardView}/>
+    return (
+    
+      <Layout style={{ minHeight: "100vh", minWidth: "700px" }}>
+        {
+          isMobile ? (
+            <>
+              <Drawer
+                  title="SurgeView"
+                  placement="left"
+                  onClose={handleDrawerClose}
+                  open={drawerVisible}
+                  style={{ padding: 0 }}
+              >
+                  {renderMenu()}
+              </Drawer>
+              <Button
+                  className="menu-toggle"
+                  style={{ display: (isMobile ? 'inline-block': 'none'), position: 'fixed', top: 16, left: 16, zIndex: 1000 }}
+                  type="primary"
+                  icon={<MenuOutlined />}
+                  onClick={handleDrawerOpen}
+              />
+            </>
+          ) : (
+            <Sider collapsible>
+              <div
+                className="logo"
+                style={{ padding: "16px", textAlign: "center", color: "#fff" }}
+              >
+                SurgeView Marketing
+              </div>
+              {renderMenu()}
+            </Sider>
+            
+          )
+        }
+        <Layout>
+          <Header style={{ background: "#fff", padding: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Title level={2} style={{ marginTop: "16px", marginRight: "16px", marginBottom: "16px", marginLeft: (isMobile ? "70px" : "16px") }}>
+              {title}
+            </Title>
+            <Dropdown 
+            dropdownRender={() => (
+              <Menu>
+                <Menu.Item key="1" onClick={handleLogout} icon={<LogoutOutlined />}>
+                  Logout
+                </Menu.Item>
+              </Menu>
+            )}
+            trigger={['click']}
+          >
+            <span style={{ marginRight: '35px', marginLeft: 'auto', cursor: 'pointer' }}>
+              {email}
+            </span>
+          </Dropdown>
+          </Header>
+          <Content
+            style={{
+              margin: "24px 16px",
+              padding: 24,
+              background: "#fff",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "flext-start",
+              paddingTop: "50px",
+            }}
+          >
+            <DashboardView isMobile={isMobile} resetCampaignsView = {resetCampaignsView} setResetCampaignsView = {setResetCampaignsView}
+            selectedMenu={selectedKey} setResetDashboardView={setResetDashboardView} resetDashboardView={resetDashboardView}/>
 
-        </Content>
-      </Layout>
-    </Layout>
+          </Content>
+        </Layout>
+      </Layout>      
   );
 };
 

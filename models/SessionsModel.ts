@@ -16,6 +16,7 @@ interface addSessionType {
 class SessionsModel {
 
   public validOperationTypes: Array<string> = ['ADD_CAMPAIGN', 'DELETE_CAMPAIGN', 'UPDATE_CAMPAIGN', 'CREATE_PAYMENT', 'CONFIRM_PAYMENT'];
+  public validStatusTypes: Array<string>  = ['PENDING', 'COMPLETE', 'FAILED'];
 
   /**
    * Gets a session based on unique key and action type
@@ -50,6 +51,14 @@ class SessionsModel {
   }
 
   /**
+   * @typedef {Object} addSessionType
+   * @property {boolean} created - Indicates if the session update was successful.
+   * @property {string} identifer - Indicates if the session update was successful.
+   * @property {string|null} error - An error message if the update was not successful; `null` if there was no error.
+   */
+
+
+  /**
    * Adds a new session
    * @param {String} identifier  the unique identifier recieved from the client
    * @param {String} operationType 
@@ -64,8 +73,8 @@ class SessionsModel {
 
     try {
       await query('BEGIN');
-      await query(`INSERT INTO sessions (idempotency_key, operation_type, expires_at)
-      VALUES($1, $2, NOW() + INTERVAL '24 hours');`, [identifier, operationType]);
+      await query(`INSERT INTO sessions (idempotency_key, operation_type, status, expires_at)
+      VALUES($1, $2, 'PENDING', NOW() + INTERVAL '24 hours');`, [identifier, operationType]);
       
       await query('COMMIT');
       
@@ -82,6 +91,37 @@ class SessionsModel {
     }
 
   }
+
+  /**
+   * @typedef {Object} UpdateSessionResult
+   * @property {boolean} updated - Indicates if the session update was successful.
+   * @property {string|null} error - An error message if the update was not successful; `null` if there was no error.
+   */
+
+  /**
+   * Updates an existing session with a new status
+   * @param {string} identifier - Session key from request.
+   * @param {string} newStatus - One of ['PENDING', 'COMPLETE', 'FAILED'].
+   * @returns {Promise<UpdateSessionResult>} - A promise that resolves to an object with `updated` and `error` properties.
+   */
+  public async updateSession(identifier: string, newStatus: string): Promise<{updated: boolean, error: string | null}> {
+    if(!(this.validStatusTypes.includes(newStatus))) {
+      return {updated: false, error: 'Invalid_Status'};
+    }
+
+    try { 
+      await query('BEGIN');
+      await query('UPDATE sessions SET status = $1 WHERE idempotency_key = $2', [newStatus, identifier]);
+      await query('COMMIT');
+
+      return {updated: true, error: null};
+
+    } catch(error) {
+      await query('ROLLBACK');
+      return {updated: false, error: error.message};
+    }
+  }
+
 }
 
 export default SessionsModel;

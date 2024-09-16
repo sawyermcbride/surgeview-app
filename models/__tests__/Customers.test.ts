@@ -1,7 +1,6 @@
 import {jest, describe, test, beforeEach, expect} from '@jest/globals';
 import {query} from '../../db';
 import Customers from '../Customers';
-import { customConversionGoal } from 'google-ads-api/build/src/protos/autogen/resourceNames';
 import bcrypt from 'bcrypt';
 
 jest.mock('../../db');

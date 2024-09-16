@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useContext} from 'react';
 import { Table, Typography, Spin, Alert, Button, Breadcrumb, Tooltip, Tag } from 'antd';
 import 'antd/dist/reset.css'; // Ensure Ant Design styles are imported
-import { useAuth } from '../components/AuthContext';
+
 import CampaignManage from './CampaignManage';
 import CampaignDetails from './CampaignDetails';
 import CampaignsViewMobile from './CampaignsViewMobile';

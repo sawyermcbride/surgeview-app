@@ -1,4 +1,4 @@
-//Payment.ts
+//Payments.ts
 
 import { PaymentIntent } from '@stripe/stripe-js';
 import {query} from '../db';
@@ -7,53 +7,42 @@ import Stripe from 'stripe';
 const stripe = new Stripe('sk_test_51PmqG6KG6RDK9K4gSDxcza88uYRyVuFV0LJUQLQyPopCIBxR0rPHbnNu2LHHzf9DO4eqv0kvpNgczOaOOyB7HcKO00qg3j3lTw');
 
 class Payments {
-  private async checkPaymentExists(paymentIntentId: string) {
-    if(!paymentIntentId) {
-      throw new Error("Missing paymenIntentId");
+
+  /**
+   * Checks if a payment exists for the campaign
+   * @param campaignId 
+   * @returns {exists: boolean, error: string | null, payments: any //records}
+   */
+  public async getPaymentByCampaign(campaignId: number): Promise<{exists: boolean, error: string | null, payments: any | null}> {
+    if(!campaignId) {
+      return { exists: true,  error: null, payments: null };
     }
     try {
-      const result = await query(`SELECT id, payment_intent_id, campaign_id, status FROM stripe_payments
-                           WHERE payment_intent_id = $1`, [paymentIntentId]);
-      if(result.rows.length === 0) {
-        return {exists: false}
+      const result = await query(`SELECT * FROM stripe_payments WHERE campaign_id = $1`,
+      [campaignId]);
+  
+      if(result.rows.length > 0) {
+        return {
+          exists: true, 
+          error: null,
+          payments: result.rows
+        }
       } else {
         return {
-          exists: true,
-          result: result.rows
-        }
+          exists: false,
+          error: null,
+          payments: null
+        };
       }
-      
-    } catch(err) {
-      throw new Error(err);
-    }
-  }
 
-  public async checkPaymentExistsByCampaign(campaignId: number) {
-    if(!campaignId) {
-      throw new Error("Missing campaign ID, cannot lookup payment record");
-    }
-
-    await query('BEGIN');
-
-    const result = await query(`SELECT * FROM stripe_payments WHERE campaign_id = $1 AND 
-                                created_at > NOW() - INTERVAL '1 minute' FOR UPDATE`, [campaignId]);
-
-    console.log(`Reaslt from query, number of rows = ${result.rows.length}`);
-
-    if(result.rows.length > 0) {
-
-      await query('ROLLBACK');
-
+    } catch(error) {
       return {
-        exists: true, 
-        payments: result.rows
-      }
-    } else {
-      await query('COMMIT');
-      return {
-        exists: false
-      }
+        exists: false,
+        error: error.message || "Other error",
+        payments: null
+      };
     }
+
 
   }
   /**
@@ -63,15 +52,10 @@ class Payments {
    * @returns {Object} {error: boolean, created: boolean, message: empty string if no error };
    */
 
-  public async createPaymentRecord(paymentIntent: PaymentIntent, subscription: Stripe.Subscription) {
+  public async createPaymentRecord(paymentIntent: any, subscription: any): Promise<{created: boolean, error: string | null}> {
     let checkExists;
     try {
       await query('BEGIN');
-
-      /**
-       * Duplicate payment_intent_id and duplicate campaign_id entries (within same minute) are 
-       * handled with unique constraints on table
-       */
 
       const result = await query(`INSERT INTO stripe_payments (payment_intent_id, client_secret, subscription_id, campaign_id, amount,
         currency, status, stripe_customer_id, truncated_created_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8, DATE_TRUNC('minute', NOW()));
@@ -81,30 +65,32 @@ class Payments {
       await query('COMMIT');
               
       return {
-        error: false,
+        error: null,
         created: true,
-        message: ""
       }
 
     } catch(err) {
+      
       console.log('Error in creating payment record');
+      console.log('Error Code:', err?.code);
+      console.log('Error Message:', err?.message);
       await query('ROLLBACK');
+      
       
       if (err?.code === '23505') { // PostgreSQL unique violation error code
         return {
-            error: true,
+            error: "Duplicate payment record",
             created: false,
-            message: "Duplicate payment record"
         };
       }
       console.log(err);
-      return {error: true, created: false, message: err || "Unknown error"};
+      return {error: err?.message || "Unknown error", created: false};
     }
 
 
   }
 
-  public async updateRecord(paymentIntent) {
+  public async updateRecord(paymentIntent): Promise<{updated: boolean, error: string | null}> {
 
     console.log(paymentIntent);
 
@@ -113,20 +99,20 @@ class Payments {
       await query('BEGIN');
       const result = await query('UPDATE stripe_payments SET status = $1 WHERE payment_intent_id = $2', 
         [paymentIntent.status, paymentIntent.id]
-      )
+      );
       
       await query('COMMIT');
 
       return {
         updated: true,
-        error: false
+        error: null
       }
 
     } catch(error) {
       await query('ROLLBACK');
       return {
-        error: true,
-        message: error || "Unknown error"
+        updated: false,
+        error: error.message,
       }
     }
 
