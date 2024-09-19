@@ -31,14 +31,14 @@ const plans = [
 ];
 
 const SelectPlan: React.FC = () => {
-    const {signupData, updateSignupData} = useContext(SignupContext);
+    const {updateSignupData} = useContext(SignupContext);
     const [paymentPlanError, setPaymentPlanError] = useState("");
 
-    const onSubmit = (planName: string) => {
+    const onSubmit = async function(planName: string) {
         updateSignupData({
             contentColumnWidth: "75%",
             formLoading: true
-        })
+        });
 
         
     try {
@@ -51,30 +51,30 @@ const SelectPlan: React.FC = () => {
           "plan": planName
         }
   
-        
-        api.post("http://10.0.0.47:3001/campaign/add", data, {
-          
-          headers: {
-            Authorization: `Bearer ${token}`,
-            SessionKey: sessionKey
-          },
-        })
-        .then(res => {
-            updateSignupData({formLoading: true});
-            localStorage.setItem("lastStepCompleted", "2");
-            console.log("campaign added");
-            localStorage.setItem("campaignId", res.data.campaignId);
-            localStorage.setItem("pricing", planName);
-            setPaymentPlanError("");
-            updateSignupData({step: 3, formLoading: false});
-        })
-        .catch(err => {
-          console.error("Error in submitting campaign data", err);
-          setPaymentPlanError("An error occured. Please try again.");
-        })
-  
+     // Use async/await for clearer asynchronous handling
+            const response = await api.post("http://10.0.0.47:3001/campaign/add", data, {
+              headers: {
+                  Authorization: `Bearer ${token}`,
+                  SessionKey: sessionKey
+              }
+          });
+
+          // Success handling
+          updateSignupData({
+              step: 3,
+              formLoading: false
+          });
+          localStorage.setItem("lastStepCompleted", "2");
+          localStorage.setItem("campaignId", response.data.campaignId);
+          localStorage.setItem("pricing", planName);
+          setPaymentPlanError("");
       } catch(err) {
-        setPaymentPlanError("An error occured. Please try again.");
+
+        console.error("Error in submitting campaign data", err);
+        setPaymentPlanError("An error occurred. Please try again.");
+        updateSignupData({
+            formLoading: false
+        });
       }
 
         

@@ -58,6 +58,7 @@ export const addCampaign = async (req: Request, res: Response) => {
   if(!addedSession.created && addedSession.error === 'Duplicate') {
     return res.status(409).json({error: 'Duplicate request, start a new action to complete'})
   } else if(!addedSession.created) {
+    console.error(addedSession.error);
     return res.status(500).json({error: 'Error creating campaign, try again'})
   }
 

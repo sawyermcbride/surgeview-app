@@ -31,20 +31,30 @@ router.get('/confirm', async(req: Request, res: Response) => {
 
 });
 
+// Define the route handler for POST requests to '/update-payment'
+
+
 router.post('/update-payment', async (req: Request, res: Response) => {
 
+    // Extract the 'SessionKey' header from the request
     const sessionKey = req.get('SessionKey');
+
+    console.log("sessionKey: ", sessionKey);
+
+    // Extract relevant parameters from the request body
     const {paymentIntentId, amount, status} = req.body;
 
+    // Check if the 'SessionKey' is missing from the request headers
     if(!sessionKey) {
         return res.status(400).json({message: "Missing session key"});
     }
 
+    //Check if 'paymentIntentId' is missing from the request body
     if(!paymentIntentId) {
         return res.status(400).json({message: "Invalid parameters"})
     }
     
-    
+    //Check if the user is authenticated
     if(!req.user) {
         return res.status(401).json({message: "Missing token"});;
     }
@@ -57,12 +67,19 @@ router.post('/update-payment', async (req: Request, res: Response) => {
 
         const sessionExists = await sessionsModel.getSession(sessionKey, 'CONFIRM_PAYMENT');
 
+        /**
+         * If session exists and type is pending assume request is duplicate. If it was failed we let it go assuming retry
+         */
+
         if(sessionExists.session && sessionExists.session?.status === 'PENDING') {
             return res.status(409).json({message: "Duplicate request, please restart your session to complete the action."});
         }
 
         /**
-         * if session doesn't exist attempt to 
+         * if session doesn't exist attempt to add it, under rapid duplicate requests the above
+         * check may fail, however unique constraight will stills stop a duplicate
+         * during the following insert
+         *
          */
         
         const addSessionResult = await sessionsModel.addSession(sessionKey, 'CONFIRM_PAYMENT');
@@ -73,18 +90,31 @@ router.post('/update-payment', async (req: Request, res: Response) => {
             throw new Error(addSessionResult.error);
         }
 
-
+        /**
+         * Get the payment intent from stripe service,
+         * TODO: we need to check that indeed the payment intent refers to a campaign owned by the user and 
+         * possibly that the referenced paymentIntent is the authenticated customers Id
+         */
         const getPI = await stripeService.getPaymentIntent(paymentIntentId);
 
         if(!getPI.paymentIntent || getPI.error) {
             throw new Error(getPI.error || "Could not retrieve paymentIntent");
         }
+
+        /**
+         * Get the invoice from the payment intent 
+         */
         
         const getInvoice = await stripeService.getInvoice(getPI.paymentIntent.invoice as string);
 
         if(!getInvoice.invoice || getInvoice.error) {
             throw new Error(getInvoice.error || "Could not retrieve invoice");
         }
+
+        /**
+         * Get subscription from the invoice and the pull in the subscription to get the campaign 
+         * assoicated with it's meta data
+         */
         
         const subscriptionId = getInvoice.invoice.subscription;
         
@@ -93,6 +123,10 @@ router.post('/update-payment', async (req: Request, res: Response) => {
         if(!getSubscription.subscription || getSubscription.error) {
             throw new Error(getSubscription.error || "Could not retrieve subscription");
         }
+        /**
+         * After getting the campaignId, update the campaign table and the payments table with the 
+         * status of the payment
+         */
 
         const connectedCampaignId = getSubscription.subscription.metadata.campaignId;
         

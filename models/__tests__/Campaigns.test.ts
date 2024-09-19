@@ -34,7 +34,7 @@ describe('Campaigns model tests: ', () => {
     queryMock.mockResolvedValue({rows: []});
     const result = await campaigns.checkExists(5);
 
-    expect(result.error).toBe(false);
+    expect(result.error).toBeFalsy();
     expect(result.exists).toBe(false);
     expect(result.campaigns).toHaveLength(0);
 
@@ -141,6 +141,7 @@ describe('Campaigns model tests: ', () => {
     expect(result.campaign_id).toEqual(-1);
     expect(result.error).toBe('query error');
   });
+  
 
   test('updateColumns throws error when campaign does not exist', async() => {
     queryMock.mockResolvedValueOnce({rows: []});
@@ -162,7 +163,7 @@ describe('Campaigns model tests: ', () => {
     queryMock.mockResolvedValueOnce({rows: [{campaign_id: 5}]});
     let result;
     try {
-      result = await campaigns.updateColumns(5, {video_tags: 'test'}) //invalid field
+      result = await campaigns.updateColumns(5, {video_tags: 'test'}, 'test@example.com') //invalid field
     } catch(error) {
       expect(error).toBeInstanceOf(Error);
       expect(error.message).toEqual('Invalid column video_tags');

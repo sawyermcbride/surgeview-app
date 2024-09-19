@@ -1,0 +1,28 @@
+src/
+├── components/         # Reusable UI components
+│   ├── Button.tsx
+│   ├── Modal.tsx
+│   ├── Header.tsx
+│   └── ...
+├── pages/              # Components tied to specific routes
+│   ├── HomePage.tsx
+│   ├── DashboardPage.tsx
+│   ├── CampaignPage.tsx
+│   └── ...
+├── hooks/              # Custom hooks for shared logic
+│   ├── useFetchData.ts
+│   ├── useAuth.ts
+│   ├── useEventHandlers.ts
+│   └── ...
+├── contexts/           # React contexts for shared state
+│   ├── AuthContext.tsx
+│   ├── DataContext.tsx
+│   └── ...
+├── services/           # Service classes or functions for API calls or business logic
+│   ├── apiService.ts
+│   ├── campaignService.ts
+│   └── ...
+├── utils/              # Utility functions used throughout the app
+│   ├── formatDate.ts
+│   └── ...
+└── App.tsx             # Main app component

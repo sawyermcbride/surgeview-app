@@ -19,13 +19,13 @@ class Campaigns {
    * @param id  campaign id
    * @returns {Promise<{error: string, exists: boolean, campaigns: Array<Record<string, any>>}>}
    */
-  public async checkExists(id: number) {
+  public async checkExists(id: number): Promise<{error: string, exists: boolean, campaigns: Array<Record<string, any>>}> {
     try {
       const result = await query(`SELECT * FROM campaigns WHERE campaign_id = $1`, [id]);
 
       if(result.rows.length === 0) {
         return {
-          error: false,
+          error: "",
           exists: false,
           campaigns: []
         }
@@ -148,8 +148,6 @@ class Campaigns {
       );
       
       await query('COMMIT');
-      console.log('query commited');
-      console.log(result);
       return {
         campaign_id: result.rows[0].campaign_id,
         error: ""
@@ -182,7 +180,7 @@ class Campaigns {
     
     if(!checkCampaign.exists || checkCampaign.error) {
       throw new Error(`Requested campaign to update doesn't exist or an error occured: 
-        ${checkCampaign.errorMessage || ''}`);
+        ${checkCampaign.error || ''}`);
     }
 
     const columns = Object.keys(updateData);

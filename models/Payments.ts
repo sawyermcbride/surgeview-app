@@ -90,12 +90,10 @@ class Payments {
 
   }
 
-  public async updateRecord(paymentIntent): Promise<{updated: boolean, error: string | null}> {
-
-    console.log(paymentIntent);
+  public async updateRecord(paymentIntent: any): Promise<{updated: boolean, error: string | null}> {
 
     try {    
-      console.log('Updating record');
+   
       await query('BEGIN');
       const result = await query('UPDATE stripe_payments SET status = $1 WHERE payment_intent_id = $2', 
         [paymentIntent.status, paymentIntent.id]

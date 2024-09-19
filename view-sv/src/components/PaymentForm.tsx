@@ -84,12 +84,21 @@ const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess, clientSecret
           onPaymentSuccess();
           setMessage("Payment successful. Redirecting to dashboard...");
 
+          const sessionKey = localStorage.getItem('sessionKey');
+          const token = localStorage.getItem('token');
           
-          
+          if(!token || !sessionKey) {
+            console.error("missing token or session key, redirect to start");
+          }
           const result = await api.post('http://10.0.0.47:3001/payment/update-payment', {
             paymentIntentId: paymentIntent.id,
             amount: paymentIntent.amount,
             status: paymentIntent.status,
+          },  {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              SessionKey: sessionKey
+            },
           })
           
           resetSignupData();

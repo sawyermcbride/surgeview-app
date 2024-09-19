@@ -70,6 +70,7 @@ export default async function (req: Request, res: Response,) {
 
   try {
     
+
       const {plan_name, amount, paymentMethodId, campaignId} = req.body;
       
       if(isNaN(campaignId) || !plan_name || !valid_plans.includes(plan_name) ) {
@@ -158,16 +159,17 @@ export default async function (req: Request, res: Response,) {
         });
 
       } else {
-          if(paymentRecordResult.error && paymentRecordResult.message.includes('Duplicate')) {
+          if(paymentRecordResult.error && paymentRecordResult.error.includes('Duplicate')) {
               return res.status(409).json({message: "Duplicate record. Please wait and try again"});
           } else {
 
-              return res.status(500).json({error: paymentRecordResult.message});
+              return res.status(500).json({error: paymentRecordResult.error});
           }
       }
 
   } catch(err) {
-        console.log('End catch error: ', err.message);
+        console.log('createPayment: End catch error: ', err.message);
+        console.log('createPayment: End catch full error: ', err.message);
         return res.status(500).json({error: err.message});
   }
 }

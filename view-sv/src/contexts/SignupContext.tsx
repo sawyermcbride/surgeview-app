@@ -1,29 +1,49 @@
-import React, {createContext, useEffect, useState} from "react";
+import React, {createContext, ReactNode, useState} from "react";
 import {v4 as uuidv4} from 'uuid';
 
-export const SignupContext = createContext({
+
+// Define the structure of signupData
+interface SignupData {
+    step: number;
+    paymentPlanError: string;
+    videoLinkError: string;
+    contentColumnWidth: string;
+    formLoading: boolean;
+    clientSecretCreated: boolean;
+  }
+
+// Define the structure of the SignupContext
+interface SignupContextType {
+    signupData: SignupData;
+    updateSignupData: (obj: Partial<SignupData>) => void;
+    resetSignupData: () => void;
+    createSessionKey: (reset: boolean) => string;
+}
+  
+interface SignupProviderProps {
+    children: ReactNode;
+}
+
+export const SignupContext = createContext<SignupContextType>({
     signupData: {
         step: 1, paymentPlanError: "", videoLinkError: "",
         contentColumnWidth: '75%', formLoading: false, clientSecretCreated: false
    }, 
-   updateSignupData: (obj) => {},
+   updateSignupData: () => {},
    resetSignupData: () => {},
-   createSessionKey: (reset: boolean) => String
+   createSessionKey: () => ""
 });
-// export const SignupContext = createContext(null);
 
 
-export const SignupProvider = ({ children }) => {
-    const [signupData, setSignupData] = useState({
+
+
+export const SignupProvider = ({ children }: SignupProviderProps) => {
+    const [signupData, setSignupData] = useState<SignupData>({
          step: 1, paymentPlanError: "", videoLinkError: "",
          contentColumnWidth: '75%', formLoading: false, clientSecretCreated: false
     });
-    useEffect(() => {
-        // console.log(`New data in SignupProvider: `)
-        // console.log(signupData);
-    },[signupData]);
 
-    const updateSignupData = function (newData) {
+    const updateSignupData = function (newData: Partial<SignupData> ) {
         setSignupData(prev => ({
             ...prev, 
             ...newData  
