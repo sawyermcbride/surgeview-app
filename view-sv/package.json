@@ -12,6 +12,7 @@
     "test:watch": "vitest watch"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.56.2",
     "@types/node": "^18.19.44",
     "antd": "^5.20.0",
     "axios": "^1.7.3",

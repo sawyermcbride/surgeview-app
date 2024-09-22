@@ -9,7 +9,7 @@ const youtubeService = new YouTubeService();
 const campaigns = new Campaigns();
 const sessionsModel = new SessionsModel();
 
-const pricingTable = {
+const pricingTable: {[key: string]: number} = {
   'Standard': 99.0,
   'Premium': 199.0,
   'Pro': 399.0
@@ -25,7 +25,9 @@ export const addCampaign = async (req: Request, res: Response) => {
 
   let videoDetails;
   
-
+  if(!req.user) {
+    return res.status(401);
+  }
 
   try {
     videoDetails = await youtubeService.validateVideoLink(videoLink);
@@ -44,8 +46,9 @@ export const addCampaign = async (req: Request, res: Response) => {
 
   const sessionExists = await sessionsModel.getSession(sessionKey as string, 'ADD_CAMPAIGN');
 
-  if(!sessionExists.error && sessionExists.session) {
-    return res.status(409).json({error: 'Duplicate request, start a new action to complete'});
+  if(!sessionExists.error && sessionExists.session && sessionExists.session.status !== 'FAILED') {
+    
+    return res.status(200).json({message: 'Duplicate request, not adding campaign'});
   } else if(!sessionExists.session && sessionExists.error) {
     return res.status(500).json({error: 'Error looking up session'});
   }
@@ -81,6 +84,8 @@ export const addCampaign = async (req: Request, res: Response) => {
 
     
     if(result.campaign_id > -1 && !result.error) {
+      sessionsModel.updateSession(sessionKey, 'COMPLETE', 'ADD_CAMPAIGN');
+
       return res.status(201).json({campaignId: result.campaign_id, message: "Campaign added" });
     } else {
       throw new Error(result.error);
@@ -89,7 +94,7 @@ export const addCampaign = async (req: Request, res: Response) => {
 
   
   } catch (err) {
-  
+    
     return res.status(500).json({ message: "Error adding campaign", err });
   }
 }

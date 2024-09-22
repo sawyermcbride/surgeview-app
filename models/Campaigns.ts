@@ -37,7 +37,7 @@ class Campaigns {
         }
       }
 
-    } catch(error) {
+    } catch(error: any) {
       return {
         exists: false,
         campaigns: [], 

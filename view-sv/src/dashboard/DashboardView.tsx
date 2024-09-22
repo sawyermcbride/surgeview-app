@@ -3,11 +3,11 @@ import BaseStatistics from "./BaseStatistics";
 import CampaignsView from "./CampaignsView";
 import { useAuth } from "../components/AuthContext";
 import {CampaignsProvider } from "../contexts/CampaignsContext";
-import axios from "axios";
-
+import SettingsView from "./SettingsView";
 import { Spin } from "antd";
-
 import api from "../utils/apiClient";
+import {useQuery, useQueryClient} from "@tanstack/react-query";
+import {CampaignResponse, StatisticsResponse} from "../interfaces/apiResponses";
 
 interface DashboardViewProps {
   selectedMenu: string
@@ -18,75 +18,56 @@ interface DashboardViewProps {
   setResetDashboardView: (arg: boolean) => void,
 }
 
+const fetchCampaigns = async function(token: string | null) {
+  const result = await api.get("http://10.0.0.47:3001/campaign/request", {
+    headers:{
+      Authorization: `Bearer ${token}`
+    }
+  } );
+  return result.data;
+}
+
+const fetchStatistics = async function(token: string | null) {
+  const result = await api.get("http://10.0.0.47:3001/campaign/statistics", {
+    headers:{
+      Authorization: `Bearer ${token}`
+    }
+  });
+  return result.data;
+}
+
 const DashboardView: React.FC<DashboardViewProps> = (props) => {
   const {token} = useAuth();
-  const [campaignData, setCampaignData] = useState(null);
-  const [campaignStatistics, setCampaignStatistics] = useState(null);
+  const [campaignData, setCampaignData] = useState<CampaignResponse[] | null>(null);
+
+  const [campaignStatistics, setCampaignStatistics] = useState<StatisticsResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   
+  
+  const { isPending: isCampaignsLoading, isError: isCampaignsError, data: campaignsData } =  useQuery<CampaignResponse[]>({
+    queryKey: ['campaigns', token],
+    queryFn: () => fetchCampaigns(token),
+    enabled: !!token, 
+  });
+  
+  const { isPending: isStatisticsLoading, isError: isStatisticsError, data: statisticsData } = useQuery<StatisticsResponse>({
+    queryKey: ['statistics', token],
+    queryFn: () => fetchStatistics(token),
+    enabled: !!token, 
+  });
+
   
   const loadCampaignData = async () => {
-    try {
-      // await login();
-      
-      const lastCampaignRefresh = localStorage.getItem("lastCampaignRefresh");
-      let statisticsResult: object;
-      let shouldRefresh: boolean = true;
-        
-        setLoading(true);
 
-        const result = await api.get("http://10.0.0.47:3001/campaign/request", {
-          headers:{
-            Authorization: `Bearer ${token}`
-          }
-        } );
-        
+      setLoading(true);
+      setCampaignStatistics(statisticsData || null);
+      setCampaignData(campaignsData || null);
+      props.setResetDashboardView(false);
 
-        if(lastCampaignRefresh) {
-          const storedTime = parseInt(lastCampaignRefresh, 10);
-          const currentTime = Date.now();
+      setTimeout( () => {
+        setLoading(false);
+      },500);
 
-          const timeDiff = currentTime - storedTime;
-          const minutes = Math.floor(timeDiff / (1000 * 60));
-          shouldRefresh = (minutes >= 5);
-          console.log(`Should refresh value = ${shouldRefresh} and minutes since last refresh = ${minutes}`);
-        } 
-
-
-        if(shouldRefresh) {
-          console.log("Making statistics request");
-          const requestResult = await api.get("http://10.0.0.47:3001/campaign/statistics", {
-            headers:{
-              Authorization: `Bearer ${token}`
-            }
-          });
-
-          statisticsResult = requestResult.data;
-
-          localStorage.setItem("lastCampaignRefresh", Date.now().toString());
-          localStorage.setItem("statisticsData", JSON.stringify(statisticsResult));
-          shouldRefresh = false;
-          
-        } else {
-          statisticsResult = JSON.parse(localStorage.getItem("statisticsData"));
-        }
-
-        localStorage.setItem("campaignData", JSON.stringify(result.data));
-
-        setCampaignStatistics(statisticsResult);
-        setCampaignData(result.data);
-        props.setResetDashboardView(false);
-        // console.log("New campaigns data loaded");
-        // console.log(result.data);
-    } catch(err) {
-
-        setError(err);
-    } finally {
-        setTimeout( () => {
-          setLoading(false);
-        },500);
-    }
   }
 
 
@@ -95,6 +76,11 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
   }, [props.resetCampaignsView, props.resetDashboardView]);
 
   const renderView = () => {
+    if(isCampaignsError || isStatisticsError) {
+      return <h2>Error</h2>
+    };
+
+
     switch (props.selectedMenu) {
       case "1":
         if(loading) {
@@ -108,8 +94,8 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
             <BaseStatistics isMobile={props.isMobile} loading={loading} campaignStatistics = {campaignStatistics}  />
           );
         }
-      case "2":
 
+      case "2":
         return(
           <CampaignsProvider>
             <CampaignsView 
@@ -119,16 +105,14 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
               resetCampaignsView = {props.resetCampaignsView}
               setResetCampaignsView={props.setResetCampaignsView}
               loadCampaignData = {loadCampaignData}
-              loading={loading}
+              loading={isCampaignsLoading || isStatisticsLoading}
             />
           </CampaignsProvider>
         )
 
       case "3":
         return (
-          <div>
-            
-          </div>
+          <SettingsView/>
         )
         
     }

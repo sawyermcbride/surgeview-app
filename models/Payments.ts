@@ -18,7 +18,8 @@ class Payments {
       return { exists: true,  error: null, payments: null };
     }
     try {
-      const result = await query(`SELECT * FROM stripe_payments WHERE campaign_id = $1`,
+      const result = await query(`SELECT * FROM stripe_payments WHERE campaign_id = $1
+        ORDER BY created_at DESC`,
       [campaignId]);
   
       if(result.rows.length > 0) {

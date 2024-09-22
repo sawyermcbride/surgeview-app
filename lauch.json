@@ -1,0 +1,10 @@
+{
+  "name": "Attach to process",
+  "type": "node",
+  "request": "attach",
+  "port": 9229,
+  "skipFiles": [    
+    "<node_internals>/**",
+     "${workspaceFolder}/node_modules/**"
+  ]
+}

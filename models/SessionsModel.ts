@@ -44,7 +44,7 @@ class SessionsModel {
         return {session: null, error: ""};
       }
 
-    } catch(error) {
+    } catch(error: any) {
       return {session: null, error: error.message};
     }
 
@@ -104,14 +104,20 @@ class SessionsModel {
    * @param {string} newStatus - One of ['PENDING', 'COMPLETE', 'FAILED'].
    * @returns {Promise<UpdateSessionResult>} - A promise that resolves to an object with `updated` and `error` properties.
    */
-  public async updateSession(identifier: string, newStatus: string): Promise<{updated: boolean, error: string | null}> {
+  public async updateSession(identifier: string, newStatus: string, operationType: string): 
+  Promise<{updated: boolean, error: string | null}> {
     if(!(this.validStatusTypes.includes(newStatus))) {
       return {updated: false, error: 'Invalid_Status'};
     }
 
+    if(!this.validOperationTypes.includes(operationType)) {
+      return {updated: false, error: 'Invalid_Operation'};
+    }
+
     try { 
       await query('BEGIN');
-      await query('UPDATE sessions SET status = $1 WHERE idempotency_key = $2', [newStatus, identifier]);
+      await query(`UPDATE sessions SET status = $1 WHERE idempotency_key = $2 AND
+      operation_type = $3`, [newStatus, identifier, operationType]);
       await query('COMMIT');
 
       return {updated: true, error: null};

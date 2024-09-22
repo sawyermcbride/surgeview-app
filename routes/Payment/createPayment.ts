@@ -1,13 +1,13 @@
 
 //createPayment route 
-import Stripe from "stripe";
+
 import { Request, Response } from "express";
 import Campaigns from "../../models/Campaigns";
 import SessionsModel from "../../models/SessionsModel";
 import Customers from "../../models/Customers";
 import StripeService from '../../services/StripeService';
 import Payments from "../../models/Payments";
-import { error } from "console";
+
 
 
 const campaigns = new Campaigns();
@@ -16,10 +16,7 @@ const customers = new Customers();
 const stripeService = new StripeService();
 const payments = new Payments();
 
-const stripe = new Stripe('sk_test_51PmqG6KG6RDK9K4gSDxcza88uYRyVuFV0LJUQLQyPopCIBxR0rPHbnNu2LHHzf9DO4eqv0kvpNgczOaOOyB7HcKO00qg3j3lTw');
 
-//TODO 
-//Change stripe to stripeService calls 
 async function getOrCreateStripeCustomer(email: string): Promise<string> {
   async function createAndSaveCustomer(email: string): Promise<string> {
       const createResult = await stripeService.createCustomer(email);
@@ -28,37 +25,41 @@ async function getOrCreateStripeCustomer(email: string): Promise<string> {
       }
 
       const saveResult = await customers.setStripeId(email, createResult.customer.id);
+      if(saveResult.error) {
+        throw new Error("Error saving customer data");
+      }
 
       return createResult.customer.id;
   }
 
   // check if id exists in database 
   const checkCustomerId = await customers.getStripeId(email);
-  if(checkCustomerId?.customer_id) {
-      try {
-          if(!(checkCustomerId.customer_id)) {
-              throw new Error('NoRecord');
-          }
-          //verify the customer exists in stripe
-          const customerId = checkCustomerId.customer_id;
-          const checkCustomerResult = await stripeService.getCustomer(customerId);
+  //This if stateemnt is reading empty string from above function and leading to it skipped over 
+  //and returning ""
+  
 
-          if(!checkCustomerResult.customer) {
-            throw new Error('NewRecord');
-          }
+    try {
+        if(!(checkCustomerId.customer_id)) {
+            throw new Error('NoRecord');
+        }
+        //verify the customer exists in stripe
+        const customerId = checkCustomerId.customer_id;
+        const checkCustomerResult = await stripeService.getCustomer(customerId);
 
-          return customerId; // if stripe has the customer then return id
+        if(!checkCustomerResult.customer) {
+            throw new Error('NoRecord');
+        }
 
-      } catch(error) {
-          if(error.type === 'StripeInvalidResponseError' || error.message === 'NoRecord' ) {
-              return await createAndSaveCustomer(email);
-          } else {
-              throw error;
-          }
-      }
-  }
+        return customerId; // if stripe has the customer then return id
 
-  return "";
+    } catch(error: any) {
+        if(error.type === 'StripeInvalidResponseError' || error.message === 'NoRecord' ) {
+            return await createAndSaveCustomer(email);
+        } else {
+            throw error;
+        }
+    }
+
 
 }
 
@@ -106,7 +107,14 @@ export default async function (req: Request, res: Response,) {
         }
 
         if(sessionExists.session) {
-            return res.status(409).json({message: "Duplicate request, please restart your session to complete the action."});
+            //Attempt to return existing clientSecret 
+            const currentPayment = await payments.getPaymentByCampaign(campaignId);
+            if(currentPayment.payments && currentPayment.payments[0]) {
+                return res.status(200).json({clientSecret: currentPayment.payments[0].client_secret});
+            } else {
+                return res.status(409).json({message: "Duplicate request, please restart your session to complete the action."});
+            }
+
         }
         
         
@@ -126,11 +134,7 @@ export default async function (req: Request, res: Response,) {
 
       } catch(error) {
           return res.status(500).json({error});
-      }
-
-
-      
-      
+      }   
 
       
       let createdSubscription = await stripeService.createSubscription(customer_id, plan_name, campaignId, sessionKey, paymentMethodId);
@@ -140,16 +144,14 @@ export default async function (req: Request, res: Response,) {
       }
     
 
-    
 
-      console.log('paymentIntent', createdSubscription.subscription.latest_invoice.payment_intent);
 
       const paymentIntent = createdSubscription.subscription.latest_invoice.payment_intent; 
       const paymentRecordResult = await payments.createPaymentRecord(paymentIntent, createdSubscription.subscription);
 
       if(paymentRecordResult.created && !paymentRecordResult.error) {
         
-        const updatedSession = await sessionsModel.updateSession(sessionKey, 'COMPLETE');
+        const updatedSession = await sessionsModel.updateSession(sessionKey, 'COMPLETE', 'CONFIRM_PAYMENT');
         if(updatedSession.error || !updatedSession.updated) {
           return res.status(500).json({message: "Could not update session"});
         }
@@ -167,7 +169,12 @@ export default async function (req: Request, res: Response,) {
           }
       }
 
-  } catch(err) {
+  } catch(err: any) {
+        if(sessionKey) {
+            sessionsModel.updateSession(sessionKey, 'FAILED', 'CREATE_PAYMENT');
+        }
+
+
         console.log('createPayment: End catch error: ', err.message);
         console.log('createPayment: End catch full error: ', err.message);
         return res.status(500).json({error: err.message});

@@ -8,7 +8,7 @@ import { useAuth } from "../components/AuthContext";
 import { DashboardProvider } from "../contexts/DashboardContext";
 
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 const { Header, Sider, Content } = Layout;
 
 
@@ -73,7 +73,7 @@ const Dashboard: React.FC = () => {
   }
 
   const handleDashboardClick = () => {
-    console.log("dashboard view reset");
+    
     setResetDashboardView(true);
   }
 
@@ -95,7 +95,9 @@ const Dashboard: React.FC = () => {
         )
     } else {
       return (
-        <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]} selectedKeys ={ [selectedKey]} onClick={handleMenuClick}>
+        // <Menu mode="inline" style={{backgroundColor: "#ecf0f1"}}
+        <Menu mode="inline" style={{backgroundColor: "#eeeeee"}}
+          defaultSelectedKeys={["1"]} selectedKeys ={ [selectedKey]} onClick={handleMenuClick}>
           <Menu.Item key="1" onClick={handleDashboardClick} icon={<HomeOutlined />}>
             Dashboard
           </Menu.Item>
@@ -135,12 +137,13 @@ const Dashboard: React.FC = () => {
               />
             </>
           ) : (
-            <Sider collapsible>
+            // <Sider style={{ background: "#ecf0f1"}}>
+            <Sider style={{ background: "#eeeeee"}}>
               <div
                 className="logo"
                 style={{ padding: "16px", textAlign: "center", color: "#fff" }}
               >
-                SurgeView Marketing
+                <img src="surge_view_new_cropped_transparent.png" alt="Logo" style={{ height: '40px', marginBottom: '20px' }}/>
               </div>
               {renderMenu()}
             </Sider>

@@ -1,11 +1,13 @@
-import { Request } from "express";
+import {Request} from "express";
 
-declare global{
+declare global {
   namespace Express {
-    interface Request {
-      user?: {
-        email: string;
-      };
+    export interface User {
+      email: string;
     }
-  }
+
+    export interface Request {
+      user?: User;
+    }
+  } 
 }

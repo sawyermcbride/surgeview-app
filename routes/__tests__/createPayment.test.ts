@@ -143,11 +143,11 @@ describe('createPayment route tests', () => {
     expect(response.body).toEqual({message: "Cannot create payment, user unable access the requested campaign"});
   })
 
-  test('Returns 409 when session already exists', async() => {
+  test('Returns 409 when session already exists, no existing payment found', async() => {
     mockedCampaigns.checkExists.mockResolvedValueOnce({error: "", exists: true, campaigns:[{campaign_id: 50}]});
     mockedCustomers.checkCampaignBelongs.mockResolvedValueOnce(true);
     mockedSessionsModel.getSession.mockResolvedValueOnce({session: {idempotency_key: '5000'}, error: ""});
-    mockedSessionsModel.addSession.mockResolvedValueOnce({created: false, identifier: null, error: "Duplicate"});
+    mockedPayments.getPaymentByCampaign.mockResolvedValueOnce({exists: false, error: null, payments: null});
 
     const response = await request(app)
     .post('/payment/create/')
@@ -158,11 +158,34 @@ describe('createPayment route tests', () => {
 
     expect(mockedCampaigns.checkExists).toHaveBeenCalledTimes(1);
     expect(mockedCustomers.checkCampaignBelongs).toHaveBeenCalledTimes(1);
+    expect(mockedPayments.getPaymentByCampaign).toHaveBeenCalledTimes(1);
     expect(mockedSessionsModel.getSession).toHaveBeenCalledTimes(1);
 
     expect(response.status).toBe(409);
     expect(response.body).toEqual({message: "Duplicate request, please restart your session to complete the action."});
   });
+
+  test('Returns 200 for existing client secret during duplicate request', async() => {
+    mockedCampaigns.checkExists.mockResolvedValueOnce({error: "", exists: true, campaigns:[{campaign_id: 50}]});
+    mockedCustomers.checkCampaignBelongs.mockResolvedValueOnce(true);
+    mockedSessionsModel.getSession.mockResolvedValueOnce({session: {idempotency_key: '5000'}, error: ""});
+    mockedPayments.getPaymentByCampaign.mockResolvedValueOnce({exists: true, error: null, payments: [{client_secret: '500'}]});
+
+    const response = await request(app)
+    .post('/payment/create/')
+    .type('form')
+    .set('Authorization', `Bearer ${createToken.accessToken}`)
+    .set('SessionKey', '5000')
+    .send('campaignId=50&plan_name=Premium');
+
+    expect(mockedCampaigns.checkExists).toHaveBeenCalledTimes(1);
+    expect(mockedCustomers.checkCampaignBelongs).toHaveBeenCalledTimes(1);
+    expect(mockedPayments.getPaymentByCampaign).toHaveBeenCalledTimes(1);
+    expect(mockedSessionsModel.getSession).toHaveBeenCalledTimes(1);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({clientSecret: "500"});
+  })
 
   test('Returns 500 for error in creating subscription', async() => {
     mockedCampaigns.checkExists.mockResolvedValueOnce({error: "", exists: true, campaigns:[{campaign_id: 50}]});
@@ -193,7 +216,7 @@ describe('createPayment route tests', () => {
     mockedSessionsModel.getSession.mockResolvedValueOnce({session: null, error: ""});
     mockedSessionsModel.addSession.mockResolvedValueOnce({created: true, identifier: '5000', error: ""});
     mockedStripeService.createSubscription.mockResolvedValueOnce({subscription: mockSubscription, error: null});
-    mockedPayments.createPaymentRecord.mockResolvedValue({created: true, error: false, message: ""});
+    mockedPayments.createPaymentRecord.mockResolvedValue({created: true, error: ""});
     mockedSessionsModel.updateSession.mockResolvedValueOnce({updated: true, error: null});
 
     const response = await request(app)

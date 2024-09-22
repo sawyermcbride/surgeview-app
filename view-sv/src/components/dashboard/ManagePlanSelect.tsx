@@ -21,7 +21,7 @@ const plans = [
 ];
 
 
-const ManagePlanSelect: React.FC = function(props) {
+const ManagePlanSelect: React.FC = function() {
   return (
     <Row gutter={16} justify="center">
     {plans.map((plan, index) => (

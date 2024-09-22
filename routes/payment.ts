@@ -55,10 +55,11 @@ router.post('/update-payment', async (req: Request, res: Response) => {
     }
     
     //Check if the user is authenticated
-    if(!req.user) {
+    if(!req.user) { 
         return res.status(401).json({message: "Missing token"});;
     }
     
+
 
     try {
         /**
@@ -141,12 +142,17 @@ router.post('/update-payment', async (req: Request, res: Response) => {
         if(!updatePaymentResult.updated) {
             throw new Error(`Error updating payments: ${updatePaymentResult.error} || 'Unknown Error`);
         }
-
-
-        return res.status(200).json({updated: updatePaymentResult.updated, success: true, status: getPI.paymentIntent.status,
-             campaignConnected: connectedCampaignId});
-    } catch(error) {
         
+        sessionsModel.updateSession(sessionKey, 'COMPLETE', 'CONFIRM_PAYMENT');
+        
+        return res.status(200).json({updated: updatePaymentResult.updated, success: true, status: getPI.paymentIntent.status,
+            campaignConnected: connectedCampaignId});
+
+
+        
+    } catch(error: any) {
+        
+        sessionsModel.updateSession(sessionKey, 'FAILED', 'CONFIRM_PAYMENT')
         return res.status(500).json({message: `An error occured updating your payment: ${error.message}`});
     }
 

@@ -21,7 +21,9 @@ import SignupForm from "./components/SignupForm";
 import SignupContainer from "./pages/SignupContainer";
 import LandingPage from "./pages/LandingPage";
 
-const stripePromise = loadStripe("pk_test_51PmqG6KG6RDK9K4gUxR1E9XN8qvunE6UUfkM1Y5skfm48UnhrQ4SjHyUM4kAsa4kpJAfQjANu6L8ikSnx6qMu4fY00I6aJBlkG");
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 const AuthRoutes: React.FC = () => {
 
@@ -56,13 +58,15 @@ const AuthRoutes: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <StripeProvider>
-        <Router>
-          <AuthRoutes/>
-        </Router>
-      </StripeProvider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <StripeProvider>
+          <Router>
+            <AuthRoutes/>
+          </Router>
+        </StripeProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   )
 }
 

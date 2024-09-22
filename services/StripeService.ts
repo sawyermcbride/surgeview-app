@@ -7,11 +7,11 @@ const stripe = new Stripe('sk_test_51PmqG6KG6RDK9K4gSDxcza88uYRyVuFV0LJUQLQyPopC
 
 class StripeService {
 
-  public stripePriceIds: Object = {
-    'Standard': "price_1PmqJAKG6RDK9K4gJuajZUyz",
-    'Premium': "price_1PmqJhKG6RDK9K4gEnz3SyEF",
-    'Pro': "price_1PmqK6KG6RDK9K4glwCiv8SP",
-    'ProMax': "price_1PvAqZKG6RDK9K4gtaRYZtle",
+  public stripePriceIds: { [key: string]: string} = {
+    "Standard": "price_1PmqJAKG6RDK9K4gJuajZUyz",
+    "Premium": "price_1PmqJhKG6RDK9K4gEnz3SyEF",
+    "Pro": "price_1PmqK6KG6RDK9K4glwCiv8SP",
+    "ProMax": "price_1PvAqZKG6RDK9K4gtaRYZtle",
     "Enterprise": "test"
   }
 
@@ -19,7 +19,7 @@ class StripeService {
     try {
       const customer = await stripe.customers.create({email});
       return { customer, error: null}
-    } catch(error) {
+    } catch(error: any) {
       return {customer: null, error: error.message }
     }
     
@@ -36,7 +36,7 @@ class StripeService {
       
       return {customer: result, error: null};
 
-    } catch(error) {
+    } catch(error: any) {
       return {customer: null, error: error.message};
     }
   }
@@ -46,6 +46,11 @@ class StripeService {
 
     
     try {
+
+      if(!Object.keys(this.stripePriceIds).includes(plan_name)) {
+        throw new Error("Invalid plan name");
+      }
+
       const subscription = await stripe.subscriptions.create({
         customer: customer_id,
         items:[{price: this.stripePriceIds[plan_name]}],
@@ -62,7 +67,7 @@ class StripeService {
 
       return {subscription, error: null};
       
-    } catch(error) {
+    } catch(error: any) {
       
       return {error: error.message, subscription: null};
     }

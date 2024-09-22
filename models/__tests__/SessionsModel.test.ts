@@ -125,7 +125,7 @@ describe('Sessions Model tests: ', () => {
   });
 
   test('updateSession handles error for invalid status type', async() => {
-    const result = await sessionsModel.updateSession('50005', 'STOPPED');
+    const result = await sessionsModel.updateSession('50005', 'STOPPED', 'ADD_CAMPAIGN');
 
     expect(result).toEqual({updated: false, error: 'Invalid_Status'});
 
@@ -135,11 +135,11 @@ describe('Sessions Model tests: ', () => {
     queryMock.mockResolvedValueOnce({})
     .mockResolvedValueOnce({}).mockResolvedValueOnce({});
 
-    const result = await sessionsModel.updateSession('500005', 'COMPLETE');
+    const result = await sessionsModel.updateSession('500005', 'COMPLETE', 'ADD_CAMPAIGN');
 
     expect(queryMock).toHaveBeenNthCalledWith(1, 'BEGIN');
     expect(queryMock).toHaveBeenNthCalledWith(2, expect.stringContaining('UPDATE sessions SET status')
-    , ['COMPLETE', '500005']);
+    , ['COMPLETE', '500005', 'ADD_CAMPAIGN']);
     expect(queryMock).toHaveBeenNthCalledWith(3, 'COMMIT');
 
     expect(result).toEqual({updated: true, error: null});
@@ -150,15 +150,21 @@ describe('Sessions Model tests: ', () => {
     queryMock.mockResolvedValueOnce({})
     .mockRejectedValueOnce({message: 'Query error'}).mockResolvedValueOnce({});
 
-    const result = await sessionsModel.updateSession('500005', 'COMPLETE');
+    const result = await sessionsModel.updateSession('500005', 'COMPLETE', 'ADD_CAMPAIGN');
 
     expect(queryMock).toHaveBeenNthCalledWith(1, 'BEGIN');
     expect(queryMock).toHaveBeenNthCalledWith(2, expect.stringContaining('UPDATE sessions SET status')
-    , ['COMPLETE', '500005']);
+    , ['COMPLETE', '500005', 'ADD_CAMPAIGN']);
     expect(queryMock).toHaveBeenNthCalledWith(3, 'ROLLBACK'); //expect function to rollback on errors during update
 
     expect(result).toEqual({updated: false, error: 'Query error'});
 
   });
+
+  test('updateSession handles incorrect operation type', async() => {
+    const result = await sessionsModel.updateSession('500005', 'COMPLETE', 'NEW_CAMPAIGN');
+    expect(result).toEqual({updated: false, error: 'Invalid_Operation'});
+
+  })
 
 })
