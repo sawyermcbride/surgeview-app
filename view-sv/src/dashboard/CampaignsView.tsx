@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useContext} from 'react';
 import { Table, Typography, Spin, Alert, Button, Breadcrumb, Tooltip, Tag } from 'antd';
-import 'antd/dist/reset.css'; // Ensure Ant Design styles are imported
+import {PlusOutlined} from "@ant-design/icons"
 
 import CampaignManage from './CampaignManage';
 import CampaignDetails from './CampaignDetails';
@@ -33,8 +33,7 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
   
     useEffect(() => {
       updateCampaignData({loading: true});
-      console.log('New data in CampaignsView');
-      console.log(campaignData);
+
 
       if(campaignData) {
         const displayCampaignData = campaignData.map( (element) => {
@@ -53,8 +52,7 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
         const sortedCampaigns = displayCampaignData.sort( (a, b) => {
           return statusOrder[a.status] - statusOrder[b.status];
         })
-        console.log("Sorted campaigns");
-        console.log(sortedCampaigns);
+
         setCampaigns(sortedCampaigns);
         updateCampaignData({loading: false});
       }
@@ -71,12 +69,12 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
         }, 1500);
         setResetCampaignsView(false);
       }
-      console.log(`New getView render campaignsStateData.campaignViewSetting = ${campaignsStateData.campaignViewSetting}`);
+      
 
     }, [resetCampaignsView, campaignData, campaignsStateData.campaignViewSetting]);
 
     const handleCampaignClick = (id: number) => {
-      console.log(campaigns.find( c => c.campaign_id === id));
+      
       
       updateCampaignData({
         breadcrumbSecondaryTitle: "Edit",
@@ -92,6 +90,10 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
           loading: false
         })
       }, 1000)
+    }
+
+    const handleAddCampaign = function() {
+
     }
 
     const handleCampaignDetailsClick = async (id: number) => {
@@ -112,7 +114,7 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
       }, 1000)
     }
 
-    const handleBreadcrumbClick = (page: string) => {
+    const handleBreadcrumbClick = () => {
       setResetCampaignsView(true);
       // updateCampaignData({
       //   showbreadCrumb: false
@@ -124,49 +126,45 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
       return dataResult ? dataResult.video_title : '';
     }
     
-    const handleRowClick = (record) => {
-      handleCampaignDetailsClick(record.campaign_id);
-    }
-
     const getView = () => {
 
-      // console.log(`New getView render campaignsStateData.campaignViewSetting = ${campaignsStateData.campaignViewSetting}`);
+
       if(campaignsStateData.campaignViewSetting === 0) {
         if(isMobile) {
           return (
             <div style={{display: 'flex', justifyContent: 'center'}}>
               <CampaignsViewMobile campaignsData = {campaignData}
               handleCampaignClick={handleCampaignClick} handleCampaignDetailsClick={handleCampaignDetailsClick}/>
+              <div style={{textAlign: "center"}}>
+                <Button type="primary" icon={<PlusOutlined />} onClick={handleAddCampaign}>
+                  Add New Campaign
+                </Button>
+              </div>
             </div>
           )
         } else {
           return (  
-            <div style={{display: 'flex', justifyContent: 'center'}}>
-  
-              <Table
-                dataSource={campaigns}
-                columns={
-                  getCampaignsColumns(handleCampaignDetailsClick, handleCampaignClick)
-                }
-                pagination={false}
-                // onRow={(record) => {
-                //   return {
-                //     onClick: () => {
-                //       handleRowClick(record);
-                //     }
-                //   }
-                // }}
-              />
+            <div>
+              <div style={{display: 'flex', justifyContent: 'center'}}>
+                <Table
+                  dataSource={campaigns}
+                  columns={
+                    getCampaignsColumns(handleCampaignDetailsClick, handleCampaignClick)
+                  }
+                  pagination={false}
+                />
+              </div>
+              <div style={{marginTop: '25px', textAlign: "center"}}>
+                <Button type="primary" icon={<PlusOutlined />} onClick={handleAddCampaign}>
+                  Add New Campaign
+                </Button>
+              </div>
             </div>
           )
 
         }
       } else if (campaignsStateData.campaignViewSetting === 1) {
-        console.log('View setting 1, loading data into CampaignsManage component');
-        console.log(campaigns);
-        console.log(typeof campaigns);
-        console.log(campaignsStateData.selectedVideoId);
-        console.log(campaigns.find(c => c.campaign_id === campaignsStateData.selectedVideoId));
+
         return (
           <div>
             <div style={{display: 'flex', justifyContent: 'center'}}>
@@ -177,9 +175,7 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
           </div>
         )
       } else if(campaignsStateData.campaignViewSetting === 2) {
-        console.log(campaignStatistics)
-        console.log(campaignsStateData.selectedVideoId);
-        console.log(campaignStatistics.statistics.campaigns[campaignsStateData.selectedVideoId]);
+
         return (
           <div style={{display: 'flex', justifyContent: 'center'}}>
             <CampaignDetails campaignStatistics={campaignStatistics &&

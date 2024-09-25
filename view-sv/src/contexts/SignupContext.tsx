@@ -10,6 +10,8 @@ interface SignupData {
     contentColumnWidth: string;
     formLoading: boolean;
     clientSecretCreated: boolean;
+    videoTitle: string;
+    channelTitle: string;
   }
 
 // Define the structure of the SignupContext
@@ -24,11 +26,14 @@ interface SignupProviderProps {
     children: ReactNode;
 }
 
+const initialState: SignupData = {
+    step: 1, paymentPlanError: "", videoLinkError: "",
+    contentColumnWidth: '75%', formLoading: false, clientSecretCreated: false, 
+    videoTitle: "", channelTitle: ""
+}
+
 export const SignupContext = createContext<SignupContextType>({
-    signupData: {
-        step: 1, paymentPlanError: "", videoLinkError: "",
-        contentColumnWidth: '75%', formLoading: false, clientSecretCreated: false
-   }, 
+    signupData: initialState, 
    updateSignupData: () => {},
    resetSignupData: () => {},
    createSessionKey: () => ""
@@ -38,16 +43,14 @@ export const SignupContext = createContext<SignupContextType>({
 
 
 export const SignupProvider = ({ children }: SignupProviderProps) => {
-    const [signupData, setSignupData] = useState<SignupData>({
-         step: 1, paymentPlanError: "", videoLinkError: "",
-         contentColumnWidth: '75%', formLoading: false, clientSecretCreated: false
-    });
+    const [signupData, setSignupData] = useState<SignupData>(initialState);
 
     const updateSignupData = function (newData: Partial<SignupData> ) {
         setSignupData(prev => ({
             ...prev, 
             ...newData  
         }));
+        console.log(newData);
     }
     
     const resetSignupData = function () {

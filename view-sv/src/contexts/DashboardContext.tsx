@@ -4,17 +4,19 @@
 import React, {createContext, useEffect, useState} from "react";
 import {v4 as uuidv4} from 'uuid';
 
-const initialCampaignState = {
-  dashboardState: {},
+const initialDashboardState= {
+  dashboardState: {
+    loading: false
+  },
   updateDashboardData: (obj) => {},
-  createSessionKey: () => void
+  createSessionKey: () => ""
 }
 
 
-export const DashboardContext = createContext(initialCampaignState);
+export const DashboardContext = createContext(initialDashboardState);
 
 export const DashboardProvider = function({children}) {
-  const [dashboardState, setDashboardState] = useState(initialCampaignState);
+  const [dashboardState, setDashboardState] = useState(initialDashboardState);
 
   const updateDashboardData = function(newData) {
     setDashboardState(prev => ({
@@ -29,7 +31,7 @@ export const DashboardProvider = function({children}) {
   
   return (
     <DashboardContext.Provider value={{dashboardState, updateDashboardData, createSessionKey}}>
-
+      {children}
     </DashboardContext.Provider>
   )
 }

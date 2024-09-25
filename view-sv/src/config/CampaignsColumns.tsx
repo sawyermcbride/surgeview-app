@@ -1,4 +1,4 @@
-import React, {useContext} from "react";
+
 import {Tooltip, Typography, Button} from "antd";
 
 const {Text} = Typography
@@ -76,7 +76,7 @@ export const getCampaignsColumns = (
         title: 'Plan Name',
         dataIndex: 'plan_name',
         key: 'plan_name',
-        width: 120,
+        width: 105,
         render: (text: string) => (
           <Text>
             {text}
@@ -87,8 +87,11 @@ export const getCampaignsColumns = (
         title: 'Price',
         dataIndex: 'price',
         key: 'price',
-        width: 120,
-        render: (text: string) => `$${text}`, // Format as currency
+        width: 100,
+        render: (text: string) => (
+        <Text style={{maxWidth: "120px"}}>
+          {`$${text}`}
+        </Text>), // Format as currency
       },
       {
           title: 'Video Title',
@@ -96,12 +99,13 @@ export const getCampaignsColumns = (
           key: 'video_title',
           responsive:["sm"],
           ellipsis: true,
-          onCell: () => {
-            return { style: { minWidth: '150px', flex: 1 } }; // Flexbox style to allow column to shrink or expand
-          },
+          width: 300,
+          // onCell: () => {
+          //   // return { style: { minWidth: '500px', flex: 1 } }; // Flexbox style to allow column to shrink or expand
+          // },
           render: (text:string) => (
             // text
-            <Tooltip title={text}>
+            <Tooltip title={text} style={{minWidth: "300px"}}>
                 <Text style={{
                     display: 'block',
                     overflow: 'hidden',
@@ -120,7 +124,7 @@ export const getCampaignsColumns = (
           onCell: () => {
             return { style: { textAlign: "center" } }; // Flexbox style to allow column to shrink or expand
           },
-          render: (_: any, record: CampaignDisplayObj) => (
+          render: (_: unknown, record: CampaignDisplayObj) => (
             <span>
               <Button onClick={() => handleCampaignDetailsClick(record.campaign_id)}style={{marginRight: "4px"}} type="primary">Details</Button>
               <Button  onClick={() => handleCampaignClick(record.campaign_id)} type="default">Edit</Button>

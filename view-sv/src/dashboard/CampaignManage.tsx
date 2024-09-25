@@ -5,6 +5,7 @@ import {Form, Input, Button, Typography, notification, Space, Select,
 import api from "../utils/apiClient";
 import { CampaignsContext } from "../contexts/CampaignsContext";
 import ManagePlanSelect from "../components/dashboard/ManagePlanSelect";
+import CampaignManageAlert from "../components/CampaignManageAlert";
 
 const {Option} = Select;
 const {Title, Link, Text} = Typography;
@@ -15,6 +16,7 @@ interface CampaignData {
     video_link: string,
     video_title: string, 
     channel_title: string,
+    status: string
 }
 
 interface CampaignManageProps {
@@ -30,15 +32,17 @@ const CampaignManage: React.FC<CampaignManageProps> = function( {data, loadCampa
     const [form] = Form.useForm();
     const [planSelect, setPlanSelect] = useState<string>("");
 
+    const [secondaryStatus, setSecondaryStatus] = useState<string>("");
     const [cancelClicked, setCancelClick] = useState(false); 
     const [restartClicked, setRestartClicked] = useState(false);
+    
     
     const planOptions: Array<object> = [
         {label: 'Standard', value: 'Standard'},
         {label: 'Premium', value: 'Premium'},
         {label: 'Pro', value: 'Pro'},
     ]
-    const pricing = {
+    const pricing: { [key: string]: number} = {
         'Standard': 99,
         'Premium': 199,
         'Pro': 399
@@ -94,9 +98,10 @@ const CampaignManage: React.FC<CampaignManageProps> = function( {data, loadCampa
 
     const onFinish = async (values: any) => {
         updateCampaignData({loading:true});
+        
         const token = localStorage.getItem("token");
         try {
-            const result = await api.put(`http://10.0.0.47:3001/campaign/update/${data.campaign_id}`, {
+            await api.put(`http://10.0.0.47:3001/campaign/update/${data.campaign_id}`, {
                 video_link: values.updated_link ? values.updated_link : data.video_link,
                 plan_name: values.plan_name
             }, {
@@ -104,15 +109,18 @@ const CampaignManage: React.FC<CampaignManageProps> = function( {data, loadCampa
                   Authorization: `Bearer ${token}`,
                 },
             })
-            await loadCampaignData();
             
             
-        updateCampaignData({loading:false});
-        notification.success({
-            message: "Campaign Updated",
-            description:
-            "Your campaign has been updated. Any changes are now effective.",
-        })
+            setTimeout(async() => {
+                await loadCampaignData();
+                notification.success({
+                    message: "Campaign Updated",
+                    description:
+                    "Your campaign has been updated. Any changes are now effective.",
+                })
+                updateCampaignData({loading:false});
+                form.setFieldsValue({ plan_name: values.plan_name });
+            }, 2500);
         
         } catch(err) {
             updateCampaignData({loading:false});
@@ -124,6 +132,7 @@ const CampaignManage: React.FC<CampaignManageProps> = function( {data, loadCampa
             })
 
         }
+    
     }
     useEffect(() => {
         setPlanSelect(data?.plan_name || "");
@@ -133,60 +142,23 @@ const CampaignManage: React.FC<CampaignManageProps> = function( {data, loadCampa
     }, [data]); // This will run every time `data` changes
 
     const onPlanChange = ({target: {value}}: RadioChangeEvent) => {
+        if(value == data.plan_name) {
+            setSecondaryStatus("");
+        } else {
+            setSecondaryStatus("show");
+        }
         setPlanSelect(value);
     }
-    const onPlanSelect = function(name: string) {
 
-    }
 
     return (
         <>
         {data ? (
-
         <div style={{width: "95%"}}>
-            {data.status === 'stopped' ? (
-                <Alert 
-                    message="Your campaign is not running. Click 'restart' below to start it again.                         "
-                    type="warning"
-                    showIcon
-                    style={{ marginBottom: '16px' }}
-                />
-            ) : (
-                <Alert 
-                    message="Updates will apply immediately and be valid for the remainder of your current month. Updates will also apply for following months."
-                    type="info"
-                    showIcon
-                    style={{ marginBottom: '16px' }}
-                />
-            )}
-            <Modal
-                title="Confirm Cancellation"
-                open={cancelClicked}
-                onOk={handleModalOk}
-                onCancel={handleModalCancel}
-                okText="Yes, Cancel"
-                cancelText="No"
-            >
-                <p>Are you sure you want to cancel this campaign? You will not be charged again.</p>
-                <p>Your campaign will continue to run until the end of your billing period.</p>
-                {/* You can add more detailed text or even additional content here */}
-            </Modal>
-
-            <Modal
-                title="Confirm Restart Campaign"
-                open={restartClicked}
-                onOk={handleModalOk}
-                onCancel={handleModalCancel}
-                okText="Yes, Start Campaign"
-                cancelText="No"
-            >
-                <p>Are you sure you want to restart this campaign? You will be charged today for your selected plan: 
-                     <b>{' '+planSelect}</b> which is <b>${pricing[planSelect]}.00</b> / month
-                </p>
-                <p>You can change the plan by clicking 'No' on this confirm box, selecting the plan below and then clicking 'Restart Campaign' again.</p>
-                <p>You can expect to start seeing results within a few hours to one day.</p>
-                {/* You can add more detailed text or even additional content here */}
-            </Modal>
+            <CampaignManageAlert planSelect={planSelect} planSelectPricing={ pricing[planSelect]}
+                handleModalCancel={handleModalCancel} handleModalOk={handleModalOk} cancelClicked={cancelClicked}
+                restartClicked={restartClicked} status={data.status} secondaryStatus={secondaryStatus}
+            />            
             <Title level={5}>Campaign Information</Title>
             <Descriptions column={1} bordered size="small" items={
                 [
@@ -198,16 +170,16 @@ const CampaignManage: React.FC<CampaignManageProps> = function( {data, loadCampa
                     {label: "Video Link", children: <Link href={data.video_link} target="_blank">{data.video_link}</Link>},
                     {label: "Video Title", children: <Text>{data.video_title}</Text>},
                     {label: "Channel Name", children: <Text>{data.channel_title}</Text>},
-                    {label: "Selected Plan", children: <Text>{data.plan_name} @ ${data.price} / Month</Text>},
+                    {label: "Plan", children: <Text>{data.plan_name} @ ${data.price} / Month</Text>},
                 ]
             }
             />
             <Form
-            form={form}
-            name="control-hooks"
-            style={{ maxWidth: 1500, width: '100%', marginTop: '25px' }}
-            onFinish={onFinish}
-            initialValues={{plan_name: data.plan_name}}
+                form={form}
+                name="control-hooks"
+                style={{ maxWidth: 1500, width: '100%', marginTop: '25px' }}
+                onFinish={onFinish}
+                initialValues={{plan_name: data.plan_name}}
             >
                 <Form.Item name="updated_link" label="New Link" style={{maxWidth: "600px"}} rules={[{ required: false }]}>
                     <Input />
@@ -224,10 +196,11 @@ const CampaignManage: React.FC<CampaignManageProps> = function( {data, loadCampa
                     <Space>
                     { (data.status === 'active' || data.status === 'setup') ? (
                         <>
-                            <Button type="primary" htmlType="submit">
+                            <Button type="primary" htmlType="submit" >
                                 Update
                             </Button>
-                            <Button danger onClick={() => {handleUpdateStatusClick('cancel') }} htmlType="button" >
+                            <Button danger onClick={() => {handleUpdateStatusClick('cancel') }}
+                              htmlType="button" >
                                 Cancel Campaign
                             </Button>
                         </>

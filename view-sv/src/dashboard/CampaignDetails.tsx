@@ -39,18 +39,22 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({campaignStatistics}) =
             </div>
             <div style={{margin:"0px 10px"}}>
                 <Row gutter={[24,24]}>
-                    <Col style={{ border: "0px solid red" }} xxl={6} xl={8} lg={12} md={12} sm={24}>
-                        <StatCard textColor="white" color="blue" icon="up_arrow" text="Yesterday" data={campaignStatistics?.[0]?.views || 0 }
+                    <Col style={{ }} xxl={6} xl={8} lg={12} md={12} sm={24}>
+                        <StatCard isMobile={false} textColor="white" color="blue" icon="up_arrow" text="Yesterday" 
+                        data={campaignStatistics?.[0]?.views || 0 }
                          suffix="Views"/>
                     </Col>
-                    <Col style={{ border: "0px solid red" }} xxl={6} xl={8} lg={12} md={12} sm={24}>
-                        <StatCard textColor="white" color="blue" icon="up_arrow" text="Yesterday" data={campaignStatistics?.[0]?.subscribers || 0} suffix="Subscribers"/>
+                    <Col style={{ }} xxl={6} xl={8} lg={12} md={12} sm={24}>
+                        <StatCard isMobile={false} textColor="white" color="blue" icon="up_arrow" text="Yesterday" 
+                        data={campaignStatistics?.[0]?.subscribers || 0} suffix="Subscribers"/>
                     </Col>
-                    <Col style={{ border: "0px solid red" }} xxl={6} xl={8} lg={12} md={12} sm={24}>
-                        <StatCard textColor="white" color="blue" icon="up_arrow" text="Last 7 Days" data={lastSevenDaysViews} suffix="Views"/>
+                    <Col style={{ }} xxl={6} xl={8} lg={12} md={12} sm={24}>
+                        <StatCard isMobile={false} textColor="white" color="blue" icon="up_arrow" text="Last 7 Days" 
+                        data={lastSevenDaysViews} suffix="Views"/>
                     </Col>
-                    <Col style={{ border: "0px solid red" }} xxl={6} xl={8} lg={12} md={12} sm={24}>
-                        <StatCard textColor="white" color="blue" icon="up_arrow" text="Last 7 Days" data={lastSevenDaysSubs} suffix="Subscribers"/>
+                    <Col style={{ }} xxl={6} xl={8} lg={12} md={12} sm={24}>
+                        <StatCard isMobile={false} textColor="white" color="blue" icon="up_arrow" text="Last 7 Days" 
+                        data={lastSevenDaysSubs} suffix="Subscribers"/>
                     </Col>
                 </Row>
             </div>

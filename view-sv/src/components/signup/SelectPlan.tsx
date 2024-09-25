@@ -1,7 +1,9 @@
 import React, {useState, useContext, useEffect} from "react";
 import { SignupContext } from "../../contexts/SignupContext";
-import {Form, Alert, Button, Input, Row, Col, Card} from "antd";
+import {Form, Alert, Button, Input, Row, Col, Card, Space, Typography} from "antd";
 import api from "../../utils/apiClient";
+
+const {Text} = Typography;
 
 const plans = [
     {
@@ -31,7 +33,7 @@ const plans = [
 ];
 
 const SelectPlan: React.FC = () => {
-    const {updateSignupData} = useContext(SignupContext);
+    const {updateSignupData, signupData} = useContext(SignupContext);
     const [paymentPlanError, setPaymentPlanError] = useState("");
 
     const onSubmit = async function(planName: string) {
@@ -83,11 +85,19 @@ const SelectPlan: React.FC = () => {
         <>
         {paymentPlanError &&
         <Alert message={paymentPlanError} showIcon type="error" style={{marginTop: "20px"}} />  }
-
-        <div style={{ padding: '50px 10px', background: '#f0f2f5' }}>
+        
+        <div style={{ padding: '15px 10px', background: '#f0f2f5' }}>
+            <Space direction="vertical" style={{ width: '100%', marginBottom: '20px' }}>
+              <Text strong>Video:&nbsp;
+                <Text underline>  {signupData.videoTitle} </Text> 
+              </Text>
+              <Text strong>Channel:&nbsp;
+                 <Text underline>{signupData.channelTitle}</Text>
+              </Text>
+            </Space>
               <Row gutter={16} justify="center">
               {plans.map((plan) => (
-                  <Col md={12} lg={8} sm={24}  xs={24} key={plan.title}>
+                  <Col md={24} lg={12} sm={24}  xs={24} xl={12} xxl={8} key={plan.title}>
                   <Card
                       title={plan.title}
                       bordered={false}

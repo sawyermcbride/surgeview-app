@@ -1,19 +1,14 @@
 import React, { useEffect, useState } from "react";
-import {
-  Layout,
-  Menu,
-  Button,
-  Typography,
-  Row,
-  Col,
-} from "antd";
+import { Typography, Row, Col, Divider, Space} from "antd";
 
-import { HomeOutlined, UserOutlined, SettingOutlined } from "@ant-design/icons";
+import StatisticsGraphsView from "../components/dashboard/StatisticsGraphsView";
+import { Line } from 'react-chartjs-2';
+
 import StatCard from "../components/StatCard";
 import MessageBox from "../components/MessageBox";
-// const { Header, Content, Sider } = Layout;
-// const { Title, Text } = Typography;
 
+
+const {Title} = Typography;
 interface BaseStatisticsProps {
   campaignStatisics: any;
   loading: boolean;
@@ -21,7 +16,7 @@ interface BaseStatisticsProps {
 }
 
 const BaseStatistics: React.FC<BaseStatisticsProps> = ({campaignStatistics, loading, isMobile}) => {
-  const [displayMessageBox, setDisplayMessageBox] = useState(false);
+
 
   useEffect( ()=> {
   },[campaignStatistics])
@@ -31,8 +26,12 @@ const BaseStatistics: React.FC<BaseStatisticsProps> = ({campaignStatistics, load
     if(campaignStatistics) {
       return (
         <div>
+          <div style={{textAlign: 'center', marginBottom: '25px'}}>
+            <Title level={3} style={{fontWeight: 'bold'}} underline={false}>Stats Across Your Campaigns</Title>
+            <Divider/>
+          </div>
           {(campaignStatistics && campaignStatistics.status.numberofSetup > 0) ? (
-          <div style={{display: "flex", justifyContent: "center"}}>
+            <div style={{display: "flex", justifyContent: "center"}}>
             <MessageBox title="Notification" text="One of more of your campaigns is currently waiting to be approved by YouTube. 
             Please allow a few hours before it begins running"/>
           </div>
@@ -51,19 +50,21 @@ const BaseStatistics: React.FC<BaseStatisticsProps> = ({campaignStatistics, load
                 </Col>
               ): (null)}
             <Col xxl={6} xl={8} lg={12} md={12} sm={12} xs={24}>
-              <StatCard isMobile={false} textColor="blue" color="white" text="Last 24 Hours" icon="bar_chart" suffix="Views" data={campaignStatistics.statistics.views.lastDay}/>
+              <StatCard isMobile={false} textColor="white" color="blue" text="Last 24 Hours" icon="bar_chart" suffix="Views" data={campaignStatistics.statistics.views.lastDay}/>
             </Col>
             <Col xxl={6} xl={8} lg={12} md={12} sm={12} xs={24}>
-              <StatCard isMobile={false} textColor="blue" color="white" text="Last 24 Hours" icon="bar_chart" suffix="Subscribers" data={campaignStatistics.statistics.subscribers.lastDay}/>
+              <StatCard isMobile={false} textColor="white" color="blue" text="Last 24 Hours" icon="bar_chart" suffix="Subscribers" data={campaignStatistics.statistics.subscribers.lastDay}/>
             </Col>
             <Col xxl={6} xl={8} lg={12} md={12} sm={12} xs={24}>
-              <StatCard isMobile={false} textColor="blue" color="white" text="Last 7 Days" icon="bar_chart" suffix="Views" data={campaignStatistics.statistics.views.lastWeek}/>
+              <StatCard isMobile={false} textColor="white" color="blue" text="Last 7 Days" icon="bar_chart" suffix="Views" data={campaignStatistics.statistics.views.lastWeek}/>
             </Col>
             <Col xxl={6} xl={8} lg={12} md={12} sm={12} xs={24} >
-              <StatCard isMobile={false} textColor="blue" color="white" text="Last 7 Days" icon="bar_chart" suffix="Subscribers" data={campaignStatistics.statistics.subscribers.lastWeek}/>
+              <StatCard isMobile={false} textColor="white" color="blue" text="Last 7 Days" icon="bar_chart" suffix="Subscribers" data={campaignStatistics.statistics.subscribers.lastWeek}/>
             </Col>
           </Row>
-
+          <div style={{width: '100%'}}>
+              <StatisticsGraphsView/>
+          </div>
         </div>
       )
     }

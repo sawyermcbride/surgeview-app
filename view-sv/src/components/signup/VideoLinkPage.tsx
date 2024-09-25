@@ -24,7 +24,9 @@ const VideoLinkPage: React.FC = () => {
                 localStorage.setItem("lastStepCompleted", "1"); 
                 updateSignupData({
                     step: 2,
-                    formLoading: false
+                    formLoading: false,
+                    channelTitle: result.data.channelTitle,
+                    videoTitle: result.data.title
                 });
             }
         } catch (error) {

@@ -1,13 +1,15 @@
-import React from 'react';
+import React, {useContext, useEffect} from 'react';
 import { Form, Input, Button, Typography, Divider } from 'antd';
-
+import { DashboardContext } from '../contexts/DashboardContext';
 const { Title } = Typography;
 
 const SettingsView: React.FC = () => {
+
+
   const handleFinish = (values: any) => {
     console.log('Form values:', values);
-    // Handle form submission logic here
   };
+
 
   return (
     <div style={{ maxWidth: 400, margin: 'auto' }}>
@@ -16,7 +18,7 @@ const SettingsView: React.FC = () => {
         <Form.Item
           label="Change Email"
           name="email"
-          rules={[{ required: true, type: 'email', message: 'Please enter a valid email!' }]}
+          rules={[{ required: false, type: 'email', message: 'Please enter a valid email!' }]}
         >
           <Input />
         </Form.Item>
@@ -24,7 +26,7 @@ const SettingsView: React.FC = () => {
         <Form.Item
           label="Change Password"
           name="password"
-          rules={[{ required: true, message: 'Please enter your new password!' }]}
+          rules={[{ required: false, message: 'Please enter your new password!' }]}
         >
           <Input.Password />
         </Form.Item>

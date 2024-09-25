@@ -6,7 +6,7 @@ import {CampaignsProvider } from "../contexts/CampaignsContext";
 import SettingsView from "./SettingsView";
 import { Spin } from "antd";
 import api from "../utils/apiClient";
-import {useQuery, useQueryClient} from "@tanstack/react-query";
+import {useQuery} from "@tanstack/react-query";
 import {CampaignResponse, StatisticsResponse} from "../interfaces/apiResponses";
 
 interface DashboardViewProps {
@@ -44,21 +44,24 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
   const [loading, setLoading] = useState(true);
   
   
-  const { isPending: isCampaignsLoading, isError: isCampaignsError, data: campaignsData } =  useQuery<CampaignResponse[]>({
+  const { isPending: isCampaignsLoading, isError: isCampaignsError, data: campaignsData, refetch: refetchCampaigns } =  useQuery<CampaignResponse[]>({
     queryKey: ['campaigns', token],
     queryFn: () => fetchCampaigns(token),
-    enabled: !!token, 
+    enabled: !!token,
+    refetchOnMount: true, 
   });
   
-  const { isPending: isStatisticsLoading, isError: isStatisticsError, data: statisticsData } = useQuery<StatisticsResponse>({
+  const { isPending: isStatisticsLoading, isError: isStatisticsError, data: statisticsData, refetch: refetchStatistics } = useQuery<StatisticsResponse>({
     queryKey: ['statistics', token],
     queryFn: () => fetchStatistics(token),
-    enabled: !!token, 
+    enabled: !!token,
+    refetchOnMount: true, 
   });
 
   
   const loadCampaignData = async () => {
-
+      refetchCampaigns();
+      refetchStatistics();
       setLoading(true);
       setCampaignStatistics(statisticsData || null);
       setCampaignData(campaignsData || null);
@@ -73,7 +76,8 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
 
   useEffect( () => {
     loadCampaignData();
-  }, [props.resetCampaignsView, props.resetDashboardView]);
+  }, [props.resetCampaignsView, props.resetDashboardView, isStatisticsLoading, isCampaignsLoading]);
+
 
   const renderView = () => {
     if(isCampaignsError || isStatisticsError) {

@@ -9,7 +9,7 @@ import {query} from '../../db';
 const youtubeService = new YouTubeService();
 const campaigns = new Campaigns();
 
-const pricingTable = {
+const pricingTable: { [key: string]: number} = {
     'Standard': 99.0,
     'Premium': 199.0,
     'Pro': 399.0
@@ -46,13 +46,18 @@ export const updateCampaign = async (req: Request, res: Response) => {
     
     try {
       
-      let dataToUpdate = {};
+      let dataToUpdate: {[key: string]: any} = {};
+      
       if(Object.keys(videoDetails).length > 0) {
         dataToUpdate = {
           ...updateData,
           video_title: videoDetails.title,
           channel_title: videoDetails.channelTitle
         };
+
+        if('plan_name' in dataToUpdate) {
+          dataToUpdate['price'] = pricingTable[dataToUpdate.plan_name];
+        }
         
       } else {
           

@@ -5,15 +5,21 @@ import DashboardView from "../dashboard/DashboardView";
 import { Layout, Menu, Button, Typography, Dropdown, Drawer } from "antd";
 import { HomeOutlined, BarsOutlined, SettingOutlined, LogoutOutlined, MenuOutlined } from "@ant-design/icons";
 import { useAuth } from "../components/AuthContext";
-import { DashboardProvider } from "../contexts/DashboardContext";
-
+import { DashboardContext } from "../contexts/DashboardContext";
+import CustomFooter from "../components/CustomFooter";
+import { AppMainProvider } from "../contexts/AppMainContext";
 
 const { Title } = Typography;
-const { Header, Sider, Content } = Layout;
+const { Header, Sider, Content, Footer } = Layout;
 
 
+/**
+ * 9/22 2:15am 
+ *  Add dashboard context property for loading so it can be called in settings form
+ */
 
 const Dashboard: React.FC = () => {
+  const {dashboardState, updateDashboardData} = useContext(DashboardContext);
 
   const headerTitle: {[key: string]: string} = {
     "1": "Dashboard", 
@@ -39,14 +45,6 @@ const Dashboard: React.FC = () => {
     logout();
   }
   
-  const menu = (
-    <Menu>
-      <Menu.Item key="1" onClick={handleLogout} icon={<LogoutOutlined />}>
-        Logout
-      </Menu.Item>
-    </Menu>
-  );
-  
   const handleDrawerOpen = () => {
     setDrawerVisible(true);
   }
@@ -66,6 +64,7 @@ const Dashboard: React.FC = () => {
   const handleMenuClick = (e: {key: string}) => {
     setSelectedKey(e.key);
     setTitle(headerTitle[e.key]);
+    setDrawerVisible(false);
   }
 
   const handleCampaignsClick = () => {
@@ -95,10 +94,10 @@ const Dashboard: React.FC = () => {
         )
     } else {
       return (
-        // <Menu mode="inline" style={{backgroundColor: "#ecf0f1"}}
-        <Menu mode="inline" style={{backgroundColor: "#eeeeee"}}
+        // <Menu mode="inline" style={{backgroundColor: "#e64f40"}}
+        <Menu mode="inline" style={{backgroundColor: "#F9F9F9", border: "0px", color: "#fff"}}
           defaultSelectedKeys={["1"]} selectedKeys ={ [selectedKey]} onClick={handleMenuClick}>
-          <Menu.Item key="1" onClick={handleDashboardClick} icon={<HomeOutlined />}>
+          <Menu.Item  key="1" onClick={handleDashboardClick} icon={<HomeOutlined />}>
             Dashboard
           </Menu.Item>
           <Menu.Item key="2" onClick={handleCampaignsClick} icon={<BarsOutlined />}>
@@ -114,8 +113,8 @@ const Dashboard: React.FC = () => {
 
 
     return (
-    
-      <Layout style={{ minHeight: "100vh", minWidth: "700px" }}>
+      <Layout style={{ minHeight: "100vh", minWidth: "500px" }}>
+        <Layout>
         {
           isMobile ? (
             <>
@@ -130,7 +129,7 @@ const Dashboard: React.FC = () => {
               </Drawer>
               <Button
                   className="menu-toggle"
-                  style={{ display: (isMobile ? 'inline-block': 'none'), position: 'fixed', top: 16, left: 16, zIndex: 1000 }}
+                  style={{ display: (isMobile ? 'inline-block': 'none'), position: 'absolute', top: 16, left: 16, zIndex: 1000 }}
                   type="primary"
                   icon={<MenuOutlined />}
                   onClick={handleDrawerOpen}
@@ -138,26 +137,30 @@ const Dashboard: React.FC = () => {
             </>
           ) : (
             // <Sider style={{ background: "#ecf0f1"}}>
-            <Sider style={{ background: "#eeeeee"}}>
+            // <Sider style={{ background: "#666666"}}>
+            <Sider style={{ background: "#F9F9F9", borderRight: "2px solid #D3D3D3"}}>
               <div
                 className="logo"
-                style={{ padding: "16px", textAlign: "center", color: "#fff" }}
+                style={{ padding: "5px", textAlign: "center", backgroundColor: "#F9F9F9" }}
               >
-                <img src="surge_view_new_cropped_transparent.png" alt="Logo" style={{ height: '40px', marginBottom: '20px' }}/>
+                <img src="surge_view_new_cropped_transparent.png" alt="Logo" style={{ height: '40px', marginTop: '10px', marginBottom: '5px' }}/>
               </div>
               {renderMenu()}
             </Sider>
             
           )
         }
-        <Layout>
-          <Header style={{ background: "#fff", padding: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Layout style={{backgroundColor: '#F9F9F9'}}>
+          <Header style={{ background: "#F9F9F9", padding: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Title level={2} style={{ marginTop: "16px", marginRight: "16px", marginBottom: "16px", marginLeft: (isMobile ? "70px" : "16px") }}>
               {title}
             </Title>
             <Dropdown 
             dropdownRender={() => (
               <Menu>
+                <Menu.Item key="2" onClick={handleLogout} icon={<LogoutOutlined />}>
+                  Settings
+                </Menu.Item>
                 <Menu.Item key="1" onClick={handleLogout} icon={<LogoutOutlined />}>
                   Logout
                 </Menu.Item>
@@ -172,14 +175,15 @@ const Dashboard: React.FC = () => {
           </Header>
           <Content
             style={{
-              margin: "24px 16px",
+              margin: "0px 0px",
               padding: 24,
               background: "#fff",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "flext-start",
-              paddingTop: "50px",
+              paddingTop: "25px",
+              borderRadius: "5px"
             }}
           >
             <DashboardView isMobile={isMobile} resetCampaignsView = {resetCampaignsView} setResetCampaignsView = {setResetCampaignsView}
@@ -187,7 +191,10 @@ const Dashboard: React.FC = () => {
 
           </Content>
         </Layout>
-      </Layout>      
+        </Layout>
+        <CustomFooter/>
+      </Layout>    
+
   );
 };
 

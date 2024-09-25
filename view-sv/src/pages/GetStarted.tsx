@@ -10,15 +10,20 @@ import { redirect, useNavigate } from "react-router";
 import api from "../utils/apiClient";
 
 import { SignupContext, SignupProvider } from "../contexts/SignupContext";
+import { AppMainContext } from "../contexts/AppMainContext";
 
 const { Header, Footer, Content } = Layout;
 const { Title, Text } = Typography;
 
 
-
-const GetStarted: React.FC = () => {
+interface GetStartedProps {
+  contentColumnWidth?: string;
+}
+const GetStarted: React.FC<GetStartedProps> = function() {
   const [contentColumnWidth, setContentColumnWidth] = useState("75%");
-
+  
+  const AppContext = useContext(AppMainContext);
+  
   
   const {signupData, updateSignupData, resetSignupData} = useContext(SignupContext);
 
@@ -61,7 +66,7 @@ const GetStarted: React.FC = () => {
 
 
 
-  const getHeaderTitle = (num: Number) => {
+  const getHeaderTitle = (num: number) => {
     switch (num) {
       case 1:
         return "1. Choose Video to Promote";

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Layout, Menu, Button, Typography, Row, Col, Card, Steps,
- } from 'antd';
+ Image } from 'antd';
  
  
  import { HomeOutlined, InfoCircleOutlined, LoginOutlined } from '@ant-design/icons';
@@ -46,47 +46,50 @@ const LandingPage = () => {
       </Header>
       <Content className="custom-content">
         <div className="mobile-landing-header-text" style={{ textAlign: 'center', padding: '0px 25px' }}>
-          <Title style={{marginTop:"80px"}}> Quickly Grow Your Videos with Real Views</Title>
+          <Title style={{marginTop:"80px"}}> Increase Viewer Engagement and Visibility with Effective YouTube Ad Solutions</Title>
           <Paragraph style={{fontSize: "19px"}}>
-            Increase Your Channel's Reach using Our Paid Ads Strategy 
+          Leverage a user-friendly platform designed to enhance viewer engagement and drive visibility for your YouTube content, all without the need for external agencies 
           </Paragraph>
           <Button type="primary" style={{backgroundColor: "#c0392b"}} size="large"><Link to="/signup">Get Started</Link></Button>
           <div style={{margin: "75px auto"}}>
             <img style={{maxWidth: "1200px", minWidth:"300px", width: "85%"}} src="surge_view_dashboard_cropped.png" alt="SurgeView Marketing Dashboard" />
           </div>
         </div>
-        <div style={{margin: "auto", maxWidth: "1300px"}}>
-          <Row gutter={16} style={{ marginTop: '50px' }}>
-            <Col md={8} sm={24} xs={24} style={{padding: "10px"}}>
-              <Card title="Start for $25 per week" bordered={false}>
-                <Paragraph>No startup cost or contract. Start a one week campaign for just $25 and get approximately 1,000 real views from people who will like and commment on your video 
-                  and subscribe to your channel. 
-                </Paragraph>
-              </Card>
-            </Col>
-            <Col md={8} sm={24} xs={24} style={{padding: "10px"}}>
-              <Card title="YouTube Approved Strategy" bordered={false}>
-                <Paragraph>We integrate directly with the official YouTube ads platform so your campaign takes advantage of their advanced targeting algorithms while ensuring
-                  your channel stays 100% compliant and has zero risk of being penalized.
-                </Paragraph>
-              </Card>
-            </Col>
-            <Col md={8} sm={24} xs={24} style={{padding: "10px"}}>
-              <Card title="Advanced Dashboard" bordered={false}>
-                <Paragraph>Manage your video promotions and view detailed analytics in our dashboard.</Paragraph>
-              </Card>
-            </Col>
-          </Row>
-        </div>
-        <div style={{ maxWidth: '400px', margin: '0 auto' }}>
-          <h2>How It Works</h2>
-          <Steps direction="vertical" current={-1}>
-            <Step title="Step 1" description="This is the first step description." />
-            <Step title="Step 2" description="This is the second step description." />
-            <Step title="Step 3" description="This is the third step description." />
-            <Step title="Step 4" description="This is the fourth step description." />
-          </Steps>
-        </div>
+        <Row justify="center" align="middle">
+          <Col span={24} style={{ textAlign: 'center' }}>
+            <Title level={2}>Discover Our Intuitive Platform</Title>
+            <Paragraph style={{ fontSize: '16px', maxWidth: '600px', margin: '0 auto' }}>
+              Our platform simplifies the process of managing your YouTube campaigns, providing
+              powerful tools to enhance viewer engagement and visibility. Experience seamless
+              navigation and insightful analytics designed to help you maximize your content's
+              impact.
+            </Paragraph>
+            <Image
+              src="your-screenshot-url.png" // Replace with your screenshot URL
+              alt="Application Screenshot"
+              preview={false}
+              style={{ maxWidth: '80%', height: 'auto', marginBottom: '20px' }}
+            />
+          </Col>
+        </Row>
+        <Row align="middle" justify="center">
+        <Col xs={24} md={12} style={{ textAlign: 'center', padding: '10px' }}>
+          <Image
+            src="your-image-url.png" // Replace with your image URL
+            alt="Descriptive Image"
+            preview={false}
+            style={{ width: '100%', height: 'auto' }}
+          />
+        </Col>
+        <Col xs={24} md={12} style={{ padding: '10px' }}>
+          <Title level={2}>Empower Your YouTube Journey</Title>
+          <Paragraph style={{ fontSize: '16px' }}>
+            Our platform provides the tools you need to increase engagement and visibility
+            for your YouTube content. Simplify your workflow and focus on what matters:
+            connecting with your audience and growing your channel.
+          </Paragraph>
+        </Col>
+      </Row>
       </Content>
       <Footer style={{ textAlign: 'center', background: '#f0f2f5', padding: '20px' }}>
         <Paragraph>© 2024 SurgeView Marketing. All rights reserved.</Paragraph>
