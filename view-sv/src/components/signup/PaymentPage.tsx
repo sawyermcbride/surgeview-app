@@ -7,6 +7,7 @@ import { SignupContext } from "../../contexts/SignupContext";
 import api from "../../utils/apiClient";
 
 import PaymentForm from "../PaymentForm";
+import { isAxiosError } from "axios";
 
 const stripePromise = loadStripe("pk_test_51PmqG6KG6RDK9K4gUxR1E9XN8qvunE6UUfkM1Y5skfm48UnhrQ4SjHyUM4kAsa4kpJAfQjANu6L8ikSnx6qMu4fY00I6aJBlkG");
 
@@ -20,23 +21,14 @@ const PaymentPage: React.FC = () => {
       console.log(`fetchClientSecretCalled, createdClientSecret = ${signupData.clientSecretCreated}`);
 
       try {
-
-        const campaignId = localStorage.getItem("campaignId");
         const sessionKey = localStorage.getItem("sessionKey");
         const token = localStorage.getItem("token");
-  
-        if(!price || !campaignId ) {
-          updateSignupData({})
-        }
-        if(signupData.clientSecretCreated) {
-          return;
-        }
 
         const response = await api.post("http://10.0.0.47:3001/payment/create", {
-          plan_name: localStorage.getItem("pricing"),
+          plan_name: signupData.pricing,
           amount: price,
           currency: 'usd',
-          campaignId
+          campaignId: signupData.campaignId
         }, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -49,19 +41,18 @@ const PaymentPage: React.FC = () => {
         console.log(data);
         
         updateSignupData({clientSecretCreated: true});
-        console.log(`Data recieved in fetchClientSecret, clientSecretCreated set to true`);
 
         return {success: true, clientSecret: data.clientSecret};
   
       } catch(error) {
           // Type guard to check if it's an Axios error and has a status of 409
-          if (error.response?.status === 409) {
+          if (isAxiosError(error) && error.response?.status === 409) {
             // Do nothing or return silently, effectively ignoring this error
-            console.log('Duplicate request, ignoring.');
             return { success: false }; // Optional: you can choose to return or continue
           } else {
             console.error("Error fetching client secret");
-            updateSignupData({ step: 1 });
+            console.error(error);
+            updateSignupData({ step: 1, lastStepCompleted: 0 });
             resetSignupData();
             createSessionKey(true);
           }
@@ -72,16 +63,19 @@ const PaymentPage: React.FC = () => {
 
     useEffect( () => {
       const initializeConditions = async() => {
-        console.log(`In initialize conditions, signupData.clientSecretCreated = ${signupData.clientSecretCreated} `);
-        if(signupData.step === 3 && !signupData.clientSecretCreated) {
-          
-          const localStoragePlan: string | null = localStorage.getItem("pricing");
+        if(signupData.step !== 3) {
+          return;
+        }
 
-          if(!localStoragePlan) {
+        if(signupData.step === 3) {
+          
+          const storedPlan: string | null = signupData.pricing;
+
+          if(!storedPlan) {
             return;
           }
 
-          const price = priceList[localStoragePlan];
+          const price = priceList[storedPlan];
           const result = await fetchClientSecret(price);
           if(result?.success) {
             setClientSecret(result.clientSecret);
@@ -92,18 +86,18 @@ const PaymentPage: React.FC = () => {
 
       initializeConditions();
 
-    }, [signupData.step])
+    }, [signupData.step]);
 
 
     const onSubmit = () => {
-      window.localStorage.setItem("lastStepCompleted", "3");
+      updateSignupData({step: 3});
     }
 
     return (
       // <Elements stripe={stripePromise} options={{mode: "setup", currency: "usd"}}>
       clientSecret ? (
         <Elements stripe={stripePromise} options={{clientSecret}}>
-          <div style={{marginTop: "10%"}}>
+          <div style={{marginTop: "5%"}}>
             <PaymentForm onPaymentSuccess={onSubmit} clientSecret={clientSecret} />
           </div>
         </Elements>

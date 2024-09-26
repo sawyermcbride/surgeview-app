@@ -13,7 +13,7 @@ interface DashboardViewProps {
   selectedMenu: string
   resetCampaignsView: boolean,
   resetDashboardView: boolean,
-  isMobile: boolean,
+  isMobile: boolean | undefined,
   setResetCampaignsView: (arg: boolean) => void,
   setResetDashboardView: (arg: boolean) => void,
 }

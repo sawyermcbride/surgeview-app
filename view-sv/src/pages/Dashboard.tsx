@@ -3,23 +3,22 @@ import React, { useContext, useEffect, useState } from "react";
 import DashboardView from "../dashboard/DashboardView";
 
 import { Layout, Menu, Button, Typography, Dropdown, Drawer } from "antd";
-import { HomeOutlined, BarsOutlined, SettingOutlined, LogoutOutlined, MenuOutlined } from "@ant-design/icons";
+import { HomeOutlined, BarsOutlined, SettingOutlined, LogoutOutlined, MenuOutlined, UserOutlined }
+ from "@ant-design/icons";
 import { useAuth } from "../components/AuthContext";
-import { DashboardContext } from "../contexts/DashboardContext";
+// import { DashboardContext } from "../contexts/DashboardContext";
 import CustomFooter from "../components/CustomFooter";
-import { AppMainProvider } from "../contexts/AppMainContext";
+import { AppMainContext } from "../contexts/AppMainContext";
 
 const { Title } = Typography;
-const { Header, Sider, Content, Footer } = Layout;
+const { Header, Sider, Content} = Layout;
 
 
-/**
- * 9/22 2:15am 
- *  Add dashboard context property for loading so it can be called in settings form
- */
 
 const Dashboard: React.FC = () => {
-  const {dashboardState, updateDashboardData} = useContext(DashboardContext);
+  // const {dashboardState, updateDashboardData} = useContext(DashboardContext);
+  const appContext = useContext(AppMainContext);
+  
 
   const headerTitle: {[key: string]: string} = {
     "1": "Dashboard", 
@@ -37,7 +36,7 @@ const Dashboard: React.FC = () => {
   const [title, setTitle] = useState<string>(headerTitle["1"]);
   const {email, login, logout} = useAuth();
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+
 
 
   const handleLogout = () => {
@@ -53,20 +52,21 @@ const Dashboard: React.FC = () => {
   }
 
   useEffect( () => {
-    window.addEventListener('resize', () => {
-        setIsMobile(window.innerWidth < 800);
-    });
-
     login();
 
   },[]);
+
 
   const handleMenuClick = (e: {key: string}) => {
     setSelectedKey(e.key);
     setTitle(headerTitle[e.key]);
     setDrawerVisible(false);
   }
+  const handleSettingsClick = function() {  
+    setSelectedKey("3");
+    setTitle(headerTitle["3"]);
 
+  }
   const handleCampaignsClick = () => {
     setResetCampaignsView(true);
   }
@@ -78,7 +78,7 @@ const Dashboard: React.FC = () => {
 
   const renderMenu = () => {
 
-    if(isMobile) {
+    if(appContext?.state.isMobile) {
       return (
           <Menu theme="light" mode="inline" defaultSelectedKeys={["1"]} selectedKeys ={ [selectedKey]} onClick={handleMenuClick}>
             <Menu.Item key="1" onClick={handleDashboardClick} icon={<HomeOutlined />}>
@@ -113,10 +113,10 @@ const Dashboard: React.FC = () => {
 
 
     return (
-      <Layout style={{ minHeight: "100vh", minWidth: "500px" }}>
+      <Layout style={{ minHeight: "100vh", minWidth: "400px" }}>
         <Layout>
         {
-          isMobile ? (
+          appContext?.state.isMobile ? (
             <>
               <Drawer
                   title="SurgeView"
@@ -129,7 +129,7 @@ const Dashboard: React.FC = () => {
               </Drawer>
               <Button
                   className="menu-toggle"
-                  style={{ display: (isMobile ? 'inline-block': 'none'), position: 'absolute', top: 16, left: 16, zIndex: 1000 }}
+                  style={{ display: (appContext.state.isMobile ? 'inline-block': 'none'), position: 'absolute', top: 16, left: 16, zIndex: 1000 }}
                   type="primary"
                   icon={<MenuOutlined />}
                   onClick={handleDrawerOpen}
@@ -152,13 +152,17 @@ const Dashboard: React.FC = () => {
         }
         <Layout style={{backgroundColor: '#F9F9F9'}}>
           <Header style={{ background: "#F9F9F9", padding: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Title level={2} style={{ marginTop: "16px", marginRight: "16px", marginBottom: "16px", marginLeft: (isMobile ? "70px" : "16px") }}>
+            <Title level={2} style={{ marginTop: "16px", marginRight: "16px", marginBottom: "16px", 
+              marginLeft: (appContext?.state.isMobile ? "70px" : "16px") }}>
               {title}
             </Title>
             <Dropdown 
             dropdownRender={() => (
               <Menu>
-                <Menu.Item key="2" onClick={handleLogout} icon={<LogoutOutlined />}>
+                <Menu.Item disabled style={{color: 'black'}} key="3" onClick={()=>{}}>
+                  {email}
+                </Menu.Item>
+                <Menu.Item key="2" onClick={handleSettingsClick} icon={<LogoutOutlined />}>
                   Settings
                 </Menu.Item>
                 <Menu.Item key="1" onClick={handleLogout} icon={<LogoutOutlined />}>
@@ -168,15 +172,22 @@ const Dashboard: React.FC = () => {
             )}
             trigger={['click']}
           >
-            <span style={{ marginRight: '35px', marginLeft: 'auto', cursor: 'pointer' }}>
-              {email}
-            </span>
+            {appContext?.state.isMobile ? (
+              <span style={{marginRight: '35px', marginLeft: 'auto', marginTop:'5px', cursor: 'pointer' }}>
+                <UserOutlined style={{fontSize: '25px'}} />
+              </span>
+            ): (
+              <span style={{ marginRight: '35px', marginLeft: 'auto', cursor: 'pointer' }}>
+                {email}
+              </span>
+            )}
+
           </Dropdown>
           </Header>
           <Content
             style={{
               margin: "0px 0px",
-              padding: 24,
+              padding:24,
               background: "#fff",
               display: "flex",
               flexDirection: "column",
@@ -186,7 +197,7 @@ const Dashboard: React.FC = () => {
               borderRadius: "5px"
             }}
           >
-            <DashboardView isMobile={isMobile} resetCampaignsView = {resetCampaignsView} setResetCampaignsView = {setResetCampaignsView}
+            <DashboardView isMobile={appContext?.state.isMobile} resetCampaignsView = {resetCampaignsView} setResetCampaignsView = {setResetCampaignsView}
             selectedMenu={selectedKey} setResetDashboardView={setResetDashboardView} resetDashboardView={resetDashboardView}/>
 
           </Content>

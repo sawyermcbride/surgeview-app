@@ -10,9 +10,21 @@ interface CampaignsViewMobileProps {
 }
 
 const CampaignsViewMobile: React.FC<CampaignsViewMobileProps> = ({campaignsData, handleCampaignDetailsClick, handleCampaignClick}) => {
-
+    const getStatusColor = (status: string) => {
+      console.log(status);
+        switch(status) {
+            case 'active':
+                return '#27ae60';
+            case 'setup':
+                return '#f39c12';
+            case 'stopped':
+                return '#e74c3c';
+            default:
+                return 'black';
+        }
+    }
      return (
-          <div style={{ padding: '16px' }}> {/* Add padding around the content */}
+          <div style={{ paddingTop: '16px', paddingBottom: '16px' }}> {/* Add padding around the content */}
           {campaignsData.map((campaign, index) => (
             <div key={index} style={{ marginBottom: '16px' }}> {/* Add spacing between Descriptions components */}
               <Descriptions
@@ -32,7 +44,9 @@ const CampaignsViewMobile: React.FC<CampaignsViewMobileProps> = ({campaignsData,
                   <Text style={{fontWeight: 'bold'}}>{campaign.video_title}</Text>
                 </Descriptions.Item>
                 <Descriptions.Item label="Status">
-                  <Text>{(campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1))}</Text>
+                  <Text style={{fontWeight: 'bold', color: getStatusColor(campaign.status)}}>
+                    {(campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1))}
+                  </Text>
                 </Descriptions.Item>
                 <Descriptions.Item label="Price">
                   <Text>{campaign.plan_name} @ ${campaign.price} / Month</Text>

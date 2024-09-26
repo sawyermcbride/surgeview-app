@@ -12,7 +12,7 @@ const {Title} = Typography;
 interface BaseStatisticsProps {
   campaignStatisics: any;
   loading: boolean;
-  isMobile: boolean;
+  isMobile: boolean | undefined;
 }
 
 const BaseStatistics: React.FC<BaseStatisticsProps> = ({campaignStatistics, loading, isMobile}) => {

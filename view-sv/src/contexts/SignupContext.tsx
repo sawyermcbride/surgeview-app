@@ -1,10 +1,15 @@
-import React, {createContext, ReactNode, useState} from "react";
+import {createContext, ReactNode} from "react";
 import {v4 as uuidv4} from 'uuid';
-
+import useLocalStorage from "../hooks/useLocalStorage";
+import { Sign } from "crypto";
 
 // Define the structure of signupData
 interface SignupData {
     step: number;
+    lastStepCompleted: number;
+    campaignId: string;
+    pricing: string;
+    youtubeUrl: string;
     paymentPlanError: string;
     videoLinkError: string;
     contentColumnWidth: string;
@@ -12,6 +17,8 @@ interface SignupData {
     clientSecretCreated: boolean;
     videoTitle: string;
     channelTitle: string;
+    isUpdating: boolean;
+    highestStepCompleted: number;
   }
 
 // Define the structure of the SignupContext
@@ -27,43 +34,42 @@ interface SignupProviderProps {
 }
 
 const initialState: SignupData = {
-    step: 1, paymentPlanError: "", videoLinkError: "",
+    step: 0, paymentPlanError: "", videoLinkError: "",
     contentColumnWidth: '75%', formLoading: false, clientSecretCreated: false, 
-    videoTitle: "", channelTitle: ""
+    videoTitle: "", channelTitle: "", lastStepCompleted: 0, campaignId: "", pricing: "",
+    youtubeUrl: "", isUpdating: false, highestStepCompleted: 0
 }
 
+
 export const SignupContext = createContext<SignupContextType>({
-    signupData: initialState, 
+    signupData: initialState,   
    updateSignupData: () => {},
    resetSignupData: () => {},
-   createSessionKey: () => ""
+   createSessionKey: () => "",
 });
 
 
 
 
 export const SignupProvider = ({ children }: SignupProviderProps) => {
-    const [signupData, setSignupData] = useState<SignupData>(initialState);
-
+    const [signupData, setSignupData] = useLocalStorage<SignupData>('signupData', initialState);
+    
     const updateSignupData = function (newData: Partial<SignupData> ) {
         setSignupData(prev => ({
-            ...prev, 
-            ...newData  
+            ...prev,
+            ...newData
         }));
-        console.log(newData);
-    }
-    
-    const resetSignupData = function () {
-        localStorage.removeItem('lastStepCompleted');
-        localStorage.removeItem('campaignId');        
-        localStorage.removeItem('pricing');        
-        localStorage.removeItem('youtubeUrl');
-        localStorage.removeItem('sessionKey');
     }
 
+    
+    const resetSignupData = function () {
+        localStorage.removeItem('signupData');
+    }
+
+    
     const createSessionKey = function(reset: boolean) {
         const currentValue = localStorage.getItem('sessionKey');
-        console.log("Creating Session Key");
+        
         
         if(!currentValue || reset) {
             const key = uuidv4();

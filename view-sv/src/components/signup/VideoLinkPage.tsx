@@ -1,14 +1,20 @@
-import React, {useState, useContext, useRef, useEffect} from "react";
+import React, {useContext, useEffect} from "react";
 import { SignupContext } from "../../contexts/SignupContext";
-import {Form, Alert, Button, Input} from "antd";
+import {Form, Alert, Button, Input, Typography} from "antd";
 import api from "../../utils/apiClient";
 
+const {Text} = Typography;
+
+interface FormValues {
+    youtube_url: string;
+}
 
 const VideoLinkPage: React.FC = () => {
     const {signupData, updateSignupData, createSessionKey} = useContext(SignupContext);
-    const [sessionKey, setSessionKey] = useState("");
+  
 
-    const onSubmit = async(values: any) => {
+
+    const onSubmit = async(values: FormValues) => {
 
         updateSignupData({
             contentColumnWidth: "75%",
@@ -20,16 +26,17 @@ const VideoLinkPage: React.FC = () => {
             });
 
             if(result.data.valid) {
-                localStorage.setItem("youtubeUrl", values.youtube_url);
-                localStorage.setItem("lastStepCompleted", "1"); 
                 updateSignupData({
                     step: 2,
                     formLoading: false,
                     channelTitle: result.data.channelTitle,
-                    videoTitle: result.data.title
+                    videoTitle: result.data.title,
+                    youtubeUrl: values.youtube_url,
+                    lastStepCompleted: 1,
+                    highestStepCompleted: 1,
                 });
             }
-        } catch (error) {
+        } catch {
             updateSignupData({
                 videoLinkError: "Your chosen link is not a valid YouTube Video. Please check and try again.",
                 formLoading: false
@@ -38,15 +45,16 @@ const VideoLinkPage: React.FC = () => {
     }
 
     useEffect(() => {
-      console.log("Video link use effect");
-      const key = createSessionKey(false);
-      setSessionKey(key);
+      createSessionKey(false);
 
     }, [])
     return (
         <>
         { signupData.videoLinkError && 
             <Alert message={signupData.videoLinkError} showIcon type="error" style={{marginTop: "20px"}} />}
+        <Text>To get started, choose your video to include in the campaign. On the next page you will be able to select a plan that 
+          determines the number of viewers you will reach.
+        </Text>
         <Form
           name="layout-multiple-horizontal"
           layout="horizontal"

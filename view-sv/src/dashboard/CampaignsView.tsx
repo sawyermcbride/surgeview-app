@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useContext} from 'react';
 import { Table, Typography, Spin, Alert, Button, Breadcrumb, Tooltip, Tag } from 'antd';
 import {PlusOutlined} from "@ant-design/icons"
+import { useNavigate } from 'react-router';
 
 import CampaignManage from './CampaignManage';
 import CampaignDetails from './CampaignDetails';
@@ -29,6 +30,8 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
   resetCampaignsView, setResetCampaignsView, isMobile, loading}) => {
   const [campaigns, setCampaigns] = useState();
   const {campaignsStateData, updateCampaignData} = useContext(CampaignsContext);
+  
+  const navigate = useNavigate();
 
   
     useEffect(() => {
@@ -93,7 +96,13 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
     }
 
     const handleAddCampaign = function() {
-
+      updateCampaignData({loading: true});
+      setTimeout( () => {
+        navigate('/get-started');
+        updateCampaignData({
+          loading: false
+        });
+      }, 1000);
     }
 
     const handleCampaignDetailsClick = async (id: number) => {
@@ -132,9 +141,11 @@ const CampaignsView: React.FC<CampaignsViewProps> = ({campaignData, loadCampaign
       if(campaignsStateData.campaignViewSetting === 0) {
         if(isMobile) {
           return (
-            <div style={{display: 'flex', justifyContent: 'center'}}>
-              <CampaignsViewMobile campaignsData = {campaignData}
-              handleCampaignClick={handleCampaignClick} handleCampaignDetailsClick={handleCampaignDetailsClick}/>
+            <div>
+              <div style={{display: 'flex', alignItems: 'center'}}>
+                <CampaignsViewMobile campaignsData = {campaignData}
+                handleCampaignClick={handleCampaignClick} handleCampaignDetailsClick={handleCampaignDetailsClick}/>
+              </div>
               <div style={{textAlign: "center"}}>
                 <Button type="primary" icon={<PlusOutlined />} onClick={handleAddCampaign}>
                   Add New Campaign
