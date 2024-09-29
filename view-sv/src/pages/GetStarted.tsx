@@ -1,21 +1,22 @@
-import React, { useEffect, useState, useContext } from "react";
-import { Layout, Button, Typography, Form, Input, Col, Row, Card, List,
-   Spin, Alert, Space, 
-   Tooltip} from "antd";
+import React, { useEffect, useContext } from "react";
+import { Layout, Button, Typography, Spin, Space, 
+  Tooltip} from "antd";
 
 
 import VideoLinkPage from "../components/signup/VideoLinkPage";
 import SelectPlan from "../components/signup/SelectPlan";
 import PaymentPage from "../components/signup/PaymentPage";
+import CustomFooter from "../components/CustomFooter";
+
 
 import {useNavigate } from "react-router";
-import api from "../utils/apiClient";
 
-import { SignupContext, SignupProvider } from "../contexts/SignupContext";
+
+import { SignupContext } from "../contexts/SignupContext";
 import { AppMainContext } from "../contexts/AppMainContext";
 
 
-const { Header, Footer, Content } = Layout;
+const { Header, Content } = Layout;
 const { Title, Text } = Typography;
 
 
@@ -23,7 +24,7 @@ interface GetStartedProps {
   contentColumnWidth?: string;
 }
 const GetStarted: React.FC<GetStartedProps> = function() {
-  const [contentColumnWidth, setContentColumnWidth] = useState("75%");
+
 
   const appContext = useContext(AppMainContext);
   
@@ -42,6 +43,8 @@ const GetStarted: React.FC<GetStartedProps> = function() {
 
         navigate('/signup');
       }
+
+      // updateSignupData({step: 1});
 
       const lastStepCompleted = Number(signupData.lastStepCompleted) || 0;
 
@@ -90,6 +93,7 @@ const GetStarted: React.FC<GetStartedProps> = function() {
   };
 
   const getMainContent = () => {
+    console.log('getMainContent:', signupData.step);
     return (
       <>
         <div style={{display: signupData.step === 1 ? 'block' : 'none'}}>
@@ -142,7 +146,7 @@ const GetStarted: React.FC<GetStartedProps> = function() {
           
       </Header>
       <Content style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', flexDirection: 'column', paddingTop: '30px' }}>
-        <div style={{ width: contentColumnWidth, minWidth: "350px", textAlign: 'center' }}>
+        <div style={{ width: "75%", minWidth: "350px", textAlign: 'center' }}>
           {(signupData.step !== 1) && (
             <Tooltip title="You can edit your video or plan by clicking 'Back' at the top left">
               <Space  direction="vertical" style={{ cursor: 'pointer', width: '100%', marginBottom: '5px' }}>
@@ -166,6 +170,9 @@ const GetStarted: React.FC<GetStartedProps> = function() {
             )}
         </div>
       </Content>
+      <div>
+          <CustomFooter/>
+      </div>
     </Layout>
   )
 };

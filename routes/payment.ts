@@ -8,6 +8,8 @@ import SessionsModel from "../models/SessionsModel";
 
 import createPayment from "./Payment/createPayment";
 import StripeService from "../services/StripeService";
+import logger from "../utils/logger";
+import SubscriptionsModel from "../models/SubscriptionsModel";
 
 const stripe = new Stripe('sk_test_51PmqG6KG6RDK9K4gSDxcza88uYRyVuFV0LJUQLQyPopCIBxR0rPHbnNu2LHHzf9DO4eqv0kvpNgczOaOOyB7HcKO00qg3j3lTw');
 
@@ -19,7 +21,7 @@ const campaigns = new Campaigns();
 const customers = new Customers();
 const sessionsModel = new SessionsModel();
 const stripeService = new StripeService();
-
+const subscriptionsModel = new SubscriptionsModel();
 
 
 router.post('/create', createPayment);
@@ -135,7 +137,13 @@ router.post('/update-payment', async (req: Request, res: Response) => {
 
         const updatePaymentResult = await payments.updateRecord(getPI.paymentIntent);
 
-        if(!updateCampaignResult.updated) {
+        const updateSubscriptionResult = await subscriptionsModel.updateSubscription(getSubscription.subscription.id,
+             getSubscription.subscription.status);
+
+
+        if(!updateCampaignResult.updated || updateSubscriptionResult.error) {
+            logger.error(`Error updating campaign: ${updateCampaignResult?.error || updateSubscriptionResult.error 
+                ||'Unknown Error'}`);
             throw new Error(`Error updating campaign: ${updateCampaignResult?.error || 'Unknown Error'}`);
         }
 

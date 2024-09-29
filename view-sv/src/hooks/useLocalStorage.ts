@@ -12,6 +12,7 @@ const useLocalStorage = function<T>(key: string, defaultValue: T): UseLocalStora
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : defaultValue;
     } catch (error) {
+      console.log('Error in useLocalStorage.ts');
       console.error(error);
       return defaultValue;
     }
@@ -22,12 +23,20 @@ const useLocalStorage = function<T>(key: string, defaultValue: T): UseLocalStora
       /*
        * Allow value to be a function so we have same API as useState
        * If function, pass current value to it
-       */
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
-      setStoredValue(valueToStore);
-      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+      */
+    //  console.log('Current storedValue:');
+    //  console.log(storedValue);
+     
+     const valueToStore = value instanceof Function ? value(storedValue) : value;
 
-      console.log(`Setting ${key} to ${valueToStore}`);
+     console.log('Value changed ---------------------------------------------------');
+     
+     setStoredValue(valueToStore);
+     window.localStorage.setItem(key, JSON.stringify(valueToStore));
+     
+    //  console.log('New storedValue:', localStorage.getItem('signupData'));
+
+
     } catch(error) {
       console.error(error);
     }

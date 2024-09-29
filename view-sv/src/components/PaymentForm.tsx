@@ -1,27 +1,28 @@
 import React, {useState, useEffect, useContext} from "react";
-import { PaymentElement, useStripe, useElements, Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
+import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
-import { Form, Input, Button, Row, Col, Typography, Alert, Spin } from "antd";
-import { UserOutlined, MailOutlined } from "@ant-design/icons";
+import { Form, Button, Row, Col, Typography, Alert} from "antd";
+
 import api from "../utils/apiClient";
-import { useStripeContext } from "../contexts/StripeContext";
+
 import { useNavigate } from "react-router";
 import { SignupContext } from "../contexts/SignupContext";
+// import { AppMainContext } from "../contexts/AppMainContext";
+
+const {Title, Text} = Typography;
 
 
-const {Title, Paragraph, Text} = Typography;
-
-const stripePromise = loadStripe("pk_test_51PmqG6KG6RDK9K4gUxR1E9XN8qvunE6UUfkM1Y5skfm48UnhrQ4SjHyUM4kAsa4kpJAfQjANu6L8ikSnx6qMu4fY00I6aJBlkG");
 
 type PaymentFormProps = {
-    onPaymentSuccess: (a: any) => void;
+    handlePaymentFormReady: () => void;
     clientSecret: string;
 }
 
-const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess, clientSecret}) => {
+const PaymentForm: React.FC<PaymentFormProps> = ({handlePaymentFormReady, clientSecret}) => {
   const stripe = useStripe();
   const elements = useElements();
+  // const appContext = useContext(AppMainContext)
+
   const [showMessage, setShowMessage] = useState(false);
   const [message, setMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState(false);
@@ -35,11 +36,13 @@ const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess, clientSecret
 
   useEffect( () => {
     
+
     if (!stripe || !clientSecret) {
       return;
     }
 
   },[])
+
 
   const paymentElementOptions = {
     // style: {
@@ -61,7 +64,9 @@ const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess, clientSecret
   };
 
 
-  const onSubmit = async (values: any) => {
+  const onSubmit = async () => {
+    
+
     if (!stripe || !elements) {
       return;
     }
@@ -77,11 +82,10 @@ const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess, clientSecret
       setLoading(false);
       if(error) {
           setShowMessage(true);
-          setMessage(error.message);
+          setMessage(error.message || "Error processing payment");
       } else if(paymentIntent && paymentIntent.status === 'succeeded') {
           setSuccessMessage(true);
           setShowMessage(true)
-          onPaymentSuccess();
           setMessage("Payment successful. Redirecting to dashboard...");
 
           const sessionKey = localStorage.getItem('sessionKey');
@@ -127,10 +131,10 @@ const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess, clientSecret
       />
     )}
       <Row>
-        <Col lg={12} sm={24}>
+        <Col lg={12} sm={24} style={{width: '100%', display: 'flex', justifyContent: 'center'}}>
         <Form onFinish={onSubmit} layout="vertical">
           <Form.Item label="Card Information">
-            <PaymentElement  id='payment-element' options={paymentElementOptions}/>
+            <PaymentElement onReady={handlePaymentFormReady}  id='payment-element' options={paymentElementOptions}/>
           </Form.Item>
           <Form.Item>
             <Button size="large" type="primary" htmlType="submit" disabled={loading || !stripe || !elements}>
@@ -141,10 +145,10 @@ const PaymentForm: React.FC<PaymentFormProps> = ({onPaymentSuccess, clientSecret
         </Col>
         <Col lg={12} sm={24}>
           <div style={{padding: "25px 50px" }}>
-            <Title level={4}>Start Getting New Views Today</Title>
+            <Title level={4}>Last Step! Start Getting New Views Today!</Title>
             <Text style={{fontSize: "18px"}}>Compete signup to start marketing your video today. 
-              Manage your campaign and view results within our software. <br/><br/>
-              You can easily cancel at anytime in your account. </Text>
+              Manage your campaign and view results within our highly advanced software. <br/><br/>
+              You can easily cancel at anytime in your account. So no worry about extra charges!! </Text>
           </div>
         </Col>
       </Row>

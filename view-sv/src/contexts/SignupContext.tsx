@@ -1,4 +1,4 @@
-import {createContext, ReactNode} from "react";
+import {createContext, ReactNode, useState} from "react";
 import {v4 as uuidv4} from 'uuid';
 import useLocalStorage from "../hooks/useLocalStorage";
 import { Sign } from "crypto";
@@ -7,7 +7,7 @@ import { Sign } from "crypto";
 interface SignupData {
     step: number;
     lastStepCompleted: number;
-    campaignId: string;
+    campaignId: number;
     pricing: string;
     youtubeUrl: string;
     paymentPlanError: string;
@@ -36,7 +36,7 @@ interface SignupProviderProps {
 const initialState: SignupData = {
     step: 0, paymentPlanError: "", videoLinkError: "",
     contentColumnWidth: '75%', formLoading: false, clientSecretCreated: false, 
-    videoTitle: "", channelTitle: "", lastStepCompleted: 0, campaignId: "", pricing: "",
+    videoTitle: "", channelTitle: "", lastStepCompleted: 0, campaignId: 0, pricing: "",
     youtubeUrl: "", isUpdating: false, highestStepCompleted: 0
 }
 
@@ -53,17 +53,28 @@ export const SignupContext = createContext<SignupContextType>({
 
 export const SignupProvider = ({ children }: SignupProviderProps) => {
     const [signupData, setSignupData] = useLocalStorage<SignupData>('signupData', initialState);
+    // const [signupData, setSignupData] = useState<SignupData>(initialState);
+
     
     const updateSignupData = function (newData: Partial<SignupData> ) {
-        setSignupData(prev => ({
+
+        setSignupData((prev: SignupData) => {
+            console.log('Prev', prev);
+            console.log('New', newData);
+            console.log('Merged', {...prev, ...newData});
+
+            return {
             ...prev,
             ...newData
-        }));
+            }
+        }
+        );
     }
 
     
     const resetSignupData = function () {
         localStorage.removeItem('signupData');
+        localStorage.removeItem('sessionKey');
     }
 
     

@@ -1,55 +1,61 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
-import { Line } from 'react-chartjs-2';
-import {Row, Col} from 'antd';
 
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement,
-  Title, Tooltip, Legend,} from 'chart.js';
+import {Row, Col, Typography} from 'antd';
+import useChart from '../../hooks/useChart';
 
-// Register components you need from Chart.js
-ChartJS.register( CategoryScale, LinearScale, PointElement, LineElement, Title,
-  Tooltip, Legend );
+const {Title} = Typography;
+
 
 const data = {
-  labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-  datasets: [
-    {
-      label: 'Sales 2024 (in USD)',
-      data: [500, 1000, 750, 1250, 1600, 2000, 2400],
-      borderColor: 'rgba(75, 192, 192, 1)',
-      backgroundColor: 'rgba(75, 192, 192, 0.2)',
-      fill: true,
-    },
-  ],
-};
+  labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+  datasets: [{
+    label: 'Views',
+    data: [12, 19, 3, 5, 2, 3],
+    borderWidth: 1
+  }]
+}
 
-const options = {
-  responsive: true,
-  outerHeight: 400,
+
+const options =  {
+  scales: {
+    y: {
+      beginAtZero: true
+    }
+  },
   plugins: {
-    legend: {
-      position: 'top',
-    },
     title: {
       display: true,
-      text: 'Monthly Sales Data',
-    },
+      text: 'Views Over Time' 
+    }
   },
-};
+  responsive: true,
+  mantainAspectRatio: true
+}
+
 
 const StatisticsGraphsView: React.FC = function() {
-  return (
-    <div style={{height: '250px', display: 'flex', marginTop: '50px', justifyContent: 'flex-start'}}>
-      <div style={{height: '100%', textAlign: 'center', width: '100%'}}>
-      <h2 style={{textAlign: 'center'}}>Subscribers Over Time</h2>
-        <Line data={data} options={options} />
+  const chartRef = useChart(data, options);
+  const chartRef2 = useChart(data, options);
 
-      </div>
-      <div style={{height: '100%', textAlign: 'center', width: '100%'}}>
-        <h2>Views Over Time</h2>
-        <Line data={data} options={options} />
-      </div>
-    </div>
+  return (
+    <>
+      <Title style={{textAlign: 'center'}} level={4}>Data Over Time</Title>  
+      <Row justify={'center'} style={{marginTop: '10px', padding: '20px'}}>
+        <Col style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px'}} 
+              lg={12} xl={12} md={24} sm={24}>
+            <div style={{width: '100%', height: '300px'}}>
+              <canvas ref={chartRef}></canvas> {/* Optional: style the canvas */}
+            </div>
+        </Col>
+        <Col style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px'}} 
+            lg={12} xl={12} md={24} sm={24}>
+            <div style={{width: '100%', height: '300px'}}>
+              <canvas ref={chartRef2}></canvas>
+            </div>
+        </Col>
+      </Row>
+    </>
   );
 }
 

@@ -7,14 +7,15 @@ import SessionsModel from "../../models/SessionsModel";
 import Customers from "../../models/Customers";
 import StripeService from '../../services/StripeService';
 import Payments from "../../models/Payments";
-
-
+import logger from "../../utils/logger";
+import SubscriptionsModel from "../../models/SubscriptionsModel";
 
 const campaigns = new Campaigns();
 const sessionsModel = new SessionsModel();
 const customers = new Customers();
 const stripeService = new StripeService();
 const payments = new Payments();
+const subscriptionsModel = new SubscriptionsModel();
 
 
 async function getOrCreateStripeCustomer(email: string): Promise<string> {
@@ -73,8 +74,13 @@ export default async function (req: Request, res: Response,) {
     
 
       const {plan_name, amount, paymentMethodId, campaignId} = req.body;
+
+      logger.info('createPayment: ', {plan_name, amount, paymentMethodId, campaignId, sessionKey});
       
-      if(isNaN(campaignId) || !plan_name || !valid_plans.includes(plan_name) ) {
+      if(!campaignId || isNaN(campaignId) || !plan_name || 
+        !valid_plans.includes(plan_name)) {
+
+        logger.error('Invalid parameters');
         return res.status(400).json({message: "Invalid parameters"})
       }
 
@@ -86,16 +92,20 @@ export default async function (req: Request, res: Response,) {
       }
       
       if(!sessionKey) {
+        logger.error('Missing session key');
           return res.status(400).json({message: "Missing session key"});
       }
       
       if(campaignExistsResult.error) {
-          
+          logger.error('Error checking if campaign exists: ', campaignExistsResult.error);
+
           return res.status(500).json({ message: "Internal server error. Please try again later." });
       }
       if(!campaignExistsResult.exists) {
-          return res.status(400).json({messsage: "Campaign not found, unable to create payment."});
+        logger.warn('Campaign not found, unable to create payment.');
+        return res.status(400).json({messsage: "Campaign not found, unable to create payment."});
       }
+
         if(isNaN(campaignId)) {
             return res.status(400).json({message: "Invalid campaignId"})
         }
@@ -107,11 +117,12 @@ export default async function (req: Request, res: Response,) {
         }
 
         if(sessionExists.session) {
+            logger.info('Session exists, duplicate request, not creating payment');
             //Attempt to return existing clientSecret 
             const currentPayment = await payments.getPaymentByCampaign(campaignId);
             if(currentPayment.payments && currentPayment.payments[0]) {
                 return res.status(200).json({clientSecret: currentPayment.payments[0].client_secret});
-            } else {
+             } else {
                 return res.status(409).json({message: "Duplicate request, please restart your session to complete the action."});
             }
 
@@ -125,7 +136,18 @@ export default async function (req: Request, res: Response,) {
         const addSessionResult = await sessionsModel.addSession(sessionKey, 'CREATE_PAYMENT');
 
         if(!addSessionResult.created && addSessionResult.error === 'Duplicate') {
-            return res.status(409).json({message: "Duplicate request, please restart your session to complete the action."});
+            logger.warn('Attempted to create session failed, returning 200 with existing key if found');
+            
+            //Attempt to return existing clientSecret
+
+            const currentPayment = await payments.getPaymentByCampaign(campaignId);
+
+            if(currentPayment.payments && currentPayment.payments[0]) {
+                return res.status(200).json({clientSecret: currentPayment.payments[0].client_secret});
+            } else {
+                return res.status(409).json({message: "Duplicate request, please restart your session to complete the action."});
+            }
+                      
         }
 
       let customer_id;
@@ -133,13 +155,16 @@ export default async function (req: Request, res: Response,) {
           customer_id = await getOrCreateStripeCustomer(req.user.email);
 
       } catch(error) {
-          return res.status(500).json({error});
+        logger.error('Error creating customer: ', (error as any).message);
+
+        return res.status(500).json({error});
       }   
 
       
       let createdSubscription = await stripeService.createSubscription(customer_id, plan_name, campaignId, sessionKey, paymentMethodId);
 
       if(createdSubscription.error) {
+        logger.error('Error creating subscription: ', createdSubscription.error);
         throw new Error(createdSubscription.error);
       }
     
@@ -148,12 +173,19 @@ export default async function (req: Request, res: Response,) {
 
       const paymentIntent = createdSubscription.subscription.latest_invoice.payment_intent; 
       const paymentRecordResult = await payments.createPaymentRecord(paymentIntent, createdSubscription.subscription);
+      const createSubscriptionResult = await subscriptionsModel.addSubscription(createdSubscription.subscription, req.user.email);
 
-      if(paymentRecordResult.created && !paymentRecordResult.error) {
+      if(paymentRecordResult.created && !paymentRecordResult.error && createSubscriptionResult.added
+        && !createSubscriptionResult.error) {
+            
+        logger.info('Payment record created');
+        const updatedSession = await sessionsModel.updateSession(sessionKey, 'COMPLETE', 'CREATE_PAYMENT');
+
         
-        const updatedSession = await sessionsModel.updateSession(sessionKey, 'COMPLETE', 'CONFIRM_PAYMENT');
         if(updatedSession.error || !updatedSession.updated) {
-          return res.status(500).json({message: "Could not update session"});
+            
+            logger.error('Could not update session');
+            return res.status(500).json({message: "Could not update session"});
         }
         
         return res.status(200).send({
@@ -175,8 +207,7 @@ export default async function (req: Request, res: Response,) {
         }
 
 
-        console.log('createPayment: End catch error: ', err.message);
-        console.log('createPayment: End catch full error: ', err.message);
+        logger.error('Error creating payment: ', err.message);
         return res.status(500).json({error: err.message});
   }
 }

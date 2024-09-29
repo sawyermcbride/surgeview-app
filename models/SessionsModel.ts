@@ -1,6 +1,7 @@
 
 import { IdealBankElement } from '@stripe/react-stripe-js';
 import {query} from '../db';
+import logger from '../utils/logger';
 
 interface getSessionType {
   session: Record<string, any> | null,
@@ -82,11 +83,11 @@ class SessionsModel {
     } catch(error) {
 
       await query('ROLLBACK');
-
-      if(error.type === '23505') {
+      logger.error('Error adding session: ', error.code, error.message);
+      if(error.code === '23505') {
         return {created: false, identifier: null, error: "Duplicate" };
       } else {
-        return {created: false, identifier: null, error: "Unknown" }
+        return {created: false, identifier: null, error: error.message }
       }
     }
 

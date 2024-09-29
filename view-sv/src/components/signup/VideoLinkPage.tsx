@@ -2,6 +2,7 @@ import React, {useContext, useEffect} from "react";
 import { SignupContext } from "../../contexts/SignupContext";
 import {Form, Alert, Button, Input, Typography} from "antd";
 import api from "../../utils/apiClient";
+import { AppMainContext } from "../../contexts/AppMainContext";
 
 const {Text} = Typography;
 
@@ -12,7 +13,7 @@ interface FormValues {
 const VideoLinkPage: React.FC = () => {
     const {signupData, updateSignupData, createSessionKey} = useContext(SignupContext);
   
-
+    const appContext = useContext(AppMainContext);
 
     const onSubmit = async(values: FormValues) => {
 
@@ -51,9 +52,9 @@ const VideoLinkPage: React.FC = () => {
     return (
         <>
         { signupData.videoLinkError && 
-            <Alert message={signupData.videoLinkError} showIcon type="error" style={{marginTop: "20px"}} />}
-        <Text>To get started, choose your video to include in the campaign. On the next page you will be able to select a plan that 
-          determines the number of viewers you will reach.
+            <Alert message={signupData.videoLinkError} showIcon type="error" style={{marginTop: "20px", marginBottom: '15px'}} />}
+        <Text style={{fontSize: appContext?.state.isMobile ? '14px': '16px'}}>To get started, choose your video to include in the campaign. 
+          On the next page you will be able to select a plan that determines the number of viewers you will reach.
         </Text>
         <Form
           name="layout-multiple-horizontal"

@@ -3,19 +3,30 @@ import React, {useEffect, useState, useContext} from "react";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { SignupContext } from "../../contexts/SignupContext";
+import { Spin } from "antd";
 
 import api from "../../utils/apiClient";
 
 import PaymentForm from "../PaymentForm";
+import PaymentQuestions from "../PaymentQuestions";
+
 import { isAxiosError } from "axios";
+
 
 const stripePromise = loadStripe("pk_test_51PmqG6KG6RDK9K4gUxR1E9XN8qvunE6UUfkM1Y5skfm48UnhrQ4SjHyUM4kAsa4kpJAfQjANu6L8ikSnx6qMu4fY00I6aJBlkG");
 
 const PaymentPage: React.FC = () => {
     const {signupData, updateSignupData, resetSignupData, createSessionKey} = useContext(SignupContext);
     const [clientSecret, setClientSecret] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     const priceList: Record<string, number> = {Pro: 399, Premium: 199, Standard: 99};
+
+  
+    const handlePaymentFormReady = function() {
+      setIsLoading(false);
+    }
+
 
     const fetchClientSecret = async(price: number) => {
       console.log(`fetchClientSecretCalled, createdClientSecret = ${signupData.clientSecretCreated}`);
@@ -40,7 +51,7 @@ const PaymentPage: React.FC = () => {
         
         console.log(data);
         
-        updateSignupData({clientSecretCreated: true});
+        updateSignupData({clientSecretCreated: true, highestStepCompleted: 3});
 
         return {success: true, clientSecret: data.clientSecret};
   
@@ -68,6 +79,7 @@ const PaymentPage: React.FC = () => {
         }
 
         if(signupData.step === 3) {
+          console.log("PaymentPage useEffect called");
           
           const storedPlan: string | null = signupData.pricing;
 
@@ -77,7 +89,9 @@ const PaymentPage: React.FC = () => {
 
           const price = priceList[storedPlan];
           const result = await fetchClientSecret(price);
+
           if(result?.success) {
+            console.log("Client secret fetched");
             setClientSecret(result.clientSecret);
           }
         }
@@ -86,22 +100,25 @@ const PaymentPage: React.FC = () => {
 
       initializeConditions();
 
+      console.log(signupData.step)
+
     }, [signupData.step]);
 
 
-    const onSubmit = () => {
-      updateSignupData({step: 3});
-    }
-
     return (
-      // <Elements stripe={stripePromise} options={{mode: "setup", currency: "usd"}}>
-      clientSecret ? (
-        <Elements stripe={stripePromise} options={{clientSecret}}>
-          <div style={{marginTop: "5%"}}>
-            <PaymentForm onPaymentSuccess={onSubmit} clientSecret={clientSecret} />
-          </div>
-        </Elements>
-      ) : (null)
+      <>
+        {clientSecret ? (
+          <Spin spinning={isLoading}>
+            <Elements stripe={stripePromise} options={{clientSecret}}>
+              <div style={{marginTop: "5%"}}>
+                <PaymentForm handlePaymentFormReady={handlePaymentFormReady} clientSecret={clientSecret} />
+              </div>
+              <PaymentQuestions />
+            </Elements>
+          </Spin>
+        ) : (null)}
+    
+      </>
     )
 }
 

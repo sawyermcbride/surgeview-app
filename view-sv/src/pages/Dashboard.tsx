@@ -71,8 +71,7 @@ const Dashboard: React.FC = () => {
     setResetCampaignsView(true);
   }
 
-  const handleDashboardClick = () => {
-    
+  const handleDashboardClick = () => {    
     setResetDashboardView(true);
   }
 

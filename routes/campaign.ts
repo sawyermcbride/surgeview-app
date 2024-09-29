@@ -31,9 +31,9 @@ router.get("/request", async (req: Request, res: Response) => {
 
   const userEmail = req.user.email;
   try {
-      console.log("Getting campaigns");
+
       const result = await campaigns.getCampaigns(userEmail);
-      console.log(result);
+      
       if(!result.error) {
         console.log("No error, returning 200 status");
         return res.status(200).json(result.campaigns);

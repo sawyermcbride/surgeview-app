@@ -27,7 +27,7 @@ class SubscriptionsModel {
         throw new Error('More than one subscription with same id, check table.');
       }
 
-    } catch(error) {
+    } catch(error: any) {
       return {exists: false, error: error.message}
     }
 
@@ -39,18 +39,40 @@ class SubscriptionsModel {
 
       const result = await query('SELECT id FROM customers WHERE email = $1', [email]);
 
-      if(result.rows.length > 0) {
-        
+      if(result.rows.length === 0) {
+        return {added: false, error: "No customer found with that email"};
       }
-      await query('INSERT INTO subscriptions (stripe_subscription_id, internal_customer_id, start_date, end_date, status_) ')
+
+      await query(`INSERT INTO subscriptions (stripe_subscription_id, internal_customer_id, start_date, end_date, status, stripe_customer_id, 
+          campaign_id) VALUES($1, $2, to_timestamp($3), to_timestamp($4), $5, $6, $7)`, [stripe_subscription.id, result.rows[0].id,
+          stripe_subscription.start_date, stripe_subscription.current_period_end, stripe_subscription.status, stripe_subscription.customer,
+          stripe_subscription.metadata.campaignId]);
 
 
+      await query('COMMIT');
 
-    } catch(error) {
+      return {added: true, error: ""};
+
+    } catch(error: any) {
       return{added: false, error: error.message};
     } 
-
   }
+
+  public async updateSubscription(subscription_id: string, status: string): Promise<{updated: boolean, error: string}> {
+    try {
+      await query('BEGIN');
+
+      await query(`UPDATE subscriptions SET status = $1 WHERE stripe_subscription_id = $2`, [status, subscription_id]);
+
+      await query('COMMIT');
+
+      return {updated: true, error: ""};
+
+    } catch(error: any) {
+      return {updated: false, error: error.message};
+    }
+  }
+
 }
 
 export default SubscriptionsModel;

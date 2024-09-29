@@ -2,6 +2,7 @@ import React, {useState, useContext} from "react";
 import { SignupContext } from "../../contexts/SignupContext";
 import {Alert, Button, Row, Col, Card, Typography} from "antd";
 import api from "../../utils/apiClient";
+import { AppMainContext } from "../../contexts/AppMainContext";
 
 
 const {Text} = Typography;
@@ -40,72 +41,98 @@ const SelectPlan: React.FC = () => {
     const {updateSignupData, signupData} = useContext(SignupContext);
     const [paymentPlanError, setPaymentPlanError] = useState("");
 
+    let isSubmitting = false;
+    
+    const appContext = useContext(AppMainContext);
+
     const onSubmit = async function(planName: string) {
-        updateSignupData({
-            contentColumnWidth: "75%",
-            formLoading: true
-        });
+
+      if(isSubmitting) {
+        return;
+      }
+
+      isSubmitting = true;
+
+      updateSignupData({
+          contentColumnWidth: "75%",
+          formLoading: true
+      });
 
         
-    try {
-        
-        const token = localStorage.getItem("token");
-        const sessionKey = localStorage.getItem("sessionKey");
+      try {
 
-        const data = {
-          "videoLink": signupData.youtubeUrl, 
-          "plan": planName
-        }
-        let response;
-        if(signupData.isUpdating && signupData.campaignId
-           && signupData.pricing && signupData.youtubeUrl) {
-          response = await api.put(`http://10.0.0.47:3001/campaign/update/${signupData.campaignId}`, {
-            video_link: signupData.youtubeUrl,
-            plan_name: signupData.pricing
-          }, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                SessionKey: sessionKey
-            }
-          });
+          const token = localStorage.getItem("token");
+          const sessionKey = localStorage.getItem("sessionKey");
 
-        } else {
-          response = await api.post("http://10.0.0.47:3001/campaign/add", data, {
+          const data = {
+            "videoLink": signupData.youtubeUrl, 
+            "plan": planName
+          }
+
+          let response;
+          if(signupData.isUpdating && signupData.campaignId
+            && signupData.pricing && signupData.youtubeUrl) {
+            
+            response = await api.put(`http://10.0.0.47:3001/campaign/update/${signupData.campaignId}`, {
+              video_link: signupData.youtubeUrl,
+              plan_name: planName
+            }, {
               headers: {
                   Authorization: `Bearer ${token}`,
                   SessionKey: sessionKey
               }
+            });
+
+          } else {
+            console.log('Calling post to add campaign');
+            response = await api.post("http://10.0.0.47:3001/campaign/add", data, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    SessionKey: sessionKey
+                }
+            });
+
+            console.log('Response from add campaign', response);
+            /**
+             * Only update the campaign id if it's a new campaign, as the response does not return the 
+             * id for an udpate 
+             */
+          }
+          
+          
+          let updateCampaignId;
+          
+          if(response.data.campaignId) {
+            updateCampaignId = response.data.campaignId;
+          }
+          
+          updateSignupData({
+            step: 3,
+            lastStepCompleted: 2,
+            pricing: planName,
+            highestStepCompleted: 2,
+            isUpdating: false,
+            campaignId: updateCampaignId !== undefined ? updateCampaignId : signupData.campaignId,
+            formLoading: false
+          });
+          
+          console.log('Updating signup data');
+          setPaymentPlanError("");
+        } catch(err) {
+
+          console.error("Error in submitting campaign data", err);
+          setPaymentPlanError("An error occurred. Please try again.");
+          updateSignupData({
+              formLoading: true,
           });
         }
 
-        // Use async/await for clearer asynchronous handling
-       // Success handling
-        updateSignupData({
-            step: 3,
-            formLoading: false,
-            lastStepCompleted: 2,
-            campaignId: response.data.campaignId,
-            pricing: planName,
-            highestStepCompleted: 2,
-            isUpdating: false
-        });
-        setPaymentPlanError("");
-      } catch(err) {
-
-        console.error("Error in submitting campaign data", err);
-        setPaymentPlanError("An error occurred. Please try again.");
-        updateSignupData({
-            formLoading: false  
-        });
-      }
-
-        
     }
     return (
         <>
         {paymentPlanError &&
         <Alert message={paymentPlanError} showIcon type="error" style={{marginTop: "20px"}} />  }
-        <Text>Each plan provides a different level of reach, with a higher cost allowing you to reach more viewers.
+        <Text style={{fontSize: appContext?.state.isMobile ? '14px': '16px'}}>Each plan provides a different level of reach, with a higher cost allowing you to reach more viewers.
           Your budget is allocated through a Cost Per View (CPV) model, where it is only spent for each view you receive. 
           You are gauranteed certain number of views each month. Choose the plan that best aligns with your goals on YouTube.
         </Text>
@@ -126,7 +153,7 @@ const SelectPlan: React.FC = () => {
                           <li style={{padding: "10px 0px"}}key={index}>{feature}</li>
                       ))}
                       </ul>
-                      <Button type="primary" size={"large"} onClick={ () => {onSubmit(plan.title)} } style={{ marginTop: '20px' }}>
+                      <Button type="primary" size={"large"} onClick={ (e) => {e.preventDefault(); onSubmit(plan.title)} } style={{ marginTop: '20px' }}>
                       {plan.buttonText}
                       </Button>
                   </Card>
